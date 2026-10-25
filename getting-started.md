@@ -12,12 +12,10 @@ You need PHP 8.5 or later and Composer.
 
 ```
 mkdir hello && cd hello
-composer init --name=acme/hello --type=project --stability=beta -n
+composer init --name=acme/hello --type=project -n
 composer require mj-zana/core mj-zana/http mj-zana/routing mj-zana/console
 composer require --dev mj-zana/testing phpunit/phpunit
 ```
-
-`--stability=beta` is needed until 2.0.0 is released.
 
 Zana applications keep their own code in `src/` and their modules in
 `modules/`. Map both in `composer.json`, then run `composer dump-autoload`:

@@ -23,6 +23,10 @@ version number. Each repository has its own `CHANGELOG.md`.
 
 Coming from 1.x? Read [Upgrading from 1.x](upgrading.md).
 
+## 2.0.0 — 2026-10-26
+
+The final release. No changes since `2.0.0-rc.1`.
+
 ## 2.0.0-rc.1
 
 The public API has been frozen since `2.0.0-beta.1`. The release candidate
