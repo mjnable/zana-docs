@@ -113,4 +113,24 @@ X-Correlation-Id: trace-1
 - **Not included in 2.0:** CSRF protection, CORS and security headers.
   Add them as middleware ([security](security.md)).
 
+## New in 2.1
+
+- **Security headers.** Add `SecurityHeadersMiddleware` first in
+  `http.middleware`. It sends a Content-Security-Policy, HSTS on HTTPS,
+  `nosniff`, a referrer policy, frame protection and a permissions
+  policy, without replacing headers your handlers set. Configure it in
+  `http.security_headers`:
+  - `{nonce}` in a CSP source becomes a fresh nonce per request; templates
+    print it as `csp_nonce`;
+  - `null` removes a default header or directive.
+- **Error pages.** Register an `ErrorRendererInterface` to draw the HTML
+  error pages. The [view package](view.md) provides one that uses
+  templates. Server errors in debug mode keep the built-in page with the
+  trace.
+- **No version banner.** PHP's `X-Powered-By` header is removed unless
+  `http.expose_php` is true.
+- **Safe startup.** `HttpKernel::run($builder)` builds and serves. If the
+  build fails, visitors get a 503 with `public/503.html`, and the
+  exception goes to the error log only.
+
 Reference: the [http README](https://github.com/mjnable/zana-http).

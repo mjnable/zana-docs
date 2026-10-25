@@ -90,4 +90,11 @@ valid
   and reports type errors. Validation then checks the rules on that typed
   value.
 
+## New in 2.1: translated messages
+
+Each violation keeps its `template` and `parameters`. With
+`mj-zana/translation` installed, messages are translated in the request's
+language, so custom messages can be keys:
+`#[NotBlank(message: 'contact.error.name')]` ([translation](translation.md)).
+
 Reference: the [validation README](https://github.com/mjnable/zana-validation).

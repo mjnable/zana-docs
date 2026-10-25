@@ -24,7 +24,9 @@ Every package is installed as `mj-zana/<name>` and requires PHP 8.5 or later.
 | [HTTP](http.md) | `mj-zana/http` | The PSR-15 kernel, middleware, error responses |
 | [Routing](routing.md) | `mj-zana/routing` | Routes, groups, attributes, URL generation |
 | [Console](console.md) | `mj-zana/console` | Commands with injection, a scope per run |
-| [Security](security.md) | `mj-zana/security` | Passwords, bearer tokens, roles and policies |
+| [Security](security.md) | `mj-zana/security` | Passwords, bearer tokens, roles and policies, CSRF |
+| [Views](view.md) | `mj-zana/view`, `mj-zana/view-twig` | HTML templates, layouts, error pages (2.1) |
+| [Translation](translation.md) | `mj-zana/translation` | Catalogs, the request locale, negotiation (2.1) |
 
 ## Business logic
 
@@ -43,6 +45,7 @@ Every package is installed as `mj-zana/<name>` and requires PHP 8.5 or later.
 | [Cache](cache.md) | `mj-zana/cache` | PSR-16 caches: memory, files, null |
 | [Filesystem](filesystem.md) | `mj-zana/filesystem` | Local and in-memory storage behind one interface |
 | [Queue](queue.md) | `mj-zana/queue` | Background jobs, retries, a scope per job |
+| [Communication](communication.md) | `mj-zana/communication` | Email with safe sender rules (2.1) |
 
 ## Tooling
 
@@ -52,4 +55,5 @@ Every package is installed as `mj-zana/<name>` and requires PHP 8.5 or later.
 | [Maker](maker.md) | `mj-zana/maker` | Code generators for modules, features, entities and controllers |
 
 To see how the packages fit together in one application, read the
-[module cookbook](../cookbook/modules.md).
+[module cookbook](../cookbook/modules.md). For a server-rendered,
+multilingual site, read [a company website](../cookbook/website.md).

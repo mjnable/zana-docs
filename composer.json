@@ -1,30 +1,34 @@
 {
     "name": "mj-zana/docs",
-    "description": "Zana 2.0 documentation, with runnable, tested examples",
+    "description": "Zana 2 documentation, with runnable, tested examples",
     "type": "project",
     "license": "MIT",
     "require": {
         "php": "^8.5",
         "ext-pdo_sqlite": "*",
-        "mj-zana/cache": "^2.0",
-        "mj-zana/configuration": "^2.0",
-        "mj-zana/console": "^2.0",
-        "mj-zana/container": "^2.0",
-        "mj-zana/core": "^2.0",
-        "mj-zana/database": "^2.0",
-        "mj-zana/ddd": "^2.0",
-        "mj-zana/events": "^2.0",
-        "mj-zana/filesystem": "^2.0",
-        "mj-zana/http": "^2.0",
-        "mj-zana/logging": "^2.0",
-        "mj-zana/maker": "^2.0",
-        "mj-zana/mediator": "^2.0",
-        "mj-zana/queue": "^2.0",
-        "mj-zana/routing": "^2.0",
-        "mj-zana/security": "^2.0",
-        "mj-zana/serialization": "^2.0",
-        "mj-zana/testing": "^2.0",
-        "mj-zana/validation": "^2.0"
+        "mj-zana/cache": "^2.1",
+        "mj-zana/communication": "^2.1",
+        "mj-zana/configuration": "^2.1",
+        "mj-zana/console": "^2.1",
+        "mj-zana/container": "^2.1",
+        "mj-zana/core": "^2.1",
+        "mj-zana/database": "^2.1",
+        "mj-zana/ddd": "^2.1",
+        "mj-zana/events": "^2.1",
+        "mj-zana/filesystem": "^2.1",
+        "mj-zana/http": "^2.1",
+        "mj-zana/logging": "^2.1",
+        "mj-zana/maker": "^2.1",
+        "mj-zana/mediator": "^2.1",
+        "mj-zana/queue": "^2.1",
+        "mj-zana/routing": "^2.1",
+        "mj-zana/security": "^2.1",
+        "mj-zana/serialization": "^2.1",
+        "mj-zana/testing": "^2.1",
+        "mj-zana/translation": "^2.1",
+        "mj-zana/validation": "^2.1",
+        "mj-zana/view": "^2.1",
+        "mj-zana/view-twig": "^2.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^11.5"
@@ -34,16 +38,19 @@
             "Hello\\": "examples/getting-started/hello/src/",
             "Modules\\": [
                 "examples/getting-started/hello/modules/",
-                "examples/cookbook/clinic/modules/"
+                "examples/cookbook/clinic/modules/",
+                "examples/cookbook/website/modules/"
             ],
-            "Clinic\\": "examples/cookbook/clinic/src/"
+            "Clinic\\": "examples/cookbook/clinic/src/",
+            "Website\\": "examples/cookbook/website/src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
             "Zana\\Docs\\Tests\\": "tests/",
             "Hello\\Tests\\": "examples/getting-started/hello/tests/",
-            "Clinic\\Tests\\": "examples/cookbook/clinic/tests/"
+            "Clinic\\Tests\\": "examples/cookbook/clinic/tests/",
+            "Website\\Tests\\": "examples/cookbook/website/tests/"
         }
     },
     "scripts": {

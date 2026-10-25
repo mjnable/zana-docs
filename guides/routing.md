@@ -106,4 +106,24 @@ matches the path but not the method answers 405, with an `Allow` header.
 - **Route names:** must be unique. `UrlGenerator::generate()` fills
   parameters and adds a query string.
 
+## New in 2.1: localised routes
+
+```php
+$router->localized(['en' => '/about', 'fr' => '/a-propos'], [PageController::class, 'about'])->name('about');
+```
+
+- **Variants:** this registers `/en/about` as `about.en` and
+  `/fr/a-propos` as `about.fr`, each with the `_locale` default, which
+  becomes a request attribute.
+- **Generating URLs:**
+  - `generate('about')` uses the current request's locale;
+  - `generate('about', ['_locale' => 'fr'])` asks for one;
+  - `alternates('about')` lists every language, for `hreflang` links and
+    language switchers.
+- **URL defaults:** while a route runs, its defaults and parameters fill
+  the missing parameters of generated URLs, so a page can link to its own
+  variants.
+- **Result converters:** services tagged `routing.result_converters` turn
+  custom results into responses. The view package uses them for `View`.
+
 Reference: the [routing README](https://github.com/mjnable/zana-routing).

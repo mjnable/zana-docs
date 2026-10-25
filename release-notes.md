@@ -1,8 +1,49 @@
-# Release notes — Zana 2.0
+# Release notes — Zana 2
 
 Zana 2.0 turns the three 1.x packages into a framework of 19 packages for
-modular business applications, on PHP 8.5. Every package carries the same
-version number. Each repository has its own `CHANGELOG.md`.
+modular business applications, on PHP 8.5. Zana 2.1 adds what server-rendered
+websites need. Every package carries the same version number. Each
+repository has its own `CHANGELOG.md`.
+
+## 2.1.0 — 2026-10-26
+
+2.1 adds what the first public websites built on Zana had to write
+themselves. It is backward compatible with 2.0.
+
+- **New packages:**
+  - `mj-zana/view`: templates per module, layouts, escaping by default,
+    `View` route results, and templated error pages;
+  - `mj-zana/view-twig`: Twig as the view engine;
+  - `mj-zana/translation`: catalogs, locale negotiation and the request
+    locale;
+  - `mj-zana/communication`: email with safe sender rules and a recorder
+    for tests.
+- **routing:** localised routes (`Router::localized()`), `alternates()`, URL
+  defaults, and result converters.
+- **http:**
+  - `SecurityHeadersMiddleware` (CSP with nonces, HSTS);
+  - pluggable HTML error pages;
+  - `HttpKernel::run()` for a safe 503 when the application cannot start;
+  - no `X-Powered-By` banner.
+- **security:** stateless CSRF protection.
+- **core:**
+  - deployment checks at startup;
+  - `withConfiguration()` overrides;
+  - `.env.testing`.
+- **validation:** translatable violation messages.
+- **testing:**
+  - `browser()` and HTML assertions;
+  - form submission with hidden fields;
+  - `withConfig()` per test;
+  - mail assertions.
+
+**Upgrading from 2.0:**
+- **Compiled container cache:** delete it after upgrading, as the
+  registrations change.
+- **`ErrorMiddleware` is now scoped.** A singleton of yours that depended on
+  it must become scoped.
+
+Read [a company website](cookbook/website.md) for all of it at work.
 
 ## What's in 2.0
 

@@ -11,8 +11,9 @@ domain, use cases, persistence and presentations. Zana gives them:
 - **Tools that keep modules apart:** contracts between modules, and
   architecture tests that enforce the boundaries.
 
-Zana 2.0 requires PHP 8.5 or later. **Status:** `2.0.0`, released on
-2026-10-26. See the [release notes](release-notes.md).
+Zana 2 requires PHP 8.5 or later. **Status:** `2.1.0`, released on
+2026-10-26, adds views, translation, email, CSRF and security headers for
+websites. See the [release notes](release-notes.md).
 
 ## Start here
 
@@ -21,6 +22,8 @@ Zana 2.0 requires PHP 8.5 or later. **Status:** `2.0.0`, released on
 - **[The module cookbook](cookbook/modules.md):** grow it into a real
   application, with layers, persistence, events, contracts between modules
   and testing by layer.
+- **[A company website](cookbook/website.md):** pages in two languages, a
+  contact form, security headers and deployment checks (2.1).
 - **[The guides](guides/README.md):** one per package, each with a tested
   example.
 - **[Upgrading from 1.x](upgrading.md)** and the
@@ -32,9 +35,9 @@ Zana 2.0 requires PHP 8.5 or later. **Status:** `2.0.0`, released on
 | Area | Packages |
 |---|---|
 | Foundation | [container](guides/container.md), [core](guides/core.md), [configuration](guides/configuration.md), [logging](guides/logging.md), [events](guides/events.md) |
-| Delivery | [http](guides/http.md), [routing](guides/routing.md), [console](guides/console.md), [security](guides/security.md) |
+| Delivery | [http](guides/http.md), [routing](guides/routing.md), [console](guides/console.md), [security](guides/security.md), [view and view-twig](guides/view.md), [translation](guides/translation.md) |
 | Business logic | [ddd](guides/ddd.md), [mediator](guides/mediator.md), [validation](guides/validation.md), [serialization](guides/serialization.md) |
-| Infrastructure | [database](guides/database.md), [cache](guides/cache.md), [filesystem](guides/filesystem.md), [queue](guides/queue.md) |
+| Infrastructure | [database](guides/database.md), [cache](guides/cache.md), [filesystem](guides/filesystem.md), [queue](guides/queue.md), [communication](guides/communication.md) |
 | Tooling | [testing](guides/testing.md), [maker](guides/maker.md) |
 
 Each is installed as `mj-zana/<name>`; the source is on GitHub as

@@ -16,6 +16,7 @@
             <directory>examples/getting-started/hello/tests</directory>
             <directory>examples/cookbook/clinic/tests</directory>
             <directory>examples/cookbook/clinic/modules/Appointments/Tests</directory>
+            <directory>examples/cookbook/website/tests</directory>
         </testsuite>
     </testsuites>
 </phpunit>

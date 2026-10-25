@@ -1,0 +1,5 @@
+From: Example <website@example.com>
+Reply-To: Ada <ada@visitor.example>
+The application may not send from ada@visitor.example; use mail.from or list it in mail.allowed_from, and put visitors' addresses in Reply-To.
+The subject cannot contain line breaks.
+A message needs a subject.

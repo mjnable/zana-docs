@@ -119,4 +119,17 @@ they were listed in.
 - **Correlation ids.** `Zana\Core\Correlation` gives every request and
   command an id that every log line carries (see [logging](logging.md)).
 
+## New in 2.1
+
+- **Deployment checks.** After boot, the application refuses to start
+  (`UnsafeDeploymentException`) when debug is on for a public `app.url`,
+  when debug is on in production, or when a secret is still a
+  placeholder in production. The secrets checked are listed in
+  `app.secret_keys`. Add your own checks as services tagged
+  `core.deployment_checks`.
+- **Configuration overrides.** `withConfiguration(['site.url' => '...'])`
+  adds a last layer, above environment variables.
+- **`.env.testing`.** In the testing environment it replaces `.env` when it
+  exists.
+
 Reference: the [core README](https://github.com/mjnable/zana-core).

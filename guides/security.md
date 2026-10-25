@@ -143,4 +143,28 @@ return [
 - **In code:** `SecurityContext::requireUser()` and
   `Authorizer::authorize()` throw the same 401 and 403 errors.
 
+## New in 2.1: CSRF protection
+
+Forms are protected without sessions or cookies. `CsrfTokens` signs a
+token per form with the `TokenSigner`, and `CsrfMiddleware` checks
+unsafe methods:
+
+1. a cross-site `Sec-Fetch-Site` or `Origin` header is refused;
+2. the `_token` field (or the `X-CSRF-Token` header) must be valid for
+   the `_form` field's form.
+
+```php
+$router->localized($paths, [ContactController::class, 'send'], ['POST'])->middleware(CsrfMiddleware::class);
+```
+
+In templates, `csrf_field('contact')` prints both hidden fields
+([views](view.md)).
+
+- **Exemptions:** requests with an `Authorization` header, and handlers
+  marked `#[WithoutCsrf]`, are not checked.
+- **Lifetime:** tokens expire after `security.csrf.lifetime` seconds
+  (7,200 by default).
+- **Single use:** with a PSR-16 cache, `security.csrf.single_use` makes
+  each token work once.
+
 Reference: the [security README](https://github.com/mjnable/zana-security).

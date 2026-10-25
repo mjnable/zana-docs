@@ -124,4 +124,26 @@ final class ArchitectureTest extends TestCase
 - **Call the parents.** If you override `setUp()` or `tearDown()`, call
   `parent::` so the application is built and terminated.
 
+## New in 2.1: websites
+
+```php
+$this->browser()->get('/en/about')->assertOk()->assertSelector('h1', 'About us');
+
+$this->browser()->form('/en/contact')->fill(['name' => 'Ada'])->submit()->assertRedirect('/en/contact/thanks');
+$this->assertMailSent(fn (Message $m): bool => $m->subject === 'Website message from Ada');
+```
+
+- **`browser()`** asks for HTML.
+- **HTML assertions:** `assertSee()` and `assertDontSee()` compare escaped
+  text. `assertSelector()` takes CSS selectors. `assertRedirect()` checks a
+  redirect.
+- **Forms:** `form()` reads a page's form with its hidden fields, CSRF
+  token included.
+- **Configuration per test:** implement `createApplicationBuilder()`, then
+  `$this->withConfig([...])` rebuilds the application for one test.
+- **No leaks from `.env`:** in the testing environment, `.env.testing`
+  replaces `.env` when it exists.
+
+The [website cookbook](../cookbook/website.md) tests a whole site this way.
+
 Reference: the [testing README](https://github.com/mjnable/zana-testing).
