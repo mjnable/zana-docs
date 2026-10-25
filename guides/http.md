@@ -110,5 +110,7 @@ X-Correlation-Id: trace-1
   `getParsedBody()`.
 - **Serving:** `HttpKernel::serve($app)` builds the request from PHP's
   globals, emits the response, and terminates the application.
+- **Not included in 2.0:** CSRF protection, CORS and security headers.
+  Add them as middleware ([security](security.md)).
 
 Reference: the [http README](https://github.com/mjnable/zana-http).

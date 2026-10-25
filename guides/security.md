@@ -24,6 +24,13 @@ After a successful `verify()`, check `needsRehash($hash)` and store a fresh
 hash when the algorithm or its options have changed. Passwords longer than
 4,096 bytes are refused.
 
+bcrypt alone reads only the first 72 bytes of a password. For bcrypt, the
+hasher first hashes longer passwords with SHA-384, so every byte still
+counts.
+
+**Not included in 2.0:** CSRF protection, CORS and security headers. Add
+them as PSR-15 middleware, along with rate limiting for login attempts.
+
 ## Tokens
 
 `TokenSigner` issues compact tokens made of a base64url JSON payload and an

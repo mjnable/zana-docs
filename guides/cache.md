@@ -78,6 +78,9 @@ return [
   "expire now".
 - **The file store writes atomically**, so concurrent readers never see a
   half-written entry. `clear()` only removes the store's own files.
+- **Protect the cache directory.** File entries are PHP-serialized, so
+  only the application may write to the directory. Anyone who can write
+  files there can run code.
 - **The in-memory store lives for one process.** In PHP-FPM that is one
   request; in a worker, until it restarts.
 

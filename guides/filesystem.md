@@ -64,6 +64,11 @@ return [
   under a generated random name. It can limit the size and the allowed MIME
   types. The type is detected from the stored file's content, falling back
   to its extension, and never taken from what the client declares.
+  - **Extensions:** the client's extension is kept, except ones a web
+    server could execute (`php`, `phtml`, `phar`, `cgi`, `.htaccess`, …),
+    which are dropped.
+  - **Still recommended:** pass the allowed MIME types, and keep upload
+    disks outside the web root.
 
 ## Rules worth knowing
 
@@ -75,5 +80,7 @@ return [
 - **Directories:** writing creates the parent directories, and
   `listContents()` returns file paths, recursively when asked.
 - **URLs:** `url()` needs the disk's `url` setting, and throws without it.
+- **Symbolic links:** a local disk follows symbolic links inside its root.
+  Don't let untrusted users create links there.
 
 Reference: the [filesystem README](https://github.com/mjnable/zana-filesystem).
