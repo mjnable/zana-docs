@@ -1,0 +1,7 @@
+[2026-10-25 09:00] Hello, Ada!
+[2026-10-25 09:00] Hello, Grace!
+same clock: true
+same log: false
+RequestLog of the http scope disposed
+RequestLog of the cli scope disposed
+B5: Greeter: Greeter (singleton) → RequestLog (scoped): a singleton must not depend on a scoped service

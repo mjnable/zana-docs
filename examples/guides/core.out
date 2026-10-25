@@ -1,0 +1,5 @@
+booted AuditProvider
+booted Catalog
+booted Orders, catalog has: Scale
+environment: development, debug: true
+modules: Catalog, Orders

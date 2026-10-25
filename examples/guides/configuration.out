@@ -1,0 +1,7 @@
+main
+var/test.sqlite
+false
+16
+light
+sqlite
+Zana\Configuration\ConfigurationException: Configuration key "database.default" should be an int, got string.

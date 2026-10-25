@@ -1,0 +1,8 @@
+6 violations
+name: Tell us your name.
+email: This value is not a valid email address.
+age: This value should be between 18 and 130.
+plan: The value you selected is not a valid choice.
+address.city: This value should not be blank.
+address.postcode: This value is too short. It should have 4 characters or more.
+valid

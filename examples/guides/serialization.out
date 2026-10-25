@@ -1,0 +1,7 @@
+170.5 cm on 2026-10-25
+{"name":"Ada","unit":"metric","readings":[{"height_cm":170.5,"takenAt":"2026-10-25T09:00:00+00:00"}]}
+name: This field is missing.
+unit: The value should be one of: metric, imperial.
+readings[0].height_cm: Height is required.
+readings[0].takenAt: This value is not a valid date.
+readings[1].height_cm: Must be a number.

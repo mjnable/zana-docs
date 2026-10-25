@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+         cacheDirectory=".phpunit.cache"
+         failOnRisky="true"
+         failOnWarning="true"
+         failOnDeprecation="true"
+         failOnNotice="true">
+    <testsuites>
+        <testsuite name="docs">
+            <directory>tests</directory>
+        </testsuite>
+        <testsuite name="examples">
+            <directory>examples/getting-started/hello/tests</directory>
+            <directory>examples/cookbook/clinic/tests</directory>
+            <directory>examples/cookbook/clinic/modules/Appointments/Tests</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>

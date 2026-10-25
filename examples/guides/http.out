@@ -1,0 +1,5 @@
+200 {"hello":"world"}
+X-Powered-By: Zana
+X-Correlation-Id: trace-1
+404 application/problem+json; charset=utf-8
+{"type":"about:blank","title":"Not Found","status":404,"detail":"Nothing here.","instance":"/nope"}

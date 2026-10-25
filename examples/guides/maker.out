@@ -1,0 +1,19 @@
+make:module Clinics
+  created modules/Clinics/ClinicsModule.php
+  updated config/modules.php
+make:entity Clinics Clinic
+  created modules/Clinics/Domain/Clinic.php
+  created modules/Clinics/Domain/ClinicId.php
+  created modules/Clinics/Domain/ClinicRepositoryInterface.php
+make:feature Clinics OpenClinic
+  created modules/Clinics/Application/Features/OpenClinic/OpenClinicCommand.php
+  created modules/Clinics/Application/Features/OpenClinic/OpenClinicHandler.php
+  created modules/Clinics/Tests/Application/OpenClinicHandlerTest.php
+  updated modules/Clinics/ClinicsModule.php
+make:controller Clinics Clinics
+  created modules/Clinics/Presentation/Api/ClinicsController.php
+  updated modules/Clinics/ClinicsModule.php
+$services->scoped(\Modules\Clinics\Application\Features\OpenClinic\OpenClinicHandler::class);
+$services->transient(\Modules\Clinics\Presentation\Api\ClinicsController::class);
+$container->get(\Zana\Mediator\HandlerMap::class)->register(\Modules\Clinics\Application\Features\OpenClinic\OpenClinicHandler::class);
+$container->get(\Zana\Routing\Router::class)->loadAttributes(\Modules\Clinics\Presentation\Api\ClinicsController::class);

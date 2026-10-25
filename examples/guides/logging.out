@@ -1,0 +1,6 @@
+[2026-10-25T09:00:00+00:00] app.INFO: Patient 7 registered {"id":7} {"correlation_id":"req-42"}
+[2026-10-25T09:00:00+00:00] app.WARNING: BMI 31.2 is high {"bmi":31.2} {"correlation_id":"req-42"}
+INFO | Patient 7 registered | {"correlation_id":"req-42"}
+DEBUG | Not written to stdout: below Info | {"correlation_id":"req-42"}
+WARNING | BMI 31.2 is high | {"correlation_id":"req-42"}
+true

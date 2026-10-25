@@ -1,0 +1,57 @@
+{
+    "name": "mj-zana/docs",
+    "description": "Zana 2.0 documentation, with runnable, tested examples",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": "^8.5",
+        "ext-pdo_sqlite": "*",
+        "mj-zana/cache": "^2.0@beta",
+        "mj-zana/configuration": "^2.0@beta",
+        "mj-zana/console": "^2.0@beta",
+        "mj-zana/container": "^2.0@beta",
+        "mj-zana/core": "^2.0@beta",
+        "mj-zana/database": "^2.0@beta",
+        "mj-zana/ddd": "^2.0@beta",
+        "mj-zana/events": "^2.0@beta",
+        "mj-zana/filesystem": "^2.0@beta",
+        "mj-zana/http": "^2.0@beta",
+        "mj-zana/logging": "^2.0@beta",
+        "mj-zana/maker": "^2.0@beta",
+        "mj-zana/mediator": "^2.0@beta",
+        "mj-zana/queue": "^2.0@beta",
+        "mj-zana/routing": "^2.0@beta",
+        "mj-zana/security": "^2.0@beta",
+        "mj-zana/serialization": "^2.0@beta",
+        "mj-zana/testing": "^2.0@beta",
+        "mj-zana/validation": "^2.0@beta"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Hello\\": "examples/getting-started/hello/src/",
+            "Modules\\": [
+                "examples/getting-started/hello/modules/",
+                "examples/cookbook/clinic/modules/"
+            ],
+            "Clinic\\": "examples/cookbook/clinic/src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Zana\\Docs\\Tests\\": "tests/",
+            "Hello\\Tests\\": "examples/getting-started/hello/tests/",
+            "Clinic\\Tests\\": "examples/cookbook/clinic/tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "beta",
+    "prefer-stable": true
+}

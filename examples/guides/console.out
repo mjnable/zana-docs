@@ -1,0 +1,2 @@
+scale: 4 in stock (scope: cli:stock:check) [exit 0]
+tape: 0 in stock (scope: cli:stock:check) [exit 1]

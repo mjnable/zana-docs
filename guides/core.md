@@ -1,0 +1,122 @@
+# Application and modules
+
+`mj-zana/core` turns packages and modules into a running application. It
+loads the configuration, registers every provider and module, validates and
+builds the container, then boots everything in order.
+
+```
+composer require mj-zana/core
+```
+
+## Providers and modules
+
+- **A service provider** registers a package's services in `register()`,
+  and finishes setting up in `boot()`, once the container is built.
+- **A module** is a provider with a name, dependencies on other modules,
+  and a folder of its own. Your features live in modules.
+
+<!-- example: examples/guides/core.php#modules -->
+```php
+final class CatalogModule extends Module
+{
+    public function name(): string
+    {
+        return 'Catalog';
+    }
+
+    public function register(ServiceCollectionInterface $services): void
+    {
+        $services->singleton(Catalog::class);
+    }
+
+    public function boot(ContainerInterface $container): void
+    {
+        $container->get(Catalog::class)->products[] = 'Scale';
+        echo "booted Catalog\n";
+    }
+}
+
+final class OrdersModule extends Module
+{
+    public function name(): string
+    {
+        return 'Orders';
+    }
+
+    public function dependsOn(): array
+    {
+        return [CatalogModule::class];   // booted after Catalog, and Catalog must be enabled
+    }
+
+    public function register(ServiceCollectionInterface $services): void
+    {
+    }
+
+    public function boot(ContainerInterface $container): void
+    {
+        echo 'booted Orders, catalog has: ', implode(', ', $container->get(Catalog::class)->products), "\n";
+    }
+}
+```
+
+## Building the application
+
+<!-- example: examples/guides/core.php#build -->
+```php
+$app = Application::configure(sys_get_temp_dir() . '/zana-docs-core')
+    ->withEnvironment('development')
+    ->withProviders(AuditProvider::class)
+    ->withModules(OrdersModule::class, CatalogModule::class)   // usually listed in config/modules.php
+    ->build();
+
+echo 'environment: ', $app->environment()->name, ', debug: ', var_export($app->environment()->debug, true), "\n";
+echo 'modules: ', implode(', ', array_map(static fn (Module $m): string => $m->name(), $app->modules())), "\n";
+
+$app->terminate();   // disposes the container
+```
+
+<!-- example: examples/guides/core.out -->
+```text
+booted AuditProvider
+booted Catalog
+booted Orders, catalog has: Scale
+environment: development, debug: true
+modules: Catalog, Orders
+```
+
+Providers boot first, then modules in dependency order, whatever order
+they were listed in.
+
+## The lifecycle
+
+1. Load `.env`, then pick the environment: `withEnvironment()`, else
+   `APP_ENV`, else `production`. Debug is on outside production unless
+   `APP_DEBUG` says otherwise.
+2. Read the module list: `config/modules.php` plus `withModules()`.
+   Modules are never discovered, only listed.
+3. Load the configuration:
+   - each module's `Configuration/*.php`, under the module's name, e.g.
+     `bmi.database`;
+   - then `config/*.php` and `config/<environment>/*.php`;
+   - then `APP_*` environment variables.
+4. Register the providers, then the modules, then `withServices()`
+   callbacks. Each registration records its origin, e.g. `module:Orders`,
+   for error messages.
+5. Build and validate the container, or load the compiled one
+   (`withContainerCache()`).
+6. Boot the providers, then the modules.
+
+## Rules worth knowing
+
+- **`register()` only registers.** Resolving services there fails, because
+  the container does not exist yet. Do that in `boot()`.
+- **Module paths.** `$module->path('Infrastructure', 'Persistence')` points
+  into the module's own folder. Migrations are found that way.
+- **Entry points:**
+  - `HttpKernel::serve($app)` runs a web request;
+  - `ConsoleKernel::runApplication($app)` runs the console.
+  - Both terminate the application afterwards.
+- **Correlation ids.** `Zana\Core\Correlation` gives every request and
+  command an id that every log line carries (see [logging](logging.md)).
+
+Reference: the [core README](https://github.com/mjnable/zana-core).

@@ -1,0 +1,8 @@
+true
+true
+OrderPlaced for 0190a8f0-1234-7000-8000-000000000001: 2000
+0 events left
+ok: 1250
+failed: invalid_amount: "twelve" is not an amount.
+true
+false
