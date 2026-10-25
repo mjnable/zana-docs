@@ -11,9 +11,9 @@ domain, use cases, persistence and presentations. Zana gives them:
 - **Tools that keep modules apart:** contracts between modules, and
   architecture tests that enforce the boundaries.
 
-Zana 2.0 requires PHP 8.5 or later. **Status:** `2.0.0-beta.3`. The public
-API is frozen for 2.0; install with `--stability=beta` until the final
-release.
+Zana 2.0 requires PHP 8.5 or later. **Status:** `2.0.0-rc.1`, the release
+candidate. The public API is frozen for 2.0; install with `--stability=beta`
+(which accepts release candidates) until the final release. See the [release notes](release-notes.md).
 
 ## Start here
 
@@ -24,7 +24,8 @@ release.
   and testing by layer.
 - **[The guides](guides/README.md):** one per package, each with a tested
   example.
-- **[Upgrading from 1.x](upgrading.md).**
+- **[Upgrading from 1.x](upgrading.md)** and the
+  **[release notes](release-notes.md).**
 - **[Contributing](contributing.md).**
 
 ## The packages
