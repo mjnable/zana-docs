@@ -53,9 +53,9 @@ Rules worth knowing:
 - **Orientation is fixed.** Photos from phones are rotated according to
   their EXIF data, and the metadata (including location) is not copied to
   the variants.
-- **Alt text is per locale.** `describe($media, $alt)` updates it; an
-  image without alt text in the page's locale renders `alt=""`, which marks
-  it as decorative, so fill it in.
+- **Alt text is required, per locale.** `store()` refuses an image without
+  alt text in at least one locale. A locale without its own text gets the
+  first one; `describe($media, $alt)` updates them.
 - `width` and `height` are always set, so the page does not shift as
   images load.
 
