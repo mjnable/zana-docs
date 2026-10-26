@@ -105,4 +105,59 @@ Register `TwigServiceProvider` as well. Templates then end in
   Resolve it from a scope, or inject it into scoped services and
   controllers.
 
+## New in 2.2
+
+### Assets and images
+
+`asset('css/site.css')` gives a versioned URL, so assets can be cached for
+a year and still change when they are rebuilt. `view.assets.strategy`
+chooses the version:
+
+- `mtime` (default) gives `/css/site.css?v=<modification time>`;
+- `hash` gives `?v=` with the content hash;
+- `manifest` reads a build tool's manifest (`view.assets.manifest`, such as
+  Vite's `manifest.json`), so `asset('src/app.js')` gives the built file.
+
+With [mj-zana/media](media.md) installed, `picture($media, sizes: '50vw')`
+renders a responsive `<picture>` with the alt text in the request's
+locale.
+
+### Page metadata
+
+Inject `PageMeta` in the controller and fill it; the layout prints it as
+the `meta` global:
+
+```php
+$meta->title('About us')->description('Who we are.')
+    ->canonical($urls->generate('about'))->alternates($urls->alternates('about'))
+    ->image('/img/team.jpg', 'The team')
+    ->jsonLd(['@type' => 'Organization', 'name' => 'Acme', 'url' => 'https://acme.example']);
+```
+
+```php
+<head><?= $meta ?></head>
+```
+
+It prints the title (with `app.name`), the description, the canonical URL,
+`hreflang` alternates, Open Graph tags and JSON-LD. Relative URLs become
+absolute with `app.url`, and JSON-LD can never close its `<script>`.
+
+### Markdown
+
+`mj-zana/view-markdown` adds a `markdown` helper for content written in
+Markdown, with GitHub-flavoured tables and heading anchors:
+
+```php
+<?= $this->markdown($post['body']) ?>
+```
+
+Raw HTML in the text is escaped and `javascript:` links are dropped, so
+editors' content cannot inject scripts. `view.markdown.heading_anchors`
+turns the anchors off.
+
+### Forms
+
+`csrf_field()` also prints the anti-spam honeypot when it is configured
+(see [Security](security.md#spam-on-public-forms)).
+
 Reference: the [view README](https://github.com/mjnable/zana-view).

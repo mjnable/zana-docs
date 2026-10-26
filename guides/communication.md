@@ -91,4 +91,28 @@ return [
 - **Bodies:** for HTML email, render it with the view package and pass the
   string to `html()`.
 
+## New in 2.2: newsletters
+
+`Newsletter` manages subscriptions with double opt-in:
+
+```php
+$newsletter->subscribe($email, $locale, fn (string $token): Message => Message::create()
+    ->subject($t->translate('newsletter.confirm.subject'))
+    ->text($t->translate('newsletter.confirm.body', ['url' => $urls->generate('newsletter.confirm', ['token' => $token])])));
+
+$newsletter->confirm($token);       // from the link in that email
+$newsletter->unsubscribe($token);   // from the link in every newsletter
+```
+
+- An address is added only once its owner confirms; the link expires.
+- `subscribe()` behaves the same for new and existing addresses, so the
+  form does not reveal who is subscribed.
+- `send()` gives every newsletter `List-Unsubscribe` and one-click
+  unsubscribe headers. Unsubscribe links work without login and delete the
+  address.
+- Links are signed with `mail.newsletter.secret` (else `security.secret`).
+- Subscribers are kept in the database with `DatabaseSubscriberStore`
+  (create the table with `DatabaseSubscriberStore::createTable()`), or in
+  memory for tests.
+
 Reference: the [communication README](https://github.com/mjnable/zana-communication).

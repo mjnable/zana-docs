@@ -85,4 +85,23 @@ Register `TranslationServiceProvider` and list the locales in
 - **Outside a request**, the locale is the fallback. Use
   `LocaleContext::run('fr', $callback)` in console commands and jobs.
 
+## New in 2.2
+
+- **A remembered choice.** With `translation.cookie` set, the language
+  switcher's choice is kept in a cookie and wins over `Accept-Language`
+  (but not over a locale in the URL). Point the switcher at
+  `LocaleSwitchAction`:
+
+  ```php
+  $router->get('/locale/{locale}', LocaleSwitchAction::class)->name('locale.switch');
+  // <a href="/locale/fr?to=/fr/a-propos">Français</a>
+  ```
+
+  `to` must be a path on the site.
+- **The home page.** With `translation.redirect_root`, a request for `/`
+  is redirected (302) to `/<locale>`.
+- **Translated content.** `LocalizedValue` holds one value per locale for
+  content stored in the database (see
+  [translated content](../cookbook/recipes.md#translated-content)).
+
 Reference: the [translation README](https://github.com/mjnable/zana-translation).

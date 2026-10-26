@@ -112,4 +112,20 @@ $container->get(\Zana\Routing\Router::class)->loadAttributes(\Modules\Clinics\Pr
   Write each plan before making the next, or a later plan can overwrite an
   earlier plan's changes to the module class.
 
+## New in 2.2: websites
+
+- `make:module Blog --web` creates a module with an HTML controller and a
+  template instead of an API controller.
+- `make:controller Blog Archive --web` adds an HTML controller and its
+  template to a module.
+- `make:page Site About` adds a localised page: its routes in every locale
+  of `translation.locales`, its page metadata, and its template.
+- `make:crud Blog Post --translatable` generates a complete back office for
+  a content type: a list, a form per locale, draft → published → archived,
+  delete after confirming, and a signed preview link. See
+  [a back office](../cookbook/back-office.md).
+
+The generated code is tested end to end by the maker package: it runs with
+no hand edits.
+
 Reference: the [maker README](https://github.com/mjnable/zana-maker).

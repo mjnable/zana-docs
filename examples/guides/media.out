@@ -1,0 +1,8 @@
+avif: 480×320, 960×640, 1200×800
+webp: 480×320, 960×640, 1200×800
+jpeg: 1200×800
+<picture>
+<source type="image/avif" srcset="https://cdn.acme.example/media/ID/480.avif 480w, https://cdn.acme.example/media/ID/960.avif 960w, https://cdn.acme.example/media/ID/1200.avif 1200w" sizes="(min-width: 60em) 50vw, 100vw">
+<source type="image/webp" srcset="https://cdn.acme.example/media/ID/480.webp 480w, https://cdn.acme.example/media/ID/960.webp 960w, https://cdn.acme.example/media/ID/1200.webp 1200w" sizes="(min-width: 60em) 50vw, 100vw">
+<img src="https://cdn.acme.example/media/ID/1200.jpg" width="1200" height="800" alt="L’équipe" loading="lazy" decoding="async">
+</picture>

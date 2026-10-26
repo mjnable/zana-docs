@@ -25,8 +25,9 @@ Every package is installed as `mj-zana/<name>` and requires PHP 8.5 or later.
 | [Routing](routing.md) | `mj-zana/routing` | Routes, groups, attributes, URL generation |
 | [Console](console.md) | `mj-zana/console` | Commands with injection, a scope per run |
 | [Security](security.md) | `mj-zana/security` | Passwords, bearer tokens, roles and policies, CSRF |
-| [Views](view.md) | `mj-zana/view`, `mj-zana/view-twig` | HTML templates, layouts, error pages (2.1) |
+| [Views](view.md) | `mj-zana/view`, `mj-zana/view-twig`, `mj-zana/view-markdown` | HTML templates, layouts, error pages (2.1), assets, page metadata, Markdown (2.2) |
 | [Translation](translation.md) | `mj-zana/translation` | Catalogs, the request locale, negotiation (2.1) |
+| [Sessions](session.md) | `mj-zana/session` | Server-side sessions and flash messages (2.2) |
 
 ## Business logic
 
@@ -45,15 +46,20 @@ Every package is installed as `mj-zana/<name>` and requires PHP 8.5 or later.
 | [Cache](cache.md) | `mj-zana/cache` | PSR-16 caches: memory, files, null |
 | [Filesystem](filesystem.md) | `mj-zana/filesystem` | Local and in-memory storage behind one interface |
 | [Queue](queue.md) | `mj-zana/queue` | Background jobs, retries, a scope per job |
-| [Communication](communication.md) | `mj-zana/communication` | Email with safe sender rules (2.1) |
+| [Communication](communication.md) | `mj-zana/communication` | Email with safe sender rules (2.1), newsletters (2.2) |
+| [Media](media.md) | `mj-zana/media` | Uploaded images: resized variants, `<picture>`, alt texts (2.2) |
+| [Scheduler](scheduler.md) | `mj-zana/scheduler` | Recurring tasks from one cron entry (2.2) |
+| [Audit](audit.md) | `mj-zana/audit` | Revisions of edited content, per locale (2.2) |
 
 ## Tooling
 
 | Guide | Package | What it gives you |
 |---|---|---|
 | [Testing](testing.md) | `mj-zana/testing` | Application tests, HTTP and console in memory, architecture rules |
-| [Maker](maker.md) | `mj-zana/maker` | Code generators for modules, features, entities and controllers |
+| [Maker](maker.md) | `mj-zana/maker` | Code generators for modules, features, entities, controllers, pages and back offices |
 
 To see how the packages fit together in one application, read the
 [module cookbook](../cookbook/modules.md). For a server-rendered,
-multilingual site, read [a company website](../cookbook/website.md).
+multilingual site, read [a company website](../cookbook/website.md), then
+[a back office](../cookbook/back-office.md) and the
+[recipes for content sites](../cookbook/recipes.md).

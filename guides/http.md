@@ -133,4 +133,67 @@ X-Correlation-Id: trace-1
   build fails, visitors get a 503 with `public/503.html`, and the
   exception goes to the error log only.
 
+## New in 2.2: content sites
+
+### Behind a proxy
+
+Behind a CDN or a load balancer, every request comes from the proxy. List
+the proxies in `http.trusted_proxies` (addresses and CIDR ranges) and put
+`TrustedProxiesMiddleware` first in `http.middleware`:
+
+```php
+'trusted_proxies' => ['10.0.0.0/8', '173.245.48.0/20'],
+```
+
+`X-Forwarded-For` (or `Forwarded`), `-Proto` and `-Port` are then read from
+those proxies only, since anyone can send them.
+`RequestContext::clientIp()` gives the visitor's address, and
+`isSecure()` and generated URLs see HTTPS.
+
+### A sub-folder
+
+An application served from `http://localhost/shop` works without a
+rewrite: the kernel removes the base path before routing and the URL
+generator and `asset()` add it back. It is found from `SCRIPT_NAME`;
+set `http.base_path` to override it. `RequestContext::basePath()` gives it.
+
+### Forms
+
+`FormInput::from($request)` reads a submitted form: strings are trimmed
+and blank fields are absent, so validation sees `null` rather than `""`.
+`string()`, `optional()`, `list()`, `bool()`, `has()`, `only()` and `all()`.
+
+### HTTP caching
+
+`#[Cache(maxAge: 600, sharedMaxAge: 3600)]` on a handler becomes its
+`Cache-Control`, with `CacheHeadersMiddleware` as route middleware. It
+also adds a weak `ETag` and answers a matching `If-None-Match` with 304.
+`public` and `immutable` are options too. A response that sets a cookie is
+never made cacheable.
+
+### Page cache
+
+`PageCacheMiddleware` serves whole public pages from the PSR-16 cache. A
+page is stored only for a GET or HEAD without `Authorization` or a session
+cookie (`http.page_cache.private_cookies`), and when the response is a 200
+that sets no cookie and is not private. Responses carry `X-Page-Cache: HIT`
+or `MISS`.
+
+Tag pages, and invalidate the tags when the content changes:
+
+```php
+return $view->withHeader(PageCache::TAGS_HEADER, "post:{$id}, nav");   // removed before sending
+
+$pageCache->invalidate("post:{$id}");   // after saving the post
+```
+
+Invalidation never scans the cache. `http.page_cache.ttl` (3,600 seconds)
+bounds an entry's life, and `http.page_cache.shared_max_age` also sends
+`s-maxage` for a CDN.
+
+### Errors
+
+`TooManyRequestsHttpException` (429, with `Retry-After`) and
+`ServiceUnavailableHttpException` (503) join the HTTP exceptions.
+
 Reference: the [http README](https://github.com/mjnable/zana-http).

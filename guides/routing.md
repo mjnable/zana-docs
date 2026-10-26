@@ -126,4 +126,13 @@ $router->localized(['en' => '/about', 'fr' => '/a-propos'], [PageController::cla
 - **Result converters:** services tagged `routing.result_converters` turn
   custom results into responses. The view package uses them for `View`.
 
+## New in 2.2
+
+- **Route metadata.** `->meta(['sitemap' => true])`, or
+  `#[Route(..., meta: [...])]`, attaches data to a route for your own code,
+  such as a [sitemap](../cookbook/recipes.md#a-sitemap). `getMeta()` reads
+  it; it is kept in the route cache.
+- **Sub-folders.** Generated URLs start with the application's base path
+  (see [HTTP](http.md#a-sub-folder)).
+
 Reference: the [routing README](https://github.com/mjnable/zana-routing).

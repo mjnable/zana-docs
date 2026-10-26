@@ -2,8 +2,51 @@
 
 Zana 2.0 turns the three 1.x packages into a framework of 19 packages for
 modular business applications, on PHP 8.5. Zana 2.1 adds what server-rendered
-websites need. Every package carries the same version number. Each
-repository has its own `CHANGELOG.md`.
+websites need, and 2.2 what content sites need. Every package carries the
+same version number. Each repository has its own `CHANGELOG.md`.
+
+## 2.2.0
+
+2.2 adds what a content site needs once its pages exist: a back office,
+images, caching, SEO and the jobs that keep it running. It is backward
+compatible with 2.1.
+
+- **New packages:**
+  - `mj-zana/session`: server-side sessions and flash messages;
+  - `mj-zana/media`: uploaded images with AVIF, WebP and JPEG variants, a
+    responsive `<picture>`, and alt texts per locale;
+  - `mj-zana/view-markdown`: a safe `markdown` view helper;
+  - `mj-zana/scheduler`: recurring tasks from one cron entry;
+  - `mj-zana/audit`: revisions of edited content, per locale.
+- **maker:** `make:crud` generates a complete back office; `make:page` and
+  `--web` generate website pages and controllers.
+- **security:**
+  - session sign-in with attempt limits;
+  - password reset tokens;
+  - `#[RateLimit]`;
+  - honeypot and minimum-age anti-spam for forms.
+- **http:**
+  - trusted proxies and the client address;
+  - sub-folder deployments;
+  - `FormInput`;
+  - `#[Cache]` with ETags;
+  - a page cache invalidated by tags.
+- **routing:** route metadata.
+- **translation:** a remembered language choice, `LocaleSwitchAction`,
+  and `LocalizedValue` for content.
+- **view:** versioned assets, `PageMeta` (titles, canonical, `hreflang`,
+  Open Graph, JSON-LD) and the `picture` helper.
+- **communication:** newsletters with double opt-in and one-click
+  unsubscribe.
+- **console:** `cache:clear`, `cache:warm`, `about` and `doctor`.
+- **core:** cache clearers and warmers, and an optional recompile of a
+  stale container in the console.
+
+**Upgrading from 2.1:** delete the compiled container cache, as the
+registrations change, or run `php bin/console cache:clear`.
+
+Read [a back office](cookbook/back-office.md) and the
+[recipes](cookbook/recipes.md) for it at work.
 
 ## 2.1.0 — 2026-10-26
 

@@ -167,4 +167,61 @@ In templates, `csrf_field('contact')` prints both hidden fields
 - **Single use:** with a PSR-16 cache, `security.csrf.single_use` makes
   each token work once.
 
+## New in 2.2
+
+### Rate limiting
+
+```php
+#[RateLimit(max: 5, per: 3600)]   // five contact messages per visitor per hour
+public function send(ServerRequestInterface $request): ResponseInterface
+```
+
+Add `RateLimitMiddleware` as route middleware. Clients are counted by
+address (`by: 'ip'`, the client address behind
+[trusted proxies](http.md#behind-a-proxy)) or by user (`by: 'user'`), with a
+sliding window by default (`strategy: 'fixed'` is cheaper). `name:` shares
+one counter between handlers. Refused requests get a 429 with `Retry-After`,
+and limited responses carry `RateLimit-Limit`, `-Remaining` and `-Reset`.
+It needs a PSR-16 cache. `RateLimiter` can be used directly too.
+
+### Spam on public forms
+
+Two settings stop most bots without a CAPTCHA:
+
+```php
+'csrf' => [
+    'honeypot' => 'website',     // a hidden field people never fill in
+    'minimum_age' => 3,          // seconds: no person fills a form faster
+    'spam_redirect' => '/thanks',
+],
+```
+
+`csrf_field()` prints the honeypot. A filled honeypot or a form sent too
+fast is refused, or, with `spam_redirect`, sent to that page so the bot
+believes it succeeded.
+
+### Signing in with a session
+
+For a back office, `SessionLogin` signs users in with a password and keeps
+them in the [session](session.md); `SessionAuthenticationMiddleware` loads
+the user on later requests.
+
+```php
+$user = $login->attempt($input->string('email'), $input->string('password'), $context->clientIp());
+```
+
+- The users come from a `PasswordUserProviderInterface` (`findByLogin()`,
+  `passwordHashFor()`). With `PasswordUpgraderInterface`, old hashes are
+  rehashed at login.
+- A failed attempt never reveals whether the account exists.
+- Attempts are limited per login and per address
+  (`security.login.max_attempts`, default 5, per `security.login.window`,
+  default 900 seconds).
+- The session gets a new id at login.
+- An HTML request that needs a user is redirected to
+  `security.login.path` with `?to=`; JSON requests get a 401.
+- `PasswordResetTokens` issues signed, single-use reset tokens.
+
+The [back office chapter](../cookbook/back-office.md) puts it together.
+
 Reference: the [security README](https://github.com/mjnable/zana-security).

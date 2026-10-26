@@ -1,0 +1,4 @@
+Public page sets a cookie: no
+Set-Cookie: zana_session=<random id>; Path=/; HttpOnly; SameSite=Lax; Secure
+Next request 1: user ada, status 'Saved.'
+Next request 2: user ada, status NULL

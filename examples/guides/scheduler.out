@@ -1,0 +1,5 @@
+Due on Monday 07:30: true
+Next after Friday 08:00: Mon 2026-11-02 07:30
+publish due posts    * * * * *    due at 03:00: yes
+clean old sessions   0 3 * * *    due at 03:00: yes
+weekly report        0 7 * * mon  due at 03:00: no

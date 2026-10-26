@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url><loc>https://acme.example/en</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://acme.example/en"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://acme.example/fr"/>
+  </url>
+  <url><loc>https://acme.example/fr</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://acme.example/en"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://acme.example/fr"/>
+  </url>
+  <url><loc>https://acme.example/en/about</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://acme.example/en/about"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://acme.example/fr/a-propos"/>
+  </url>
+  <url><loc>https://acme.example/fr/a-propos</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://acme.example/en/about"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://acme.example/fr/a-propos"/>
+  </url>
+  <url><loc>https://acme.example/en/contact</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://acme.example/en/contact"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://acme.example/fr/contact"/>
+  </url>
+  <url><loc>https://acme.example/fr/contact</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://acme.example/en/contact"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://acme.example/fr/contact"/>
+  </url>
+</urlset>

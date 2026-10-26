@@ -83,4 +83,21 @@ tape: 0 in stock (scope: cli:stock:check) [exit 1]
   are solved problems. Zana adds the scope and the injection. Symfony's
   console documentation applies to everything else.
 
+## New in 2.2
+
+| Command | |
+|---|---|
+| `cache:clear` | Deletes the compiled container and runs every cache clearer (compiled Twig templates, …). Run it after each deployment. |
+| `cache:warm` | Compiles the container and runs every cache warmer. |
+| `about` | The application, its environment, PHP, and the installed Zana packages. |
+| `doctor` | Checks the server before going live: the PHP version, the extensions in `app.extensions`, a writable `var/`, the length of `security.secret`, and the startup deployment checks. Exits with 1 when something is fatal. |
+
+Packages and applications add their caches by tagging a service with
+`CacheClearerInterface::CLEARER_TAG` or `CacheWarmerInterface::WARMER_TAG`
+(from `mj-zana/core`).
+
+With a compiled container, commands that change the code (`make:*`) leave
+it stale; `ApplicationBuilder::recompileStaleContainerInConsole()` rebuilds
+it when the console starts.
+
 Reference: the [console README](https://github.com/mjnable/zana-console).

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="fr">
+  <title>Acme — Blog</title>
+  <link rel="self" href="https://acme.example/fr/blog/feed.xml"/>
+  <id>https://acme.example/fr/blog</id>
+  <updated>2026-10-24T09:00:00Z</updated>
+  <entry><title>Jour de lancement</title><link href="https://acme.example/fr/blog/lancement"/><id>https://acme.example/fr/blog/lancement</id><updated>2026-10-20T09:00:00Z</updated></entry>
+</feed>
