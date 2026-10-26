@@ -5,7 +5,7 @@ modular business applications, on PHP 8.5. Zana 2.1 adds what server-rendered
 websites need, and 2.2 what content sites need. Every package carries the
 same version number. Each repository has its own `CHANGELOG.md`.
 
-## 2.2.0
+## 2.2.0 — 2026-10-26
 
 2.2 adds what a content site needs once its pages exist: a back office,
 images, caching, SEO and the jobs that keep it running. It is backward
