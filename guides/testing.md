@@ -146,4 +146,26 @@ $this->assertMailSent(fn (Message $m): bool => $m->subject === 'Website message 
 
 The [website cookbook](../cookbook/website.md) tests a whole site this way.
 
+## New in 2.4: checkboxes and radio buttons
+
+Form tests tick boxes and choose radio buttons as a visitor does:
+
+```php
+$this->browser()->form('/en/quote')
+    ->fill(['name' => 'Ada', 'needs[]' => ['website', 'hosting']])   // a list for a name[] group
+    ->check('consent')                                           // the only box of that name
+    ->uncheck('needs[]', 'hosting')
+    ->choose('budget', 'medium')                                // the others of the group are unselected
+    ->submit()
+    ->assertRedirect('/en/quote/thanks');
+```
+
+- **The page decides.** A form knows every checkbox and radio button on
+  the page, ticked or not, with the values it offers (`$form->choices`).
+  Ticking a box, a name or a value the page does not have fails the test,
+  so a typo in a field name is caught.
+- **For a group** (`needs[]`, or several boxes of one name), say which
+  value; for a single box, the value is optional.
+- Unticked boxes are not sent, as in a browser.
+
 Reference: the [testing README](https://github.com/mjnable/zana-testing).
