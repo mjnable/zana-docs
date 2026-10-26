@@ -22,7 +22,7 @@ Every package is installed as `mj-zana/<name>` and requires PHP 8.5 or later.
 | Guide | Package | What it gives you |
 |---|---|---|
 | [HTTP](http.md) | `mj-zana/http` | The PSR-15 kernel, middleware, error responses |
-| [Routing](routing.md) | `mj-zana/routing` | Routes, groups, attributes, URL generation |
+| [Routing](routing.md) | `mj-zana/routing` | Routes, groups, attributes, URL generation, redirects (2.3) |
 | [Console](console.md) | `mj-zana/console` | Commands with injection, a scope per run |
 | [Security](security.md) | `mj-zana/security` | Passwords, bearer tokens, roles and policies, CSRF |
 | [Views](view.md) | `mj-zana/view`, `mj-zana/view-twig`, `mj-zana/view-markdown` | HTML templates, layouts, error pages (2.1), assets, page metadata, Markdown (2.2) |

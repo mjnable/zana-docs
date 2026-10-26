@@ -11,15 +11,15 @@ domain, use cases, persistence and presentations. Zana gives them:
 - **Tools that keep modules apart:** contracts between modules, and
   architecture tests that enforce the boundaries.
 
-Zana 2 requires PHP 8.5 or later. **Status:** `2.2.0`, released on
-2026-10-26, adds what content
-sites need: sessions and a generated back office, media, caching, SEO,
-scheduling and revisions. See the [release notes](release-notes.md).
+Zana 2 requires PHP 8.5 or later. **Status:** `2.3.0` adds redirect routes,
+a website skeleton and a deployment guide for shared hosting. See the
+[release notes](release-notes.md).
 
 ## Start here
 
 - **[Getting started](getting-started.md):** build a small application with
-  one module, HTTP, a console command and a test, in about ten minutes.
+  one module, HTTP, a console command and a test, in about ten minutes. For a
+  website, `composer create-project mj-zana/skeleton-web` (2.3).
 - **[The module cookbook](cookbook/modules.md):** grow it into a real
   application, with layers, persistence, events, contracts between modules
   and testing by layer.
@@ -29,6 +29,8 @@ scheduling and revisions. See the [release notes](release-notes.md).
   every language, with sign-in, previews, history and images (2.2).
 - **[Recipes for content sites](cookbook/recipes.md):** a sitemap, a feed
   and translated content (2.2).
+- **[Deployment](deployment.md):** a VPS or shared hosting, with or without
+  SSH, and the website skeleton's `release:build` (2.3).
 - **[The guides](guides/README.md):** one per package, each with a tested
   example.
 - **[Upgrading from 1.x](upgrading.md)** and the

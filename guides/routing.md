@@ -135,4 +135,40 @@ $router->localized(['en' => '/about', 'fr' => '/a-propos'], [PageController::cla
 - **Sub-folders.** Generated URLs start with the application's base path
   (see [HTTP](http.md#a-sub-folder)).
 
+## New in 2.3: redirect routes
+
+Old URLs and shortcuts redirect without a controller, and stay in the
+route cache:
+
+<!-- example: examples/guides/redirects.php#redirects -->
+```php
+// The old site's URLs: permanent (301) redirects to the new routes.
+$router->redirect('/qui-sommes-nous', 'about', parameters: ['_locale' => 'fr']);
+$router->redirect('/news/{slug}', 'blog.show');   // the slug carries over
+
+// A staff shortcut: temporary, never cached, indexed or leaking the referrer.
+$router->redirect('/webmail', 'https://mail.acme.example:2096', 302, [
+    'Cache-Control' => 'no-store',
+    'X-Robots-Tag' => 'noindex',
+    'Referrer-Policy' => 'no-referrer',
+]);
+```
+
+<!-- example: examples/guides/redirects.out -->
+```text
+/qui-sommes-nous  301 /fr/a-propos
+/news/launch-day  301 /blog/launch-day
+/webmail          302 https://mail.acme.example:2096 (noindex, no-store)
+1 redirect restored from the route cache
+```
+
+- **The target** is a route name (with the matched parameters it uses, and
+  fixed `parameters:`), a path, or an http(s) URL. `{name}` in a path or URL
+  takes a route parameter. Paths start with the application's base path.
+- **The status** is 301 by default; 302, 303, 307 and 308 are allowed.
+- **Safe by construction:** the target is fixed in code, never read from
+  the request. Protocol-relative URLs, other schemes and headers with line
+  breaks are refused when the route is defined.
+- Redirect routes answer GET and HEAD.
+
 Reference: the [routing README](https://github.com/mjnable/zana-routing).

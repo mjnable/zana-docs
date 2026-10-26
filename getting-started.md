@@ -8,6 +8,17 @@ documentation's test suite runs it.
 
 You need PHP 8.5 or later and Composer.
 
+> **Building a website?** Start from the skeleton instead (2.3): pages in two
+> languages, templates, security headers and upload archives for shared
+> hosting, ready to run:
+>
+> ```
+> composer create-project mj-zana/skeleton-web my-site
+> ```
+>
+> Then read [a company website](cookbook/website.md) and
+> [deployment](deployment.md).
+
 ## 1. Create the project
 
 ```

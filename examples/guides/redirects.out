@@ -1,0 +1,4 @@
+/qui-sommes-nous  301 /fr/a-propos
+/news/launch-day  301 /blog/launch-day
+/webmail          302 https://mail.acme.example:2096 (noindex, no-store)
+1 redirect restored from the route cache

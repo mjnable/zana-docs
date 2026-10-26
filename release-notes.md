@@ -2,8 +2,21 @@
 
 Zana 2.0 turns the three 1.x packages into a framework of 19 packages for
 modular business applications, on PHP 8.5. Zana 2.1 adds what server-rendered
-websites need, and 2.2 what content sites need. Every package carries the
+websites need, 2.2 what content sites need, and 2.3 the way to put them online. Every package carries the
 same version number. Each repository has its own `CHANGELOG.md`.
+
+## 2.3.0
+
+2.3 finishes the website work. It is backward compatible with 2.2.
+
+- **New project:** `mj-zana/skeleton-web` for `composer create-project`: a
+  website in two languages with page metadata, versioned assets, a language
+  switcher, security headers, translated error pages and tests, `.htaccess`
+  files for a fixed document root, and `release:build` for shared hosting.
+- **routing:** redirect routes (`Router::redirect()`), kept in the route
+  cache.
+- **Every package:** tests and tooling are no longer in Composer archives.
+- **Docs:** [deployment](deployment.md).
 
 ## 2.2.0 — 2026-10-26
 
