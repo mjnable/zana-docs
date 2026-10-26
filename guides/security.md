@@ -220,7 +220,10 @@ $user = $login->attempt($input->string('email'), $input->string('password'), $co
 - The session gets a new id at login.
 - An HTML request that needs a user is redirected to
   `security.login.path` with `?to=`; JSON requests get a 401.
-- `PasswordResetTokens` issues signed, single-use reset tokens.
+- `PasswordResetTokens` issues signed, single-use reset tokens. It is
+  scoped (2.4), like `SessionLogin`, so the user provider may be a singleton
+  or scoped, like other repositories. A singleton of yours cannot keep it;
+  the build says so.
 
 The [back office chapter](../cookbook/back-office.md) puts it together.
 

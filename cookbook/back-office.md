@@ -124,7 +124,7 @@ public function login(ServerRequestInterface $request, SessionLogin $login, Requ
   send editors to another site.
 
 `$login->logout()` signs out (in a POST route, with CSRF). For a "forgot
-password" page, `PasswordResetTokens` issues a signed, single-use token
+password" page, `PasswordResetTokens` (scoped, so `Editors` may be scoped too) issues a signed, single-use token
 to email, and `consume($token)` returns the user once.
 
 Behind a load balancer or a CDN, configure `http.trusted_proxies` so that

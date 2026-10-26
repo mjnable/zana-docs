@@ -113,4 +113,62 @@ registration and the module it came from.
   container to a PHP file. It is reused while the registrations stay the
   same; in production a stale file is an error.
 
+## New in 2.4: factories declare what they use
+
+The build reads constructors, but cannot see what a factory closure
+resolves. Declare it with `uses()`, right after the registration, and the
+same checks apply:
+
+<!-- example: examples/guides/factory-uses.php#uses -->
+```php
+$services = (new ServiceCollection())
+    ->scoped(EditorRepository::class)
+    ->singleton(ResetTokens::class, static fn ($r): ResetTokens => new ResetTokens($r->get(EditorRepository::class)))
+    ->uses(EditorRepository::class);   // what the factory resolves
+
+try {
+    $services->build();
+} catch (ContainerBuildException $e) {
+    echo $e->errors()[0]->code, ': ', $e->errors()[0]->message, "\n";
+}
+```
+
+Without the declaration, the mistake shows the first time the singleton is
+created, and the error names both services:
+
+<!-- example: examples/guides/factory-uses.php#undeclared -->
+```php
+// Without uses(), the build cannot see into the factory; the first resolution names both services.
+$container = (new ServiceCollection())
+    ->scoped(EditorRepository::class)
+    ->singleton(ResetTokens::class, static fn ($r): ResetTokens => new ResetTokens($r->get(EditorRepository::class)))
+    ->build();
+
+try {
+    $container->createScope()->get(ResetTokens::class);
+} catch (ScopeException $e) {
+    echo wordwrap(strtok($e->getMessage(), "\n"), 100), "\n";
+}
+```
+
+<!-- example: examples/guides/factory-uses.out -->
+```text
+B5: ResetTokens: ResetTokens (singleton) → EditorRepository (scoped): a singleton must not depend on a scoped service
+Singleton ResetTokens (singleton) resolves scoped service EditorRepository (scoped) in its factory,
+which would outlive its scope. Make the second a singleton, or the first scoped. Declare what the
+factory resolves with ->uses() so the container checks it at startup.
+```
+
+- **Declare every service the factory resolves,** also those behind
+  `has()`. A declared service that is not registered is not an error: a
+  package may register a factory for a feature the application does not
+  use.
+- **Declared services join the graph:** a singleton must not use a scoped
+  service, even through transients, and there must be no cycle. `graph()`
+  shows the edges as `factory`.
+- **The Zana packages declare theirs.**
+- **`php bin/console doctor` creates every singleton once,** so a factory
+  that resolves a scoped service and declares nothing still fails before
+  going live, not in traffic.
+
 Reference: the [container README](https://github.com/mjnable/zana-container).

@@ -1,0 +1,4 @@
+B5: ResetTokens: ResetTokens (singleton) → EditorRepository (scoped): a singleton must not depend on a scoped service
+Singleton ResetTokens (singleton) resolves scoped service EditorRepository (scoped) in its factory,
+which would outlive its scope. Make the second a singleton, or the first scoped. Declare what the
+factory resolves with ->uses() so the container checks it at startup.

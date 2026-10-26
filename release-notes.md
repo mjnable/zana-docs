@@ -8,7 +8,8 @@ same version number. Each repository has its own `CHANGELOG.md`.
 
 ## 2.4.0
 
-2.4 is backward compatible with 2.3.
+2.4 is backward compatible with 2.3, except for the first two points under
+"Upgrading" below.
 
 - **core:** a configuration cache for production
   (`withConfigurationCache()`). A boot reads one file instead of scanning
@@ -20,12 +21,26 @@ same version number. Each repository has its own `CHANGELOG.md`.
 - **testing:** `check()`, `uncheck()` and `choose()` tick checkboxes and
   radio buttons in form tests, and `fill()` takes a list for a `name[]`
   group. A box or value the page does not have fails the test.
+- **container:** factories declare the services they resolve with
+  `->uses()`, and the build checks them like constructor parameters: a
+  singleton factory using a scoped service now fails at startup. Without the
+  declaration, the error at the first resolution names both services. Every
+  Zana package declares its factories.
+- **security:** `PasswordResetTokens` is scoped, so the user provider may be
+  scoped.
+- **console:** `doctor` creates every singleton once.
 - **skeleton-web:** uses the configuration cache.
 
-**Upgrading from 2.3:** to use the configuration cache, add
-`withConfigurationCache()` next to `withContainerCache()`, move secrets
-read with `$_ENV` or `getenv()` in configuration files to `APP_*`
-variables, and run `cache:clear` on each deployment.
+**Upgrading from 2.3:**
+
+- A singleton of yours that receives `PasswordResetTokens` must become
+  scoped or transient; the build names it.
+- A class of yours that implements `ServiceCollectionInterface` must add
+  `uses()`.
+- To use the configuration cache, add
+  `withConfigurationCache()` next to `withContainerCache()`, move secrets
+  read with `$_ENV` or `getenv()` in configuration files to `APP_*`
+  variables, and run `cache:clear` on each deployment.
 
 ## 2.3.0 — 2026-10-26
 
