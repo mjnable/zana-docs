@@ -6,7 +6,7 @@ websites need, 2.2 what content sites need, and 2.3 the way to put them online.
 2.4 makes production boots faster. Every package carries the
 same version number. Each repository has its own `CHANGELOG.md`.
 
-## 2.4.0
+## 2.4.0 — 2026-10-26
 
 2.4 is backward compatible with 2.3, except for the first two points under
 "Upgrading" below.
