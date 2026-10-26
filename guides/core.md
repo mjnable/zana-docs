@@ -98,7 +98,11 @@ they were listed in.
    - each module's `Configuration/*.php`, under the module's name, e.g.
      `bmi.database`;
    - then `config/*.php` and `config/<environment>/*.php`;
-   - then `APP_*` environment variables.
+   - then `APP_*` environment variables, and `withConfiguration()`.
+
+   In production with `withConfigurationCache()` (2.4), the module list and
+   the files' values come from one cache file instead; the environment
+   variables and overrides still apply on top.
 4. Register the providers, then the modules, then `withServices()`
    callbacks. Each registration records its origin, e.g. `module:Orders`,
    for error messages.
@@ -131,5 +135,40 @@ they were listed in.
   adds a last layer, above environment variables.
 - **`.env.testing`.** In the testing environment it replaces `.env` when it
   exists.
+
+## New in 2.4: the configuration cache
+
+Reading configuration is most of a boot: every request scans `config/` and
+`config/<environment>/` and loads each file. In production, keep the result
+in one file:
+
+```php
+HttpKernel::run(
+    Bootstrap::builder($base)
+        ->withContainerCache($base . '/var/cache/container.php')
+        ->withConfigurationCache($base . '/var/cache/config.php'),
+);
+```
+
+- **What is cached:** the values of the configuration files (modules'
+  `Configuration/`, `config/`, `config/<environment>/`) and the module list
+  of `config/modules.php`.
+- **What stays live:** `.env`, `APP_*` environment variables and
+  `withConfiguration()` overrides apply on top at every boot, so secrets and
+  addresses never end up in the cache.
+- **Production only.** Elsewhere the files are always read, so edits take
+  effect at once. In production the cache is trusted without looking at the
+  files: it is written on the first boot without it, `cache:clear` deletes
+  it and `cache:warm` writes it. Clear it on every deployment.
+- **Plain values only.** A configuration file that returns an object or a
+  closure cannot be cached: the application then boots without the cache,
+  and `cache:warm` fails, naming the key.
+- **Do not read the environment in configuration files** (`$_ENV`,
+  `getenv()`): the cache would freeze the value. Leave the key out and set
+  `APP_A__B` on the server instead.
+
+On the benchmark application, a cached boot plus one request went from
+about 900 µs to 510 µs with one configuration file, and from 1,530 µs to
+516 µs with five: boot no longer grows with the number of files.
 
 Reference: the [core README](https://github.com/mjnable/zana-core).

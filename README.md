@@ -30,7 +30,8 @@ for shared hosting. See the [release notes](release-notes.md).
 - **[Recipes for content sites](cookbook/recipes.md):** a sitemap, a feed
   and translated content (2.2).
 - **[Deployment](deployment.md):** a VPS or shared hosting, with or without
-  SSH, and the website skeleton's `release:build` (2.3).
+  SSH, the website skeleton's `release:build` (2.3), and the configuration
+  cache (2.4).
 - **[The guides](guides/README.md):** one per package, each with a tested
   example.
 - **[Upgrading from 1.x](upgrading.md)** and the

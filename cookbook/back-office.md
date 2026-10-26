@@ -76,9 +76,8 @@ slug, body per locale; a slug is unique within its locale).
 Configure the roles and the login page:
 
 ```php
-// config/security.php
+// config/security.php; the secret comes from APP_SECURITY__SECRET on the server
 return [
-    'secret' => $_ENV['APP_SECRET'],
     'roles' => ['editor' => ['posts.edit']],
     'login' => ['path' => '/login', 'max_attempts' => 5, 'window' => 900],
 ];

@@ -120,7 +120,7 @@ Register `SecurityServiceProvider`, implement `UserProviderInterface` (and
 
 ```php
 return [
-    'secret' => $_ENV['APP_SECRET'],                  // required once the signer is used
+    // 'secret': set APP_SECURITY__SECRET on the server; required once the signer is used
     'roles' => ['viewer' => ['notes.view'], 'admin' => ['*']],
     'hierarchy' => ['editor' => ['viewer']],
     'policies' => [NotePolicy::class],

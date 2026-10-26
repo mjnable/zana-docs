@@ -2,8 +2,30 @@
 
 Zana 2.0 turns the three 1.x packages into a framework of 19 packages for
 modular business applications, on PHP 8.5. Zana 2.1 adds what server-rendered
-websites need, 2.2 what content sites need, and 2.3 the way to put them online. Every package carries the
+websites need, 2.2 what content sites need, and 2.3 the way to put them online.
+2.4 makes production boots faster. Every package carries the
 same version number. Each repository has its own `CHANGELOG.md`.
+
+## 2.4.0
+
+2.4 is backward compatible with 2.3.
+
+- **core:** a configuration cache for production
+  (`withConfigurationCache()`). A boot reads one file instead of scanning
+  `config/` and loading each file; on the benchmark application, a boot plus
+  one request takes about a third of the time with five configuration
+  files. `.env`, `APP_*` variables and overrides still apply at every boot.
+- **console:** `cache:clear` and `cache:warm` handle the configuration
+  cache; `about` and `doctor` report it.
+- **testing:** `check()`, `uncheck()` and `choose()` tick checkboxes and
+  radio buttons in form tests, and `fill()` takes a list for a `name[]`
+  group. A box or value the page does not have fails the test.
+- **skeleton-web:** uses the configuration cache.
+
+**Upgrading from 2.3:** to use the configuration cache, add
+`withConfigurationCache()` next to `withContainerCache()`, move secrets
+read with `$_ENV` or `getenv()` in configuration files to `APP_*`
+variables, and run `cache:clear` on each deployment.
 
 ## 2.3.0 — 2026-10-26
 

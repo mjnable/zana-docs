@@ -41,6 +41,12 @@ $database = $config->section('database');
 echo $database->string('connections.main.driver'), "\n";
 ```
 
+Configuration files return plain values: strings, numbers, booleans,
+null, arrays and enums. Secrets and server addresses do not belong in them;
+set `APP_A__B` variables on the server, which override `a.b`. Both rules
+let the application cache its configuration in production (see
+[core](core.md#new-in-24-the-configuration-cache)).
+
 ## Typed reads fail loudly
 
 <!-- example: examples/guides/configuration.php#typed -->

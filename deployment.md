@@ -67,11 +67,13 @@ php bin/console cache:warm
 php bin/console doctor
 ```
 
-- `cache:clear` deletes the compiled container, and compiled Twig
-  templates when Twig is installed.
+- `cache:clear` deletes the compiled container, the configuration cache
+  (2.4), and compiled Twig templates when Twig is installed.
   A container compiled for the previous code is an error in production,
   so clear it on every deployment.
 - `cache:warm` compiles them again, so the first visitor does not wait.
+  It fails when a configuration file returns something other than plain
+  values, naming the key.
 - `doctor` checks the PHP version and extensions (`app.extensions`), that
   `var/` is writable, the secret, and the deployment checks. It exits
   with 1 when something is fatal.
@@ -98,8 +100,8 @@ Then, in the file manager:
 1. create `website/.env` once, with the settings above;
 2. make `website/var/` writable (755 for folders is usually enough when PHP
    runs as your user);
-3. after each upload, delete `website/var/cache/`, so the container is
-   compiled again on the next request.
+3. after each upload, delete `website/var/cache/`, so the container and
+   the configuration are read again on the next request.
 
 Composer runs on your machine, so it must use the server's PHP version and
 extensions: set `config.platform.php` in `composer.json` when your machine
