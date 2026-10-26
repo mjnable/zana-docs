@@ -11,9 +11,9 @@ domain, use cases, persistence and presentations. Zana gives them:
 - **Tools that keep modules apart:** contracts between modules, and
   architecture tests that enforce the boundaries.
 
-Zana 2 requires PHP 8.5 or later. **Status:** `2.3.0`, released on 2026-10-26, adds redirect routes,
-a website skeleton and a deployment guide for shared hosting. See the
-[release notes](release-notes.md).
+Zana 2 requires PHP 8.5 or later. **Status:** `2.3.0`, released on
+2026-10-26, adds redirect routes, a website skeleton and a deployment guide
+for shared hosting. See the [release notes](release-notes.md).
 
 ## Start here
 
