@@ -6,7 +6,7 @@ websites need, 2.2 what content sites need, and 2.3 the way to put them online.
 2.4 makes production boots faster, and 2.5 fixes the shared-hosting release build on Windows. Every package carries the
 same version number. Each repository has its own `CHANGELOG.md`.
 
-## 2.5.0
+## 2.5.0 — 2026-10-27
 
 2.5 is backward compatible with 2.4.
 
