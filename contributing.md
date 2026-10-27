@@ -77,5 +77,18 @@ php bin/sync-examples.php    # after changing an example: rewrite the embedded b
 php examples/guides/cache.php > examples/guides/cache.out   # after changing a script's output
 ```
 
+### Versions
+
+The documentation is versioned with the framework (ADR-022):
+
+- **`main`** documents the latest release; **`2.4`, `2.5`, …** document each
+  minor version, and require that minor from Packagist (`~2.4.0`), so their
+  tests run against the version they describe.
+- **A fix to the pages** goes to the branch of the current version and to
+  `main`; a fix that applies to older versions goes to their branches too.
+- **At each framework release:** create the branch for a new minor version,
+  tag the tested commit (`v2.5.0`), and publish a GitHub Release on this
+  repository with that version's release notes.
+
 Write for PHP developers who are new to Zana. Explain why before how, and
 prefer a short, runnable example to a long description.
