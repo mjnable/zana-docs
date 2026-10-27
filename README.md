@@ -14,9 +14,10 @@ domain, use cases, persistence and presentations. Zana gives them:
 - **Tools that keep modules apart:** contracts between modules, and
   architecture tests that enforce the boundaries.
 
-Zana 2 requires PHP 8.5 or later. **Status:** `2.5.0`, released on
-2026-10-27, fixes `release:build` on Windows and moves it into the console
-package. See the [release notes](release-notes.md).
+Zana 2 requires PHP 8.5 or later. **Status:** `2.5.1`, released on
+2026-10-27: quoted `.env` values stay text. 2.5.0 fixed `release:build` on
+Windows and moved it into the console package. See the
+[release notes](release-notes.md).
 
 ## Start here
 
