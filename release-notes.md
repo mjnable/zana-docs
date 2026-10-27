@@ -6,6 +6,24 @@ websites need, 2.2 what content sites need, and 2.3 the way to put them online.
 2.4 makes production boots faster, and 2.5 fixes the shared-hosting release build on Windows. Every package carries the
 same version number. Each repository has its own `CHANGELOG.md`.
 
+## 2.5.1
+
+A fix for `.env` values (FE-42), backward compatible except for the
+conversion changes below.
+
+- **configuration:** a quoted `.env` value is always text:
+  `APP_SHOP__WHATSAPP="+243812345678"` is no longer the float
+  `243812345678.0`, and an all-digit password no longer stops the
+  application with "should be a string, got float". Unquoted values with a
+  leading `+` or `0`, or more than 15 digits, stay text too. `string()`
+  accepts integers, `bool()` accepts `"true"`, `"false"`, `"1"` and `"0"`, and
+  `#[Config]` injection converts to the parameter's type.
+
+**Upgrading from 2.5.0:** an unquoted value with a leading zero, such as
+`APP_SHOP__CODE=007`, used to be the integer 7 and is now the text "007";
+`int()` still reads it as 7. Values that are quoted and read with `get()`
+are now text: read them with the typed method you expect.
+
 ## 2.5.0 — 2026-10-27
 
 2.5 is backward compatible with 2.4.

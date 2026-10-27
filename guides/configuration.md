@@ -80,7 +80,7 @@ at once rather than as a silent `null`.
 - **Modules:** a module's `Configuration/<name>.php` becomes
   `<module>.<name>.*`.
 - **Environment:** `APP_*` variables come last. `__` separates levels, and
-  `true`, `false`, `null` and numbers are converted.
+  values are converted (see [values from the environment](#values-from-the-environment)).
 - **`.env`:** loaded first, if present. It never overrides variables that
   are already set.
 - **Injection:** inject `ConfigurationInterface`, or a single value with
@@ -88,7 +88,57 @@ at once rather than as a silent `null`.
 - **Keep reading in composition code.** Read settings in providers and
   module factories, and hand plain values to your application code. The
   [getting-started](../getting-started.md) module shows the pattern.
-- **Production:** `ConfigurationCache` can store the merged values in one
-  file.
+- **Production:** `ApplicationBuilder::withConfigurationCache()` keeps the
+  values of the configuration files in one file (see
+  [core](core.md#new-in-24-the-configuration-cache)).
+
+## Values from the environment
+
+Environment variables are text; `APP_*` values are converted so that
+`APP_SHOP__OPEN=true` reads as a bool. A value that is text even when made
+of digits, such as a phone number or a password, stays text (2.5.1):
+
+<!-- example: examples/guides/env-values.php#env -->
+```php
+file_put_contents($file, <<<'ENV'
+    APP_SHOP__WHATSAPP="+243812345678"   # quoted: always text
+    APP_MAIL__PASSWORD='20261027'
+    APP_SHOP__PHONE=0812345678           # unquoted, but a leading 0 keeps it text
+    APP_SHOP__ITEMS_PER_PAGE=24          # unquoted numbers and booleans convert
+    APP_SHOP__OPEN=true
+    ENV);
+DotEnv::load($file);
+
+$config = (new ConfigurationBuilder())->addEnvironment()->build();
+foreach (['shop.whatsapp', 'mail.password', 'shop.phone', 'shop.items_per_page', 'shop.open'] as $key) {
+    printf("%-20s %s\n", $key, var_export($config->get($key), true));
+}
+
+echo $config->int('mail.password'), ' ', $config->string('shop.items_per_page'), "\n";   // typed reads convert text and numbers
+```
+
+<!-- example: examples/guides/env-values.out -->
+```text
+shop.whatsapp        '+243812345678'
+mail.password        '20261027'
+shop.phone           '0812345678'
+shop.items_per_page  24
+shop.open            true
+20261027 24
+```
+
+- **Quoted values are text,** in single or double quotes. Quote passwords,
+  phone numbers, identifiers and anything else that is not a number.
+- **Unquoted values convert:** `true`, `false` and `null` (any case),
+  integers and decimals (`24`, `-3`, `0.5`, `2e3`).
+- **Except** a leading `+` (`+243812345678`), a leading zero (`007`,
+  `0812345678`) and integers longer than 15 digits: those stay text, as a
+  number would change them.
+- **Typed reads accept both:** `string()` returns an integer as text,
+  `int()` and `float()` read numeric text, and `bool()` reads `"true"`,
+  `"false"`, `"1"` and `"0"`. `#[Config]` injection converts to the
+  parameter's type the same way.
+- Only `.env` values can be quoted. A variable set by the server has no
+  quotes, so it follows the rules for unquoted values.
 
 Reference: the [configuration README](https://github.com/mjnable/zana-configuration).
