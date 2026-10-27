@@ -1,5 +1,8 @@
 # Zana documentation
 
+> **These pages document Zana 2.4.** Each minor version has its own branch;
+> [`main`](https://github.com/mjnable/zana-docs) documents the latest release.
+
 Zana is a modular PHP framework for business applications. You build an
 application from **modules**: self-contained features with their own
 domain, use cases, persistence and presentations. Zana gives them:
