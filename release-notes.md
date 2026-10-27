@@ -3,8 +3,25 @@
 Zana 2.0 turns the three 1.x packages into a framework of 19 packages for
 modular business applications, on PHP 8.5. Zana 2.1 adds what server-rendered
 websites need, 2.2 what content sites need, and 2.3 the way to put them online.
-2.4 makes production boots faster. Every package carries the
+2.4 makes production boots faster, and 2.5 fixes the shared-hosting release build on Windows. Every package carries the
 same version number. Each repository has its own `CHANGELOG.md`.
+
+## 2.5.0
+
+2.5 is backward compatible with 2.4.
+
+- **console:** `release:build` moves here from the website skeleton
+  (ADR-021), so every site gets its fixes with `composer update`. It no
+  longer hangs on Windows when Composer writes a lot (the output goes to a
+  file instead of pipes), finds Composer on Windows by itself, shows the
+  output with `-v`, and stops after `--timeout`.
+- **skeleton-web:** uses the console package's command instead of its own
+  copy.
+
+**Upgrading from 2.4:** in a project created from the skeleton 2.3 or 2.4,
+delete `src/Release/`, `src/Console/ReleaseBuildCommand.php` and its
+registration in `src/Bootstrap.php`. Until then, the project's own copy
+replaces the package's command.
 
 ## 2.4.0 — 2026-10-26
 

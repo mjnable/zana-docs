@@ -91,6 +91,7 @@ tape: 0 in stock (scope: cli:stock:check) [exit 1]
 | `cache:warm` | Compiles the container and runs every cache warmer. |
 | `about` | The application, its environment, PHP, and the installed Zana packages. |
 | `doctor` | Checks the server before going live: the PHP version, the extensions in `app.extensions`, a writable `var/`, the length of `security.secret`, the startup deployment checks, and (2.4) that every singleton can be created. Exits with 1 when something is fatal. |
+| `release:build` | (2.5) Builds the upload archives for shared hosting from a commit, with the production dependencies installed. Options: `--folder`, `--ref`, `--output`, `--composer`, `--timeout`, `-v`. See [deployment](../deployment.md#without-ssh). Needs `ext-zip`. |
 
 Packages and applications add their caches by tagging a service with
 `CacheClearerInterface::CLEARER_TAG` or `CacheWarmerInterface::WARMER_TAG`

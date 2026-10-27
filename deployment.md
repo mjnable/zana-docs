@@ -95,6 +95,18 @@ dependencies in a copy, and writes two archives:
   `public_html`. Its `index.php` points at `../website`; `--folder` picks
   another name for both.
 
+The command comes with `mj-zana/console` (2.5), so `composer update` brings
+its fixes. It finds Composer on the `PATH`, including the `composer.phar` that
+the Windows installer puts beside `composer.bat`; `--composer` points at
+another one. `-v` shows git's and Composer's output as it comes, and
+`--timeout` (600 seconds by default) stops a build that does not finish,
+showing the end of its output.
+
+A project created from the skeleton 2.3 or 2.4 has its own copy of the
+command, which can hang on Windows: delete `src/Release/`,
+`src/Console/ReleaseBuildCommand.php` and its registration in
+`src/Bootstrap.php`, and require `mj-zana/console` ^2.5.
+
 Then, in the file manager:
 
 1. create `website/.env` once, with the settings above;
