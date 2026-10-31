@@ -8,7 +8,7 @@ errors and mail problems visible, 2.7 helps AI coding agents follow an
 application's rules, and 2.8 generates whole use cases. Every package
 carries the same version number. Each repository has its own `CHANGELOG.md`.
 
-## 2.8.0 — 2026-10-31
+## 2.8.0 — 2026-11-01
 
 2.8 is phase A2 of the support for AI coding agents: the maker generates
 whole use cases that pass `check`, and the documentation walks through the
