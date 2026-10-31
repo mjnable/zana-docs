@@ -1,0 +1,11 @@
+AGENTS.md
+CLAUDE.md
+.github/copilot-instructions.md
+# Instructions for AI coding agents
+## How to work
+## Architecture
+## Services and configuration
+## Web
+## Do not
+## Commands
+CLAUDE.md: @AGENTS.md

@@ -3,9 +3,50 @@
 Zana 2.0 turns the three 1.x packages into a framework of 19 packages for
 modular business applications, on PHP 8.5. Zana 2.1 adds what server-rendered
 websites need, 2.2 what content sites need, and 2.3 the way to put them online.
-2.4 makes production boots faster, 2.5 fixes the shared-hosting release build on Windows, and 2.6 makes
-errors and mail problems visible. Every package carries the
-same version number. Each repository has its own `CHANGELOG.md`.
+2.4 makes production boots faster, 2.5 fixes the shared-hosting release build on Windows, 2.6 makes
+errors and mail problems visible, and 2.7 helps AI coding agents follow an
+application's rules. Every package carries the same version number. Each
+repository has its own `CHANGELOG.md`.
+
+## 2.7.0 — 2026-10-31
+
+2.7 helps AI coding agents work on a Zana application the way its
+developers do (see [working with AI coding agents](ai-agents.md)). Nothing
+in it calls an AI or depends on an AI provider. It is backward compatible
+with 2.6.
+
+- **console:**
+  - `inspect [section]` shows the environment, modules, services, console
+    commands, configuration keys with their types (never their values),
+    packages, and the sections packages add (routes, migrations);
+  - `check` verifies the application: the container builds, deployment
+    checks, singletons, the architecture rules on `modules/` (with
+    `mj-zana/testing`), and the checks packages add. Each problem is a
+    finding with an id, a severity, a message, a file and a hint;
+  - `inspect`, `check` and `doctor` take `--format=json`
+    (`zana.inspect/1`, `zana.check/1`);
+  - `ConsoleKernel::runBuilder()` builds the application itself, so `check`
+    reports a container that does not build.
+- **core:** `ApplicationCheck`, `InspectionSection`, `Finding` and
+  `Severity`, for packages and applications to add checks and sections.
+- **routing:** a `routes` section, and a check that route handlers and
+  middleware exist and are registered.
+- **database:** a `migrations` section, and a check for pending migrations
+  and missing migration files.
+- **maker:** `make:agents` writes `AGENTS.md`, linked to the documentation
+  of the installed version, with `CLAUDE.md` and
+  `.github/copilot-instructions.md` pointing to it.
+- **skeleton-web:** ships `AGENTS.md` and a test that fails when it names
+  another Zana version; `bin/console` uses `runBuilder()`; the `make:`
+  commands are registered when `mj-zana/maker` is installed.
+- **Docs:** [`llms.txt`](llms.txt), an index of these pages for agents,
+  generated and tested; the full text of every page is attached to each
+  documentation release as `llms-full.txt`.
+
+**Upgrading from 2.6:** in an existing application, run
+`php bin/console make:agents` (with `mj-zana/maker`). Optionally, use
+`ConsoleKernel::runBuilder()` in `bin/console` as the skeleton does. The
+text output of `doctor` now lists its findings the same way as `check`.
 
 ## 2.6.0 — 2026-10-31
 

@@ -1,0 +1,5 @@
+zana.check/1: error [exit 1]
+error routing.handler: GET /shelves: its handler ShelfController is not registered in the container.
+  hint: Register it in its module's register(): $services->transient(\ShelfController::class);
+warning shop.opening_hours: The opening hours are not set.
+  hint: Set shop.opening_hours in config/shop.php.

@@ -75,6 +75,7 @@ composer install             # the released packages, from Packagist
 composer test
 php bin/sync-examples.php    # after changing an example: rewrite the embedded blocks
 php examples/guides/cache.php > examples/guides/cache.out   # after changing a script's output
+php bin/llms.php             # after adding a page or changing a title or first sentence: rewrite llms.txt
 ```
 
 ### Versions

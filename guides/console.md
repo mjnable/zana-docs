@@ -83,6 +83,79 @@ tape: 0 in stock (scope: cli:stock:check) [exit 1]
   are solved problems. Zana adds the scope and the injection. Symfony's
   console documentation applies to everything else.
 
+## Inspect and check (2.7)
+
+Two commands show the application and verify it, for developers and for
+[AI coding agents](../ai-agents.md). Both take `--format=json`.
+
+- **`inspect [section]`** shows the environment, the modules, the services
+  with their lifetimes and origins, the console commands, the
+  configuration keys with their types (never their values) and the
+  installed packages. With `mj-zana/routing`, the routes; with
+  `mj-zana/database`, the migrations. `inspect routes` shows one section.
+- **`check`** verifies that the container builds, the startup deployment
+  checks, that every singleton can be created, the architecture rules of
+  `mj-zana/testing` on `modules/` (when it is installed), and every check
+  the packages and the application add: route handlers and middleware are
+  registered (`mj-zana/routing`), migrations are applied and their files
+  exist (`mj-zana/database`). When the container does not build, `check`
+  still runs and reports why.
+
+Each problem is a finding with an id (`routing.handler`,
+`container.singleton`, `architecture.dependency`, …), a severity (`error`,
+`warning`, `info`), a message, the file when there is one, and a hint.
+`check` exits with 1 when there is an error. The JSON is
+`{"schema": "zana.check/1", "status", "passed": [...], "findings": [...]}`;
+`inspect` uses `zana.inspect/1`. Fields are only added within a version.
+
+Add a check of your own by tagging a service that implements
+`ApplicationCheck` (from `mj-zana/core`):
+
+<!-- example: examples/guides/check.php#contribute -->
+```php
+// An application or package adds its own checks: a service tagged ApplicationCheck::TAG.
+final class OpeningHoursCheck implements ApplicationCheck
+{
+    public function findings(ApplicationInterface $application): array
+    {
+        $hours = $application->config()->get('shop.opening_hours', '');
+
+        return $hours === ''
+            ? [new Finding('shop.opening_hours', Severity::Warning, 'The opening hours are not set.', hint: "Set shop.opening_hours in config/shop.php.")]
+            : [];
+    }
+}
+```
+
+<!-- example: examples/guides/check.php#check -->
+```php
+$console = new ConsoleTester($app->container()->get(ConsoleKernel::class));
+$result = $console->run('check --format=json');
+
+$report = json_decode($result->output(), true);
+echo "{$report['schema']}: {$report['status']} [exit {$result->exitCode()}]\n";
+foreach ($report['findings'] as $finding) {
+    echo "{$finding['severity']} {$finding['id']}: {$finding['message']}\n  hint: {$finding['hint']}\n";
+}
+```
+
+<!-- example: examples/guides/check.out -->
+```text
+zana.check/1: error [exit 1]
+error routing.handler: GET /shelves: its handler ShelfController is not registered in the container.
+  hint: Register it in its module's register(): $services->transient(\ShelfController::class);
+warning shop.opening_hours: The opening hours are not set.
+  hint: Set shop.opening_hours in config/shop.php.
+```
+
+A section for `inspect` is a service tagged `InspectionSection::TAG`, with
+a `name()` and an `inspect()` that returns an array.
+
+In `bin/console`, `ConsoleKernel::runBuilder(Bootstrap::builder(...))`
+builds the application itself, so `check` can report a container that does
+not build (the 2.7 skeleton does this). `doctor` also takes `--format=json`
+since 2.7, with the same report format.
+
 ## New in 2.2
 
 | Command | |

@@ -3,3 +3,4 @@ composer.lock
 .phpunit.cache/
 phpunit.xml
 examples/**/var/
+/build/

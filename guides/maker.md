@@ -128,4 +128,13 @@ $container->get(\Zana\Routing\Router::class)->loadAttributes(\Modules\Clinics\Pr
 The generated code is tested end to end by the maker package: it runs with
 no hand edits.
 
+## New in 2.7: instructions for AI coding agents
+
+`make:agents` writes `AGENTS.md`, the rules and workflow of a Zana
+application for AI coding agents, linked to the documentation of the
+installed Zana version, plus `CLAUDE.md` and
+`.github/copilot-instructions.md`, which point to it. Run it again with
+`--force` after upgrading Zana. See
+[working with AI coding agents](../ai-agents.md).
+
 Reference: the [maker README](https://github.com/mjnable/zana-maker).

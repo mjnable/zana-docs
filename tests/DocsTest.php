@@ -37,6 +37,17 @@ final class DocsTest extends TestCase
         $this->assertGreaterThan(40, $checked, 'the pages embed tested examples');
     }
 
+    public function testLlmsTxtListsEveryPageAndIsCurrent(): void
+    {
+        $listed = array_merge(...array_values(Llms::pages()));
+        $pages = array_values(array_filter(Examples::pages(), static fn (string $page): bool => basename($page) !== 'README.md'));
+        sort($listed);
+        sort($pages);
+
+        $this->assertSame($pages, $listed, 'every page is in llms.txt');
+        $this->assertSame(Llms::index(), str_replace("\r\n", "\n", (string) file_get_contents(Examples::ROOT . '/llms.txt')), 'llms.txt is out of date (run php bin/llms.php)');
+    }
+
     public function testEveryExampleIsShownSomewhere(): void
     {
         $shown = [];

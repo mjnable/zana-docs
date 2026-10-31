@@ -35,6 +35,9 @@ Zana 2 requires PHP 8.5 or later. **Status:** `2.6.0`, released on
 - **[Deployment](deployment.md):** a VPS or shared hosting, with or without
   SSH, `release:build` (2.3, in the console package since 2.5), and the
   configuration cache (2.4).
+- **[Working with AI coding agents](ai-agents.md):** `AGENTS.md`, and the
+  `inspect` and `check` commands, so agents follow the application's rules
+  (2.7). Agents read [`llms.txt`](llms.txt), the index of these pages.
 - **[The guides](guides/README.md):** one per package, each with a tested
   example.
 - **[Upgrading from 1.x](upgrading.md)** and the
