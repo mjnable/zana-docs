@@ -4,9 +4,42 @@ Zana 2.0 turns the three 1.x packages into a framework of 19 packages for
 modular business applications, on PHP 8.5. Zana 2.1 adds what server-rendered
 websites need, 2.2 what content sites need, and 2.3 the way to put them online.
 2.4 makes production boots faster, 2.5 fixes the shared-hosting release build on Windows, 2.6 makes
-errors and mail problems visible, and 2.7 helps AI coding agents follow an
-application's rules. Every package carries the same version number. Each
-repository has its own `CHANGELOG.md`.
+errors and mail problems visible, 2.7 helps AI coding agents follow an
+application's rules, and 2.8 generates whole use cases. Every package
+carries the same version number. Each repository has its own `CHANGELOG.md`.
+
+## 2.8.0 — 2026-10-31
+
+2.8 is phase A2 of the support for AI coding agents: the maker generates
+whole use cases that pass `check`, and the documentation walks through the
+workflow on a real application (see
+[working with AI coding agents](ai-agents.md#a-walkthrough-a-library-api-28)).
+It is backward compatible with 2.7.
+
+- **maker:**
+  - `make:feature … --field=name:type --http`: a command or query with
+    typed, validated fields, its handler, an API action and its route, the
+    module's `ApiInput` (400 and 422 with field errors), a handler test and
+    an HTTP test;
+  - `make:value-object` and `make:repository` (the database
+    implementation of an entity's repository, with optimistic versions, and
+    its migration); `make:entity` adds `restore()`;
+  - `--format=json` on every `make:` command (`zana.make/1`): the files,
+    the lines registered in the module and the manual steps;
+  - the missing providers and packages are named; generated files have LF
+    line endings on every system;
+  - `AGENTS.md` names the new commands and plans with
+    `--dry-run --format=json`.
+- **skeleton-web:** runs the tests in `modules/*/Tests`, which the maker
+  generates; `AGENTS.md` for 2.8.
+- **Docs:** a walkthrough that builds a library API following the workflow,
+  checked by rebuilding its example from the page's commands.
+
+**Upgrading from 2.7:** run `php bin/console make:agents --force` for the
+2.8 `AGENTS.md`, then add back your own section. An entity generated before
+2.8 needs `restore()` before `make:repository`; the command says so. A
+`command` or `query` stub copied into `stubs/` before 2.8 keeps working,
+without fields.
 
 ## 2.7.0 — 2026-10-31
 

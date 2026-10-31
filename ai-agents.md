@@ -87,12 +87,163 @@ developer follows:
    one section, e.g. `inspect routes`.
 3. **Reuse** an existing feature, contract or service before adding one.
 4. **Plan** the module and layers the change belongs to;
-   `make:… --dry-run` shows what a generator would write.
+   `make:… --dry-run --format=json` lists the files a generator would write
+   and the lines it would register.
 5. **Generate** the structure with the `make:` commands.
 6. **Write** the business logic in Domain and Application.
 7. **Check:** `php bin/console check --format=json`, and fix every error.
 8. **Test:** `composer test`.
 9. **Summarise** the files changed, the decisions and the commands run.
+
+Nothing in it is specific to one agent: it is plain commands and files, and
+a developer without an agent follows the same steps.
+
+## A walkthrough: a library API (2.8)
+
+The request: *"Let people add books, with a title and an author, and list
+them, through a JSON API."* This walkthrough follows the workflow in an
+application with HTTP, routing, the mediator, serialization, validation, the
+database and the console, as in
+[`examples/agents/library`](examples/agents/library). Its test suite
+rebuilds that application from the commands on this page, so they are
+exactly what produced it.
+
+**1–3. Understand, inspect, reuse.** `inspect` shows no module with books,
+so the feature gets its own module, `Library`.
+
+**4–5. Plan and generate.** One module, its entity with a value object for
+the title and a database repository, and two use cases exposed over HTTP:
+
+```shell
+php bin/console make:module Library
+php bin/console make:entity Library Book
+php bin/console make:value-object Library BookTitle
+php bin/console make:repository Library Book
+php bin/console make:feature Library AddBook --field=title:string --field=author:string --http
+php bin/console make:feature Library ListBooks --query --http
+```
+
+Add `--dry-run --format=json` to any of them to see its plan first.
+`make:feature … --http` writes a vertical slice:
+
+| File | |
+|---|---|
+| `Application/Features/AddBook/AddBookCommand.php` | The command: `title` and `author`, typed; a required text must not be blank |
+| `Application/Features/AddBook/AddBookHandler.php` | Its handler, empty |
+| `Presentation/Api/AddBookAction.php` | `POST /api/library/add-book`: reads the JSON, sends the command, answers 204 |
+| `Presentation/Api/ApiInput.php` | Once per module: JSON or query string → a validated command or query; 400 or 422 with the field errors |
+| `Tests/Presentation/AddBookApiTest.php` | The route answers; missing fields are refused |
+| `Tests/Application/AddBookHandlerTest.php` | Marked incomplete until the handler does something |
+
+and registers the handler, the action and its route in `LibraryModule`.
+`make:repository` writes `DatabaseBookRepository`, which stores a book with
+an optimistic version check, and the migration of its table. At this point
+`php bin/console migrate` and `php bin/console check` already pass.
+
+**6. Write the business logic.** The generated code is the structure; the
+rules are yours. A book gets its title and author:
+
+<!-- example: examples/agents/library/modules/Library/Domain/Book.php#entity -->
+```php
+private function __construct(
+    BookId $id,
+    public private(set) BookTitle $title,
+    public private(set) string $author,
+) {
+    parent::__construct($id);
+}
+
+public static function create(BookTitle $title, string $author): self
+{
+    return new self(BookId::generate(), $title, $author);
+}
+
+/**
+ * Rebuild a stored Book (used by its repository); records no event.
+ */
+public static function restore(BookId $id, int $version, BookTitle $title, string $author): self
+{
+    $entity = new self($id, $title, $author);
+    $entity->version = $version;
+
+    return $entity;
+}
+```
+
+The repository stores them (and the migration gets the two columns):
+
+<!-- example: examples/agents/library/modules/Library/Infrastructure/Persistence/DatabaseBookRepository.php#columns -->
+```php
+/**
+ * The stored columns, besides id and version.
+ *
+ * @return array<string, mixed>
+ */
+private static function row(Book $entity): array
+{
+    return ['title' => $entity->title->value, 'author' => $entity->author];
+}
+
+/**
+ * @param array<string, mixed> $row
+ */
+private static function hydrate(array $row): Book
+{
+    $text = static fn (string $key): string => is_scalar($row[$key] ?? null) ? (string) $row[$key] : '';
+
+    return Book::restore(BookId::fromString($text('id')), (int) $text('version'), new BookTitle($text('title')), $text('author'));
+}
+```
+
+The handler creates the book; `BookTitle` trims the title and refuses an
+empty one:
+
+<!-- example: examples/agents/library/modules/Library/Application/Features/AddBook/AddBookHandler.php#handler -->
+```php
+#[Handles(AddBookCommand::class)]
+final readonly class AddBookHandler
+{
+    public function __construct(private BookRepositoryInterface $books)
+    {
+    }
+
+    public function __invoke(AddBookCommand $command): void
+    {
+        $this->books->add(Book::create(new BookTitle($command->title), $command->author));
+    }
+}
+```
+
+`ListBooksHandler` returns the books by title through a new `all()` on the
+repository interface, and the handler tests now assert what the handlers
+do, with an in-memory repository. The API tests store books, so they
+migrate a fresh database (SQLite in memory, `config/testing/database.php`):
+
+<!-- example: examples/agents/library/modules/Library/Tests/Presentation/AddBookApiTest.php#migrate -->
+```php
+protected function setUp(): void
+{
+    parent::setUp();
+    $this->assertSame(0, $this->console()->run('migrate')->exitCode(), 'a fresh database (config/testing)');
+}
+```
+
+These are the files written by hand after generating:
+`Domain/Book.php`, `Domain/BookRepositoryInterface.php`,
+`Infrastructure/Persistence/DatabaseBookRepository.php`, the migration,
+`Application/Features/AddBook/AddBookHandler.php`,
+`Application/Features/ListBooks/ListBooksHandler.php`, the four tests in
+`Tests/Application` and `Tests/Presentation`, and the new
+`Tests/InMemoryBookRepository.php`. Every other file is as generated.
+
+**7–8. Check and test.** `php bin/console check` passes: the container
+builds, the architecture rules hold, every route reaches a registered
+handler, and the migrations are applied. `composer test` runs the eight
+tests of the module.
+
+**9. Summarise.** The agent reports the module and the files it created,
+the two endpoints, the decision to keep the title as a value object, and
+the results of `check` and the tests.
 
 ## Checking a change
 

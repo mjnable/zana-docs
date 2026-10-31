@@ -57,7 +57,9 @@ final class DocsTest extends TestCase
             }
         }
 
-        $this->assertSame([], array_values(array_filter(Examples::sources(), static fn (string $source): bool => !isset($shown[$source]))), 'examples that no page shows');
+        // The walkthrough's application is checked file by file against the commands of its page instead (WalkthroughTest).
+        $unshown = array_filter(Examples::sources(), static fn (string $source): bool => !isset($shown[$source]) && !str_starts_with($source, WalkthroughTest::EXAMPLE . '/'));
+        $this->assertSame([], array_values($unshown), 'examples that no page shows');
     }
 
     /**

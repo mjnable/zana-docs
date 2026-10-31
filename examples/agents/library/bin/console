@@ -1,0 +1,12 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use App\Bootstrap;
+use Zana\Console\ConsoleKernel;
+
+$base = dirname(__DIR__);
+require dirname($base, 3) . '/vendor/autoload.php';   // the documentation's vendor folder
+
+exit(ConsoleKernel::runBuilder(Bootstrap::builder($base)));

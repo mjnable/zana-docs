@@ -137,4 +137,21 @@ installed Zana version, plus `CLAUDE.md` and
 `--force` after upgrading Zana. See
 [working with AI coding agents](../ai-agents.md).
 
+## New in 2.8: whole use cases
+
+| Command | Writes |
+|---|---|
+| `make:feature <Module> <Feature> --field=title:string --field=pages:?int` | The command (or, with `--query`, the query) with typed fields; a required text must not be blank |
+| `make:feature … --http` | Also its API action and route (`POST /api/<module>/<feature>`, `GET` for a query), the module's `ApiInput`, and an HTTP test |
+| `make:value-object <Module> <Name> [--type=string\|int\|float]` | A value object with an example rule, and its test |
+| `make:repository <Module> <Entity>` | The entity's database repository, with optimistic versions, its migration and its registration |
+
+Field types are `string`, `int`, `float` and `bool`, and `?type` makes a
+field optional. The generated tests pass as generated, except the handler
+tests, which are marked incomplete until you write the handler. Every
+`make:` command also takes `--format=json`, which lists the files, the
+lines registered in the module and the manual steps (`zana.make/1`).
+The [walkthrough](../ai-agents.md#a-walkthrough-a-library-api-28) builds
+a small API with them, step by step.
+
 Reference: the [maker README](https://github.com/mjnable/zana-maker).

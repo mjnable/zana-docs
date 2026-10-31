@@ -56,7 +56,7 @@ Every package is installed as `mj-zana/<name>` and requires PHP 8.5 or later.
 | Guide | Package | What it gives you |
 |---|---|---|
 | [Testing](testing.md) | `mj-zana/testing` | Application tests, HTTP and console in memory, architecture rules |
-| [Maker](maker.md) | `mj-zana/maker` | Code generators for modules, features, entities, controllers, pages and back offices; `AGENTS.md` (2.7) |
+| [Maker](maker.md) | `mj-zana/maker` | Code generators for modules, features, entities, controllers, pages and back offices; `AGENTS.md` (2.7); HTTP use cases, value objects and repositories (2.8) |
 
 The console's `inspect` and `check` (2.7) show and verify a whole
 application; see [the console guide](console.md#inspect-and-check-27) and
