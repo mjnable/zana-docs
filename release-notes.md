@@ -5,8 +5,30 @@ modular business applications, on PHP 8.5. Zana 2.1 adds what server-rendered
 websites need, 2.2 what content sites need, and 2.3 the way to put them online.
 2.4 makes production boots faster, 2.5 fixes the shared-hosting release build on Windows, 2.6 makes
 errors and mail problems visible, 2.7 helps AI coding agents follow an
-application's rules, and 2.8 generates whole use cases. Every package
-carries the same version number. Each repository has its own `CHANGELOG.md`.
+application's rules, 2.8 generates whole use cases, and 2.9 adds an API
+skeleton. Every package carries the same version number. Each repository
+has its own `CHANGELOG.md`.
+
+## 2.9.0 — 2026-11-01
+
+2.9 is phase A3 of the support for AI coding agents: a starting point for
+JSON APIs. It is backward compatible with 2.8.
+
+- **skeleton-api (new):** `composer create-project mj-zana/skeleton-api`
+  gives an API with an `Accounts` module (users in the database,
+  `POST /api/tokens` for a bearer token, rate-limited, `GET /api/me`, and
+  `user:create`), errors in problem JSON, tests that run without `.env`,
+  `AGENTS.md`, and a CI workflow that runs the tests and `check`.
+- **http:** `http.json_errors` answers problem JSON to every client;
+  `HttpKernel::run()` sends a `.json` fallback as problem JSON when the
+  application cannot start.
+- **security:** without a cache, the rate limiter fails only when used, so
+  `check` and `doctor` pass in applications that do not rate-limit.
+- **skeleton-web:** its CI runs `check`; `AGENTS.md` for 2.9.
+
+**Upgrading from 2.8:** nothing to change. For an existing API built on
+skeleton-web, set `http.json_errors` to `true` in `config/http.php`, and
+run `php bin/console make:agents --force` for the 2.9 `AGENTS.md`.
 
 ## 2.8.0 — 2026-11-01
 

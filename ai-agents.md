@@ -277,6 +277,17 @@ The second finding comes from the application's own check; see
 [the console guide](guides/console.md#inspect-and-check-27) for the checks
 `check` runs and how to add one.
 
+## Starting points
+
+Both skeletons ship `AGENTS.md`, a test that keeps it on the installed
+version, and a CI workflow that runs the tests and `check`:
+
+- `composer create-project mj-zana/skeleton-web` for a website (2.3);
+- `composer create-project mj-zana/skeleton-api` for a JSON API (2.9): the
+  packages of the walkthrough above are installed and registered, and an
+  `Accounts` module already gives users bearer tokens (`POST /api/tokens`,
+  `GET /api/me`), so `make:feature … --http` works from the first command.
+
 ## Rules worth knowing
 
 - **Nothing here calls an AI.** Zana has no dependency on an AI provider;

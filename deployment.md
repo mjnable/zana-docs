@@ -10,6 +10,10 @@ ships everything it uses:
 composer create-project mj-zana/skeleton-web my-site
 ```
 
+The [API skeleton](https://github.com/mjnable/zana-skeleton-api) (2.9)
+deploys the same way, with `release:build --folder=api`; run
+`php bin/console migrate` on the server too.
+
 ## Before any upload
 
 1. **Commit.** Releases are built from commits, so what you test is what

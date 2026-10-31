@@ -14,15 +14,16 @@ domain, use cases, persistence and presentations. Zana gives them:
 - **Tools that keep modules apart:** contracts between modules, and
   architecture tests that enforce the boundaries.
 
-Zana 2 requires PHP 8.5 or later. **Status:** `2.8.0`, released on
-2026-11-01: the maker generates whole use cases (HTTP slices, value
-objects, repositories) that pass `check`. See the [release notes](release-notes.md).
+Zana 2 requires PHP 8.5 or later. **Status:** `2.9.0`, released on
+2026-11-01: an API skeleton with users, bearer tokens and problem JSON
+errors. See the [release notes](release-notes.md).
 
 ## Start here
 
 - **[Getting started](getting-started.md):** build a small application with
   one module, HTTP, a console command and a test, in about ten minutes. For a
-  website, `composer create-project mj-zana/skeleton-web` (2.3).
+  website, `composer create-project mj-zana/skeleton-web` (2.3); for a JSON
+  API, `composer create-project mj-zana/skeleton-api` (2.9).
 - **[The module cookbook](cookbook/modules.md):** grow it into a real
   application, with layers, persistence, events, contracts between modules
   and testing by layer.

@@ -211,4 +211,20 @@ and line, and never the stack trace, whose arguments can hold passwords:
 For a log of your own, with rotation, add `mj-zana/logging` (see
 [logging](logging.md)).
 
+## New in 2.9: errors for APIs
+
+`ErrorMiddleware` answers problem JSON when the request's `Accept` or
+`Content-Type` mentions JSON, and an HTML page otherwise. An API whose
+clients send neither (curl, webhooks) sets:
+
+```php
+// config/http.php
+return ['json_errors' => true];   // problem JSON for every client
+```
+
+When the application cannot start, `HttpKernel::run()` sends its fallback
+file with a 503: a `.json` file goes out as problem JSON, as the
+[API skeleton](https://github.com/mjnable/zana-skeleton-api)'s
+`public/503.json` does.
+
 Reference: the [http README](https://github.com/mjnable/zana-http).

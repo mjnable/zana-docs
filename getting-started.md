@@ -16,6 +16,10 @@ You need PHP 8.5 or later and Composer.
 > composer create-project mj-zana/skeleton-web my-site
 > ```
 >
+> For a JSON API, the API skeleton (2.9) has users with bearer tokens,
+> errors in problem JSON, a database and `AGENTS.md`:
+> `composer create-project mj-zana/skeleton-api my-api`.
+>
 > Then read [a company website](cookbook/website.md) and
 > [deployment](deployment.md).
 
