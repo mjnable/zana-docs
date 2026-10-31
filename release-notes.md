@@ -33,6 +33,9 @@ with 2.6.
   middleware exist and are registered.
 - **database:** a `migrations` section, and a check for pending migrations
   and missing migration files.
+- **http:** without a PSR-16 cache, the page cache fails only when used, so
+  `check` and `doctor` no longer report it in applications that do not
+  cache pages.
 - **maker:** `make:agents` writes `AGENTS.md`, linked to the documentation
   of the installed version, with `CLAUDE.md` and
   `.github/copilot-instructions.md` pointing to it.
