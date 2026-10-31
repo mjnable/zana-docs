@@ -65,5 +65,37 @@
         "sort-packages": true
     },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../zana-http",
+            "options": {
+                "symlink": true,
+                "versions": {
+                    "mj-zana/http": "2.6.0"
+                }
+            }
+        },
+        {
+            "type": "path",
+            "url": "../zana-logging",
+            "options": {
+                "symlink": true,
+                "versions": {
+                    "mj-zana/logging": "2.6.0"
+                }
+            }
+        },
+        {
+            "type": "path",
+            "url": "../zana-communication",
+            "options": {
+                "symlink": true,
+                "versions": {
+                    "mj-zana/communication": "2.6.0"
+                }
+            }
+        }
+    ]
 }

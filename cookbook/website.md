@@ -520,6 +520,8 @@ use Modules\Contact\Application\ContactMessage;
 use Modules\Contact\Application\ContactNotifier;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
+use Zana\Communication\MailException;
 use Zana\Http\ResponseFactory;
 use Zana\Routing\UrlGenerator;
 use Zana\Validation\Validator;
@@ -532,6 +534,7 @@ final readonly class ContactController
         private ContactNotifier $notifier,
         private UrlGenerator $urls,
         private ResponseFactory $responses,
+        private ?LoggerInterface $logger = null,
     ) {
     }
 
@@ -556,7 +559,15 @@ final readonly class ContactController
             return View::make('@Contact/form', ['page' => 'contact', 'old' => $fields, 'errors' => $violations->toArray()])->withStatus(422);
         }
 
-        $this->notifier->notify($message);
+        try {
+            $this->notifier->notify($message);
+        } catch (MailException $e) {
+            // The mail server refused or could not be reached: keep what the visitor wrote,
+            // say so, and leave the reason in the log (php bin/console mail:test shows it too).
+            $this->logger?->error('Contact message from {email} not sent: {reason}', ['email' => $message->email, 'reason' => $e->getMessage(), 'exception' => $e]);
+
+            return View::make('@Contact/form', ['page' => 'contact', 'old' => $fields, 'errors' => [], 'notSent' => true])->withStatus(503);
+        }
 
         // Post/Redirect/Get, so reloading the thank-you page sends nothing twice.
         return $this->responses->redirect($this->urls->generate('contact.thanks'), 303);
@@ -573,6 +584,31 @@ The form posts are protected by `CsrfMiddleware`, added to the POST
 routes only. The token lives in the form itself, so no session or cookie
 is needed:
 
+**When the mail server refuses.** Email is often the first thing to fail on
+a new server: a restricted mailbox, a wrong password or port. The form must
+not end on an error page with the visitor's text lost. The controller
+catches `MailException`, shows the form again with what was written, and
+logs the reason (2.6):
+
+<!-- example: examples/cookbook/website/modules/Contact/Presentation/Web/ContactController.php#mail-failure -->
+```php
+try {
+    $this->notifier->notify($message);
+} catch (MailException $e) {
+    // The mail server refused or could not be reached: keep what the visitor wrote,
+    // say so, and leave the reason in the log (php bin/console mail:test shows it too).
+    $this->logger?->error('Contact message from {email} not sent: {reason}', ['email' => $message->email, 'reason' => $e->getMessage(), 'exception' => $e]);
+
+    return View::make('@Contact/form', ['page' => 'contact', 'old' => $fields, 'errors' => [], 'notSent' => true])->withStatus(503);
+}
+```
+
+The logger is optional: without `mj-zana/logging`, nothing is logged here,
+but `php bin/console mail:test you@example.com` shows the mail server's
+answer (see [communication](../guides/communication.md#new-in-26-trying-the-mail-settings)).
+When a form also stores what was sent (a quote request, an order), store it
+first, then send: a mail failure then loses nothing.
+
 <!-- example: examples/cookbook/website/modules/Contact/ContactModule.php#routes -->
 ```php
 $paths = ['en' => '/contact', 'fr' => '/contact'];
@@ -587,6 +623,7 @@ $router->localized(['en' => '/contact/thanks', 'fr' => '/contact/merci'], [Conta
 <h1><?= $this->t('contact.title') ?></h1>
 <form method="post" action="<?= $this->url('contact') ?>" novalidate>
   <?= $this->csrf_field('contact') ?>
+<?php if ($notSent ?? false): ?><p class="error" role="alert"><?= $this->t('contact.error.not_sent') ?></p><?php endif ?>
 <?php foreach (['name' => 'text', 'email' => 'email'] as $field => $type): ?>
   <label><?= $this->t("contact.{$field}") ?>
     <input type="<?= $type ?>" name="<?= $field ?>" value="<?= $old[$field] ?? '' ?>">
@@ -622,6 +659,7 @@ return ['contact' => [
         'name' => 'Please enter your name.',
         'email' => 'Please enter a valid email address.',
         'message' => 'Please write at least 10 characters.',
+        'not_sent' => 'Your message could not be sent. Please try again in a few minutes.',
     ],
 ]];
 ```
@@ -641,6 +679,7 @@ return ['contact' => [
         'name' => 'Indiquez votre nom.',
         'email' => 'Indiquez une adresse e-mail valide.',
         'message' => 'Écrivez au moins 10 caractères.',
+        'not_sent' => 'Votre message n’a pas pu être envoyé. Réessayez dans quelques minutes.',
     ],
 ]];
 ```
@@ -795,6 +834,18 @@ public function testPostsWithoutTheFormTokenAreRefused(): void
 {
     $this->browser()->submit('/en/contact', ['name' => 'Bot', 'email' => 'bot@example.com', 'message' => 'Buy cheap things now'])->assertForbidden();
     $this->assertNoMailSent();
+}
+
+public function testAMailFailureKeepsTheMessageAndSaysSo(): void
+{
+    $this->withConfig(['mail.dsn' => 'smtp://127.0.0.1:1']);   // a mail server that cannot be reached
+
+    $this->browser()->form('/fr/contact')
+        ->fill(['name' => 'Ada Lovelace', 'email' => 'ada@example.com', 'message' => 'I would like a quote.'])
+        ->submit()
+        ->assertStatus(503)
+        ->assertSelector('p.error[role=alert]', 'Votre message n’a pas pu être envoyé.')
+        ->assertSelector('textarea[name=message]', 'I would like a quote.');
 }
 ```
 

@@ -8,6 +8,8 @@ use Modules\Contact\Application\ContactMessage;
 use Modules\Contact\Application\ContactNotifier;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
+use Zana\Communication\MailException;
 use Zana\Http\ResponseFactory;
 use Zana\Routing\UrlGenerator;
 use Zana\Validation\Validator;
@@ -20,6 +22,7 @@ final readonly class ContactController
         private ContactNotifier $notifier,
         private UrlGenerator $urls,
         private ResponseFactory $responses,
+        private ?LoggerInterface $logger = null,
     ) {
     }
 
@@ -44,7 +47,17 @@ final readonly class ContactController
             return View::make('@Contact/form', ['page' => 'contact', 'old' => $fields, 'errors' => $violations->toArray()])->withStatus(422);
         }
 
-        $this->notifier->notify($message);
+        // region: mail-failure
+        try {
+            $this->notifier->notify($message);
+        } catch (MailException $e) {
+            // The mail server refused or could not be reached: keep what the visitor wrote,
+            // say so, and leave the reason in the log (php bin/console mail:test shows it too).
+            $this->logger?->error('Contact message from {email} not sent: {reason}', ['email' => $message->email, 'reason' => $e->getMessage(), 'exception' => $e]);
+
+            return View::make('@Contact/form', ['page' => 'contact', 'old' => $fields, 'errors' => [], 'notSent' => true])->withStatus(503);
+        }
+        // endregion: mail-failure
 
         // Post/Redirect/Get, so reloading the thank-you page sends nothing twice.
         return $this->responses->redirect($this->urls->generate('contact.thanks'), 303);

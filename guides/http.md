@@ -196,4 +196,19 @@ bounds an entry's life, and `http.page_cache.shared_max_age` also sends
 `TooManyRequestsHttpException` (429, with `Retry-After`) and
 `ServiceUnavailableHttpException` (503) join the HTTP exceptions.
 
+## New in 2.6: server errors are always written down
+
+A 500 is logged with the application's PSR-3 logger. Without one,
+`ErrorMiddleware` now writes it to PHP's error log, `error_log()`: on most
+shared hosting, the `error_log` file next to `index.php`. One line holds
+the request and the exception chain, each with its class, message, file
+and line, and never the stack trace, whose arguments can hold passwords:
+
+```
+[zana] POST /en/start failed: RuntimeException: Mail could not be sent at …/StartController.php:41; caused by …
+```
+
+For a log of your own, with rotation, add `mj-zana/logging` (see
+[logging](logging.md)).
+
 Reference: the [http README](https://github.com/mjnable/zana-http).

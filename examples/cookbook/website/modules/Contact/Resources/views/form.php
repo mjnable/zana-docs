@@ -2,6 +2,7 @@
 <h1><?= $this->t('contact.title') ?></h1>
 <form method="post" action="<?= $this->url('contact') ?>" novalidate>
   <?= $this->csrf_field('contact') ?>
+<?php if ($notSent ?? false): ?><p class="error" role="alert"><?= $this->t('contact.error.not_sent') ?></p><?php endif ?>
 <?php foreach (['name' => 'text', 'email' => 'email'] as $field => $type): ?>
   <label><?= $this->t("contact.{$field}") ?>
     <input type="<?= $type ?>" name="<?= $field ?>" value="<?= $old[$field] ?? '' ?>">

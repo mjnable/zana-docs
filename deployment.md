@@ -76,7 +76,15 @@ php bin/console doctor
   values, naming the key.
 - `doctor` checks the PHP version and extensions (`app.extensions`), that
   `var/` is writable, the secret, and the deployment checks. It exits
-  with 1 when something is fatal.
+  with 1 when something is fatal. Since 2.6 they include writable log
+  files and, in production, a real mail transport.
+- `mail:test you@example.com` (2.6) sends a test message and prints the
+  mail server's answer.
+
+**When a page shows the error page,** the reason is in `var/log/app.log`
+with the skeleton's logging (2.6), or else in PHP's error log (the
+`error_log` file on most shared hosting). Neither holds stack traces or
+passwords.
 
 ## Without SSH
 
@@ -113,7 +121,10 @@ Then, in the file manager:
 2. make `website/var/` writable (755 for folders is usually enough when PHP
    runs as your user);
 3. after each upload, delete `website/var/cache/`, so the container and
-   the configuration are read again on the next request.
+   the configuration are read again on the next request;
+4. try the mail settings once with a cron job running
+   `php /home/<user>/website/bin/console mail:test you@example.com`: its
+   output, the mail server's answer, arrives by email.
 
 Composer runs on your machine, so it must use the server's PHP version and
 extensions: set `config.platform.php` in `composer.json` when your machine

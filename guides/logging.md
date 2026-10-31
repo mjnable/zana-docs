@@ -69,7 +69,16 @@ return [
   - `array`: in memory, for tests, e.g. in `config/testing/logging.php`;
   - `null`: discards everything.
 - **Default:** without any configuration, warnings and above go to
-  `php://stderr`.
+  `php://stderr`. A website should configure a file, as the skeleton does
+  (2.6):
+
+  ```php
+  'app' => ['handler' => 'stream', 'path' => 'var/log/app.log', 'level' => 'warning', 'max_size' => '10M', 'max_files' => 5],
+  ```
+
+- **Rotation (2.6):** with `max_size` (bytes, or `K`, `M`, `G`), a file is
+  renamed `app.log.1` before it would grow larger, the older ones shift,
+  and only `max_files` of them are kept (5 by default).
 - **Other channels:** `LogManager::channel('audit')` returns a channel's
   logger.
 - **Correlation ids:** the HTTP and console kernels put each request's or
@@ -86,6 +95,10 @@ return [
   objects are serialised, other objects and resources become a short
   description, and deep nesting stops at a maximum depth. Logging never
   fails because of an odd context value.
+- **Logging never breaks the application (2.6).** When a log file cannot
+  be created or written, the line goes to PHP's error log instead, with the
+  reason. A deployment check warns at startup and in `doctor` when a
+  configured log file cannot be written.
 - **Levels are the eight PSR-3 levels.** Unknown level names throw an
   exception that implements PSR-3's `InvalidArgumentException`.
 

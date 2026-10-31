@@ -114,5 +114,25 @@ $newsletter->unsubscribe($token);   // from the link in every newsletter
 - Subscribers are kept in the database with `DatabaseSubscriberStore`
   (create the table with `DatabaseSubscriberStore::createTable()`), or in
   memory for tests.
+- **`subscribe()` can throw `MailException`** after it saved the pending
+  subscriber, when the confirmation cannot be sent. Catch it and ask the
+  visitor to try again: subscribing again sends a new confirmation.
+
+## New in 2.6: trying the mail settings
+
+```
+php bin/console mail:test you@example.com
+```
+
+It sends a test message with the application's settings and prints the
+mail server's conversation, so a refused sender, a wrong password or port,
+or a certificate that does not match shows at once. The DSN's password is
+masked and the login lines are hidden. On shared hosting without SSH, run
+it once from a cron job: its output arrives by email. It needs
+`mj-zana/console`.
+
+In production, a deployment check warns (at startup and in `doctor`) when
+`mail.dsn` is unset (`memory://` records messages) or `null://`: forms
+would look successful while nobody receives anything.
 
 Reference: the [communication README](https://github.com/mjnable/zana-communication).

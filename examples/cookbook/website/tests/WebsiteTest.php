@@ -87,6 +87,18 @@ final class WebsiteTest extends ApplicationTestCase
         $this->browser()->submit('/en/contact', ['name' => 'Bot', 'email' => 'bot@example.com', 'message' => 'Buy cheap things now'])->assertForbidden();
         $this->assertNoMailSent();
     }
+
+    public function testAMailFailureKeepsTheMessageAndSaysSo(): void
+    {
+        $this->withConfig(['mail.dsn' => 'smtp://127.0.0.1:1']);   // a mail server that cannot be reached
+
+        $this->browser()->form('/fr/contact')
+            ->fill(['name' => 'Ada Lovelace', 'email' => 'ada@example.com', 'message' => 'I would like a quote.'])
+            ->submit()
+            ->assertStatus(503)
+            ->assertSelector('p.error[role=alert]', 'Votre message n’a pas pu être envoyé.')
+            ->assertSelector('textarea[name=message]', 'I would like a quote.');
+    }
     // endregion: contact
 
     // region: deployment

@@ -6,6 +6,25 @@ websites need, 2.2 what content sites need, and 2.3 the way to put them online.
 2.4 makes production boots faster, and 2.5 fixes the shared-hosting release build on Windows. Every package carries the
 same version number. Each repository has its own `CHANGELOG.md`.
 
+## 2.6.0
+
+2.6 makes failures on a new server visible. It is backward compatible with
+2.5.
+
+- **http:** without a PSR-3 logger, a server error goes to PHP's error
+  log, on one line with the exception chain and no stack trace.
+- **logging:**
+  - log files rotate (`max_size`, `max_files`);
+  - a file that cannot be written no longer breaks the application: the
+    line goes to PHP's error log;
+  - a deployment check warns when a log file cannot be written.
+- **communication:**
+  - `mail:test <email>` prints the mail server's answer, passwords hidden;
+  - a deployment check warns when production sends no email (`memory://`
+    or `null://`).
+- **skeleton-web:** logs warnings and errors to `var/log/app.log`.
+- **Docs:** the website's contact form survives a mail failure.
+
 ## 2.5.1 — 2026-10-27
 
 A fix for `.env` values (FE-42), backward compatible except for the
