@@ -3,10 +3,11 @@
 Zana 2.0 turns the three 1.x packages into a framework of 19 packages for
 modular business applications, on PHP 8.5. Zana 2.1 adds what server-rendered
 websites need, 2.2 what content sites need, and 2.3 the way to put them online.
-2.4 makes production boots faster, and 2.5 fixes the shared-hosting release build on Windows. Every package carries the
+2.4 makes production boots faster, 2.5 fixes the shared-hosting release build on Windows, and 2.6 makes
+errors and mail problems visible. Every package carries the
 same version number. Each repository has its own `CHANGELOG.md`.
 
-## 2.6.0
+## 2.6.0 — 2026-10-31
 
 2.6 makes failures on a new server visible. It is backward compatible with
 2.5.
