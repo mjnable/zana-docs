@@ -123,7 +123,34 @@ php bin/console make:feature Library AddBook --field=title:string --field=author
 php bin/console make:feature Library ListBooks --query --http
 ```
 
-Add `--dry-run --format=json` to any of them to see its plan first.
+Add `--dry-run --format=json` to any of them to see its plan first. The
+same six commands can be one file (2.11), which an agent proposes and a
+person reviews before anything is written:
+
+<!-- example: examples/agents/library/library.plan.json -->
+```json
+{
+    "schema": "zana.plan/1",
+    "module": "Library",
+    "entities": ["Book"],
+    "value_objects": ["BookTitle"],
+    "repositories": ["Book"],
+    "features": [
+        {"name": "AddBook", "http": true, "fields": ["title:string", "author:string"]},
+        {"name": "ListBooks", "query": true, "http": true}
+    ]
+}
+```
+
+```shell
+php bin/console make:plan library.plan.json --dry-run   # the files and commands, nothing written
+php bin/console make:plan library.plan.json
+```
+
+`make:plan` runs exactly those `make:` commands, in a temporary copy
+first: nothing is written unless every step succeeds. This page's test
+checks that the plan and the commands write the same files.
+
 `make:feature … --http` writes a vertical slice:
 
 | File | |
@@ -287,6 +314,27 @@ version, and a CI workflow that runs the tests and `check`:
   packages of the walkthrough above are installed and registered, and an
   `Accounts` module already gives users bearer tokens (`POST /api/tokens`,
   `GET /api/me`), so `make:feature … --http` works from the first command.
+
+## An AI-ready checklist (2.11)
+
+A shared bar for an application that agents maintain: not a
+certification, and every line names what verifies it. Both skeletons meet
+it from `composer create-project`.
+
+| Criterion | Verified by |
+|---|---|
+| `AGENTS.md` exists and names the installed Zana version | `check` (`agents.instructions`, with `mj-zana/maker`); the skeletons' `tests/AgentsFileTest.php` |
+| `CLAUDE.md` and `.github/copilot-instructions.md` point to it | the two files (`make:agents` writes them) |
+| `check` passes without an error | `php bin/console check` exits with 0 |
+| The architecture rules apply to `modules/` | `mj-zana/testing` installed; `check` reports "Architecture: … no violation" |
+| Tests run without `.env` | `config/testing/` (a secret, an in-memory database); `APP_ENV=testing php bin/console check` |
+| Module tests run with the others | `phpunit.xml.dist` includes `modules/*/Tests` |
+| CI runs the tests and `check` | `.github/workflows/ci.yml` |
+| Commands and queries are validated whatever sends them | `ValidationBehavior` in `config/mediator.php`, when `mj-zana/mediator` is installed |
+| An API answers errors in problem JSON | `json_errors` in `config/http.php`, for APIs |
+| Features are generated, then written by hand | `make:… --dry-run` or `make:plan … --dry-run` before writing code |
+
+The checklist for packages is in [contributing](contributing.md#an-ai-ready-checklist-for-packages-211).
 
 ## Rules worth knowing
 

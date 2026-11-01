@@ -58,6 +58,23 @@ composer analyse     # PHPStan, level 8
 5. **Commit messages:** a short summary line in the imperative ("Add
    Schema::table()"), then what changed and why.
 
+## An AI-ready checklist for packages (2.11)
+
+What lets people and agents change a package safely; each line names what
+verifies it. The checklist for applications is in
+[working with AI coding agents](ai-agents.md#an-ai-ready-checklist-211).
+
+| Criterion | Verified by |
+|---|---|
+| Tests and PHPStan level 8 pass | `composer test`, `composer analyse` |
+| Every release that changes the package has a changelog entry | `CHANGELOG.md` |
+| The README says how to install and use it, and what is new | `README.md` |
+| Tests and tooling stay out of Composer archives | `.gitattributes` (`export-ignore`) |
+| Integrations with other packages are optional unless needed | `require` holds only what every use needs; the rest is `suggest`, registered behind `class_exists()` or `interface_exists()` |
+| What can be misconfigured is reported by `check`, and what can be shown, by `inspect` | an `ApplicationCheck` or `InspectionSection` tagged by the provider |
+| Messages name commands through `ConsoleScript::command()` | no `bin/console` in the package's messages |
+| Users find it in this documentation, with a tested example | a guide in `guides/` and a script in `examples/guides/` |
+
 ## Working on this documentation
 
 The guides embed code from `examples/`, and the tests keep the two in step:

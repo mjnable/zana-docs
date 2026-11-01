@@ -154,4 +154,18 @@ lines registered in the module and the manual steps (`zana.make/1`).
 The [walkthrough](../ai-agents.md#a-walkthrough-a-library-api-28) builds
 a small API with them, step by step.
 
+## New in 2.11: plans
+
+`make:plan <file.json>` generates a module, its entities, value objects,
+repositories and features from one file (`"schema": "zana.plan/1"`), by
+running the same `make:` commands in order. It works in a temporary copy
+first, so nothing is written unless every step succeeds; `--dry-run` and
+`--format=json` show the files and the equivalent commands. The
+[walkthrough](../ai-agents.md#a-walkthrough-a-library-api-28) shows a plan
+next to its commands.
+
+With the maker installed, `check` also warns when `AGENTS.md` is missing
+or names another Zana version (`agents.instructions`), and `make:agents`
+writes the commands with your console script, e.g. `php bin/zana`.
+
 Reference: the [maker README](https://github.com/mjnable/zana-maker).

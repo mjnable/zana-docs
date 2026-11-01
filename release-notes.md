@@ -6,9 +6,38 @@ websites need, 2.2 what content sites need, and 2.3 the way to put them online.
 2.4 makes production boots faster, 2.5 fixes the shared-hosting release build on Windows, 2.6 makes
 errors and mail problems visible, 2.7 helps AI coding agents follow an
 application's rules, 2.8 generates whole use cases, 2.9 adds an API
-skeleton, and 2.10 validates every command and query. Every package
-carries the same version number. Each repository has its own
-`CHANGELOG.md`.
+skeleton, 2.10 validates every command and query, and 2.11 generates a
+whole feature from one plan file. Every package carries the same version
+number. Each repository has its own `CHANGELOG.md`.
+
+## 2.11.0 — 2026-11-01
+
+2.11 completes the support for AI coding agents planned in 2.7: feature
+plans, an AI-ready checklist, and hints that name the application's own
+console script. It is backward compatible with 2.10.
+
+- **maker:**
+  - `make:plan <file.json>` generates a module, its entities, value
+    objects, repositories and features from one plan file
+    (`zana.plan/1`), by running the same `make:` commands, all or nothing
+    (FE-51); see the [walkthrough](ai-agents.md#a-walkthrough-a-library-api-28);
+  - `check` warns when `AGENTS.md` is missing or names another Zana
+    version (`agents.instructions`, FE-52);
+  - `make:agents` writes the commands with the console script it was run
+    with, e.g. `php bin/zana` (FE-54).
+- **core:** `ConsoleScript`, which the console fills with the script that
+  started it; hints say `php bin/zana migrate` there and "the console
+  command `migrate`" where the script is unknown (FE-54).
+- **database, communication:** the pending-migrations hint, the production
+  mail warning and the test e-mail use it.
+- **Docs:** an [AI-ready checklist](ai-agents.md#an-ai-ready-checklist-211)
+  for applications, and [one for packages](contributing.md#an-ai-ready-checklist-for-packages-211)
+  (FE-52); the walkthrough's plan file, tested against its commands.
+
+**Upgrading from 2.10:** run `php bin/console make:agents --force` for the
+2.11 `AGENTS.md`, which names `make:plan`, then add back your own section.
+With `mj-zana/maker`, `check` now warns about a missing or outdated
+`AGENTS.md`.
 
 ## 2.10.0 — 2026-11-01
 

@@ -11,6 +11,8 @@ use Zana\Console\ConsoleKernel;
 use Zana\Console\ConsoleServiceProvider;
 use Zana\Core\Application;
 use Zana\Maker\MakerServiceProvider;
+use Zana\Maker\Plan;
+use Zana\Maker\PlanRunner;
 use Zana\Testing\ConsoleTester;
 
 /**
@@ -91,6 +93,18 @@ final class WalkthroughTest extends TestCase
         foreach (self::ADDED as $file) {
             $this->assertStringContainsString($file, $page);
         }
+
+        // FE-51: the plan file shown on the page stands for the same commands and writes the same files.
+        $plan = Plan::fromJson((string) file_get_contents(Examples::ROOT . '/' . self::EXAMPLE . '/library.plan.json'));
+        $this->assertSame($commands, $plan->commands());
+        $planned = $this->base . '-plan';
+        mkdir($planned);
+        try {
+            (new PlanRunner($planned))->run($plan);
+            $this->assertSame($generated, self::files($planned));
+        } finally {
+            exec(PHP_OS_FAMILY === 'Windows' ? 'rmdir /s /q ' . escapeshellarg(str_replace('/', '\\', $planned)) : 'rm -rf ' . escapeshellarg($planned));
+        }
     }
 
     public function testTheExamplePassesCheck(): void
@@ -120,7 +134,8 @@ final class WalkthroughTest extends TestCase
         preg_match('/\n## A walkthrough.*?(?=\n## |$)/s', $page, $section);
         preg_match_all('/^php bin\/console (make:.+)$/m', $section[0] ?? '', $matches);
 
-        return $matches[1];
+        // make:plan stands for the same commands (checked separately).
+        return array_values(array_filter($matches[1], static fn (string $command): bool => !str_starts_with($command, 'make:plan')));
     }
 
     /**

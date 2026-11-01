@@ -1,0 +1,11 @@
+{
+    "schema": "zana.plan/1",
+    "module": "Library",
+    "entities": ["Book"],
+    "value_objects": ["BookTitle"],
+    "repositories": ["Book"],
+    "features": [
+        {"name": "AddBook", "http": true, "fields": ["title:string", "author:string"]},
+        {"name": "ListBooks", "query": true, "http": true}
+    ]
+}
