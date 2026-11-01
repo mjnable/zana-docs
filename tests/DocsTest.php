@@ -48,6 +48,14 @@ final class DocsTest extends TestCase
         $this->assertSame(Llms::index(), str_replace("\r\n", "\n", (string) file_get_contents(Examples::ROOT . '/llms.txt')), 'llms.txt is out of date (run php bin/llms.php)');
     }
 
+    public function testTheBannerNamesTheVersionThesePagesDocument(): void
+    {
+        $readme = (string) file_get_contents(Examples::ROOT . '/README.md');
+        $version = Llms::version();
+
+        $this->assertMatchesRegularExpression('/^> \*\*These pages document Zana ' . preg_quote($version, '/') . '[.,]/m', $readme, 'update the banner at the top of README.md');
+    }
+
     public function testEveryExampleIsShownSomewhere(): void
     {
         $shown = [];
