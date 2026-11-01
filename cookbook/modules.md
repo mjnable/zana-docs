@@ -600,7 +600,6 @@ declare(strict_types=1);
 namespace Clinic;
 
 use Clinic\Http\JsonInput;
-use Clinic\Http\ValidationBehavior;
 use Zana\Console\ConsoleServiceProvider;
 use Zana\Container\Contracts\ServiceCollectionInterface;
 use Zana\Core\Application;
@@ -630,41 +629,14 @@ final class Bootstrap
                 ValidationServiceProvider::class,
                 SerializationServiceProvider::class,
             )
-            ->withServices(static fn (ServiceCollectionInterface $s) => $s
-                ->singleton(ValidationBehavior::class)
-                ->singleton(JsonInput::class));
+            ->withServices(static fn (ServiceCollectionInterface $s) => $s->singleton(JsonInput::class));
     }
 }
 ```
 
-<!-- example: examples/cookbook/clinic/src/Http/ValidationBehavior.php -->
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace Clinic\Http;
-
-use Zana\Mediator\PipelineBehavior;
-use Zana\Validation\Validator;
-
-/**
- * Validates every command and query against its constraints before the handler runs.
- */
-final readonly class ValidationBehavior implements PipelineBehavior
-{
-    public function __construct(private Validator $validator)
-    {
-    }
-
-    public function handle(object $message, \Closure $next): mixed
-    {
-        $this->validator->assertValid($message);
-
-        return $next($message);
-    }
-}
-```
+Every command and query is validated by the framework's
+`Zana\Validation\ValidationBehavior` (2.10), listed in
+`config/mediator.php` below; before 2.10 the clinic wrote its own.
 
 <!-- example: examples/cookbook/clinic/src/Http/JsonInput.php -->
 ```php
@@ -764,7 +736,7 @@ return [
 declare(strict_types=1);
 
 return [
-    'behaviors' => [Clinic\Http\ValidationBehavior::class],
+    'behaviors' => [Zana\Validation\ValidationBehavior::class],
 ];
 ```
 

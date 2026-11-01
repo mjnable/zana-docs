@@ -227,4 +227,30 @@ file with a 503: a `.json` file goes out as problem JSON, as the
 [API skeleton](https://github.com/mjnable/zana-skeleton-api)'s
 `public/503.json` does.
 
+## New in 2.10: exception mappers
+
+`ErrorMiddleware` offers an exception that is not an `HttpException` to
+the services tagged `ExceptionMapperInterface::TAG`, in registration order;
+the first `HttpException` returned is rendered instead. Validation and
+serialization register mappers that turn their exceptions into a 422 with
+the field errors ([validation](validation.md#validating-every-message-210)).
+Map your own exceptions the same way:
+
+```php
+final readonly class OrderNotFoundMapper implements ExceptionMapperInterface
+{
+    public function map(\Throwable $exception): ?HttpException
+    {
+        return $exception instanceof OrderNotFound ? new NotFoundHttpException($exception->getMessage(), previous: $exception) : null;
+    }
+}
+
+$services->singleton(OrderNotFoundMapper::class)->tag(ExceptionMapperInterface::TAG, OrderNotFoundMapper::class);
+```
+
+`check` also creates every global middleware of `http.middleware` once, as
+a request would (`http.middleware` findings): a middleware whose factory
+needs a service nobody registered, such as the user provider of
+`AuthenticationMiddleware`, is reported before the first request fails.
+
 Reference: the [http README](https://github.com/mjnable/zana-http).

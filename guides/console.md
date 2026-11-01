@@ -97,9 +97,11 @@ Two commands show the application and verify it, for developers and for
   checks, that every singleton can be created, the architecture rules of
   `mj-zana/testing` on `modules/` (when it is installed), and every check
   the packages and the application add: route handlers and middleware are
-  registered (`mj-zana/routing`), migrations are applied and their files
-  exist (`mj-zana/database`). When the container does not build, `check`
-  still runs and reports why.
+  registered and route middleware can be created (`mj-zana/routing`), the
+  global middleware of `http.middleware` can be created (`mj-zana/http`,
+  2.10), migrations are applied and their files exist
+  (`mj-zana/database`). When the container does not build, `check` still
+  runs and reports why.
 
 Each problem is a finding with an id (`routing.handler`,
 `container.singleton`, `architecture.dependency`, …), a severity (`error`,

@@ -97,4 +97,65 @@ Each violation keeps its `template` and `parameters`. With
 language, so custom messages can be keys:
 `#[NotBlank(message: 'contact.error.name')]` ([translation](translation.md)).
 
+## Validating every message (2.10)
+
+With `mj-zana/mediator`, `ValidationBehavior` validates every command and
+query before its handler runs, whatever sends it: an API action, a console
+command, a queue job or another handler. It is opt-in: list it in
+`config/mediator.php`.
+
+<!-- example: examples/guides/validation-behavior.php#enable -->
+```php
+$app = Application::configure(sys_get_temp_dir() . '/zana-docs-validation-behavior')
+    ->withProviders(HttpServiceProvider::class, MediatorServiceProvider::class, ValidationServiceProvider::class)
+    ->withConfiguration(['mediator.behaviors' => [ValidationBehavior::class]])   // config/mediator.php
+    ->withServices(static fn (ServiceCollectionInterface $s) => $s->scoped(InviteMemberHandler::class))
+    ->build();
+$app->container()->get(HandlerMap::class)->register(InviteMemberHandler::class);
+```
+
+<!-- example: examples/guides/validation-behavior.php#send -->
+```php
+// From a console command, a queue job or another handler: the handler never sees invalid input.
+$scope = $app->container()->createScope();
+$mediator = $scope->get(MediatorInterface::class);
+
+echo $mediator->send(new InviteMember('ada@example.com', 'Ada')), "\n";
+try {
+    $mediator->send(new InviteMember('ada at example.com', ''));
+} catch (ValidationException $e) {
+    foreach ($e->violations->toArray() as $field => $messages) {
+        echo "{$field}: ", implode(' ', $messages), "\n";
+    }
+}
+```
+
+<!-- example: examples/guides/validation-behavior.php#http -->
+```php
+// Over HTTP, the same exception becomes a 422 with the field errors.
+$response = $scope->get(ErrorMiddleware::class)->render($e, new ServerRequest('POST', '/members', ['Accept' => 'application/json']));
+
+echo $response->getStatusCode(), ' ', json_encode(json_decode((string) $response->getBody(), true)['errors']), "\n";
+```
+
+<!-- example: examples/guides/validation-behavior.out -->
+```text
+Invited ada@example.com.
+email: This value is not a valid email address.
+name: This value should not be blank.
+422 {"email":["This value is not a valid email address."],"name":["This value should not be blank."]}
+```
+
+- **Over HTTP:** with `mj-zana/http`, a `ValidationException` that reaches
+  `ErrorMiddleware` is a 422 with `errors` per field, and so is a
+  `DenormalizationException` of `mj-zana/serialization` (a missing or
+  mistyped field). This is the same shape as the generated `ApiInput`
+  (2.8), which keeps validating so that a generated slice works with or
+  without the behaviour. See [exception mappers](http.md#new-in-210-exception-mappers).
+- **In the console:** a `ValidationException` is printed field by field.
+- **Paths are property paths** (`dateOfBirth`). When the JSON names differ
+  (`#[SerializedName('date_of_birth')]`), catch the exception and rename
+  the paths, as the [clinic](../cookbook/modules.md) does in its
+  `JsonInput`.
+
 Reference: the [validation README](https://github.com/mjnable/zana-validation).

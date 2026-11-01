@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Clinic;
 
 use Clinic\Http\JsonInput;
-use Clinic\Http\ValidationBehavior;
 use Zana\Console\ConsoleServiceProvider;
 use Zana\Container\Contracts\ServiceCollectionInterface;
 use Zana\Core\Application;
@@ -35,8 +34,6 @@ final class Bootstrap
                 ValidationServiceProvider::class,
                 SerializationServiceProvider::class,
             )
-            ->withServices(static fn (ServiceCollectionInterface $s) => $s
-                ->singleton(ValidationBehavior::class)
-                ->singleton(JsonInput::class));
+            ->withServices(static fn (ServiceCollectionInterface $s) => $s->singleton(JsonInput::class));
     }
 }

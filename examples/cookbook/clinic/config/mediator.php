@@ -3,5 +3,5 @@
 declare(strict_types=1);
 
 return [
-    'behaviors' => [Clinic\Http\ValidationBehavior::class],
+    'behaviors' => [Zana\Validation\ValidationBehavior::class],
 ];

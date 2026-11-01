@@ -85,22 +85,18 @@ registered Ada Lovelace
   `boot()`:
   `$container->get(HandlerMap::class)->register(RegisterPatientHandler::class)`.
   [Maker](maker.md) writes both lines for you.
-- **Behaviours:** list them in `config/mediator.php` under `behaviors`. A
-  typical first one validates every message (see [validation](validation.md)):
+- **Behaviours:** list them in `config/mediator.php` under `behaviors`;
+  they run around every message, in order. The usual first one validates
+  every command and query, whatever sends it, and ships with
+  `mj-zana/validation` (2.10; see [validation](validation.md#validating-every-message-210)):
 
   ```php
-  final readonly class ValidationBehavior implements PipelineBehavior
-  {
-      public function __construct(private Validator $validator) {}
-
-      public function handle(object $message, \Closure $next): mixed
-      {
-          $this->validator->assertValid($message);
-
-          return $next($message);
-      }
-  }
+  // config/mediator.php
+  return ['behaviors' => [Zana\Validation\ValidationBehavior::class]];
   ```
+
+  Write your own by implementing `PipelineBehavior::handle($message, $next)`
+  and calling `$next($message)`.
 
 ## Rules worth knowing
 

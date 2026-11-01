@@ -5,9 +5,40 @@ modular business applications, on PHP 8.5. Zana 2.1 adds what server-rendered
 websites need, 2.2 what content sites need, and 2.3 the way to put them online.
 2.4 makes production boots faster, 2.5 fixes the shared-hosting release build on Windows, 2.6 makes
 errors and mail problems visible, 2.7 helps AI coding agents follow an
-application's rules, 2.8 generates whole use cases, and 2.9 adds an API
-skeleton. Every package carries the same version number. Each repository
-has its own `CHANGELOG.md`.
+application's rules, 2.8 generates whole use cases, 2.9 adds an API
+skeleton, and 2.10 validates every command and query. Every package
+carries the same version number. Each repository has its own
+`CHANGELOG.md`.
+
+## 2.10.0 — 2026-11-01
+
+2.10 validates commands and queries whatever sends them, and finds
+middleware that would fail on every request. It is backward compatible
+with 2.9.
+
+- **validation:** `ValidationBehavior`, a mediator behaviour that validates
+  every command and query before its handler runs (FE-53). It is opt-in:
+  list it in `config/mediator.php`. With `mj-zana/http`, a
+  `ValidationException` is a 422 with the field errors.
+- **http:**
+  - exception mappers: services tagged `ExceptionMapperInterface::TAG` turn
+    other exceptions into HTTP errors before `ErrorMiddleware` renders them;
+  - `check` creates every global middleware once, so a middleware that
+    needs a service nobody registered is reported (`http.middleware`).
+- **serialization:** with `mj-zana/http`, a `DenormalizationException`
+  (a missing or mistyped field) is a 422 with the field errors.
+- **routing:** `check` also creates every route middleware.
+- **console:** a `ValidationException` is printed field by field.
+- **skeleton-api:** enables `ValidationBehavior`; `user:create` relies on
+  it.
+- **Docs:** the clinic example uses the framework's behaviour instead of
+  its own.
+
+**Upgrading from 2.9:** nothing to change. An application with its own
+validation behaviour can replace it with
+`Zana\Validation\ValidationBehavior` in `config/mediator.php`. Generated
+`ApiInput` classes keep validating; with the behaviour too, an HTTP request
+is validated twice with the same errors.
 
 ## 2.9.0 — 2026-11-01
 
