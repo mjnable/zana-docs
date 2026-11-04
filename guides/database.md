@@ -146,4 +146,68 @@ return [
   foreign key, and look the records up through its public contract (see
   the [cookbook](../cookbook/modules.md)).
 
+## New in 2.12: on Doctrine DBAL, with counters, upserts and locks
+
+The connection now runs on [Doctrine DBAL](https://www.doctrine-project.org/projects/dbal.html).
+Nothing changes in your code: the query and schema builders keep their API
+and their safety nets, and DBAL compiles them for SQLite, MySQL and
+PostgreSQL. Four additions cover what inventory, payments and imports need:
+
+<!-- example: examples/guides/database-counters.php#reserve -->
+```php
+// Reserve seats only while sold + seats <= capacity: one statement, so two buyers can never both get
+// the last seat. The affected row count says whether it worked.
+$reserve = static fn (int $seats): bool => $db->table('ticket_types')
+    ->where('name', 'VIP')
+    ->whereColumn('sold', '<=', 'capacity', -$seats)
+    ->increment('sold', $seats) === 1;
+
+echo 'Reserve 3: ', $reserve(3) ? 'yes' : 'no', "\n";
+echo 'Reserve 3: ', $reserve(3) ? 'yes' : 'no', "\n";   // only 2 seats left
+echo 'Reserve 2: ', $reserve(2) ? 'yes' : 'no', "\n";
+```
+
+<!-- example: examples/guides/database-counters.php#upsert -->
+```php
+// Insert, or update the row with the same unique name.
+$db->table('ticket_types')->upsert([
+    ['name' => 'VIP', 'sold' => 0, 'capacity' => 8],
+    ['name' => 'Standard', 'sold' => 0, 'capacity' => 200],
+], uniqueBy: 'name', update: ['capacity']);
+```
+
+<!-- example: examples/guides/database-counters.php#lock -->
+```php
+// Read a row and keep others from changing it until the transaction ends (FOR UPDATE; SQLite
+// serializes write transactions instead).
+$vip = $db->transaction(static fn (ConnectionInterface $tx): ?array => $tx->table('ticket_types')->where('name', 'VIP')->lockForUpdate()->first());
+```
+
+<!-- example: examples/guides/database-counters.out -->
+```text
+Reserve 3: yes
+Reserve 3: no
+Reserve 2: yes
+Standard: 0 of 200 sold
+VIP: 5 of 8 sold
+Locked: VIP
+```
+
+- **`increment()` and `decrement()`** change a column relative to itself,
+  optionally with other columns; like `update()`, they need a `where`.
+- **`whereColumn($first, $operator, $second, $offset)`** compares two
+  columns of the row; `-3` reads "capacity - 3".
+- **`upsert($rows, $uniqueBy, $update)`** inserts, or updates the
+  conflicting rows' `$update` columns (all others by default, none with
+  `[]`). On MySQL any unique key of the table detects the conflict.
+- **`lockForUpdate()`** adds `FOR UPDATE`; SQLite has no row locks, and
+  serializes write transactions instead.
+- **Retry on deadlocks:** `DatabaseException::isRetryable()` is true for a
+  deadlock or a lock wait timeout; run the transaction again.
+- **MySQL counts changed rows:** an update that writes the values a row
+  already has returns 0, unlike SQLite and PostgreSQL.
+- `DbalConnection::dbal()` gives the DBAL connection to integrations that
+  must share its transactions. `pdo()` and the PDO `Connection` are
+  deprecated.
+
 Reference: the [database README](https://github.com/mjnable/zana-database).

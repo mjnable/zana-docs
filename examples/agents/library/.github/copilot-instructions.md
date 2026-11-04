@@ -1,2 +1,2 @@
-Follow the instructions in AGENTS.md at the root of this repository. It describes the Zana 2.11
+Follow the instructions in AGENTS.md at the root of this repository. It describes the Zana 2.12
 architecture, the rules, the development workflow and the commands of this application.

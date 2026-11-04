@@ -6,9 +6,37 @@ websites need, 2.2 what content sites need, and 2.3 the way to put them online.
 2.4 makes production boots faster, 2.5 fixes the shared-hosting release build on Windows, 2.6 makes
 errors and mail problems visible, 2.7 helps AI coding agents follow an
 application's rules, 2.8 generates whole use cases, 2.9 adds an API
-skeleton, 2.10 validates every command and query, and 2.11 generates a
-whole feature from one plan file. Every package carries the same version
-number. Each repository has its own `CHANGELOG.md`.
+skeleton, 2.10 validates every command and query, 2.11 generates a whole
+feature from one plan file, and 2.12 runs the database on Doctrine DBAL.
+Every package carries the same version number. Each repository has its
+own `CHANGELOG.md`.
+
+## 2.12.0 — unreleased
+
+2.12 is the first step towards the DRC event ticketing platform (FE-60):
+the database package runs on Doctrine DBAL, keeping its API, and gains
+what inventory and payments need. It is backward compatible with 2.11.
+
+- **database:**
+  - `ConnectionFactory::create()` and the provider return a `DbalConnection`:
+    DBAL compiles the query and schema builders for SQLite, MySQL and
+    PostgreSQL, and handles transactions and savepoints;
+  - `increment()`, `decrement()`, `whereColumn()`, `upsert()` and
+    `lockForUpdate()`, for a seat reservation that concurrent buyers
+    cannot oversell (see [the database guide](guides/database.md#new-in-212-on-doctrine-dbal-with-counters-upserts-and-locks));
+  - `DatabaseException::isRetryable()` for deadlocks;
+  - tested on SQLite, MySQL and PostgreSQL 18, with concurrent processes.
+
+**Upgrading from 2.11:** run `composer update`; `doctrine/dbal` is
+installed with the database package. Nothing else changes, with three
+details:
+- `ConnectionFactory::create()` is declared to return
+  `ConnectionInterface`, not the PDO `Connection` class.
+- On MySQL, an update that changes no value reports 0 rows.
+- New PostgreSQL `id()` columns are identity columns rather than
+  `BIGSERIAL`; existing tables are unchanged.
+
+`ConnectionFactory::createPdo()` keeps the 2.11 connection until 3.0.
 
 ## 2.11.0 — 2026-11-01
 
