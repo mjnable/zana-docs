@@ -11,7 +11,7 @@ feature from one plan file, and 2.12 runs the database on Doctrine DBAL.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.12.0 — unreleased
+## 2.12.0 — 2026-11-04
 
 2.12 is the first step towards the DRC event ticketing platform (FE-60):
 the database package runs on Doctrine DBAL, keeping its API, and gains
