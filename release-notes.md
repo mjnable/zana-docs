@@ -8,9 +8,41 @@ errors and mail problems visible, 2.7 helps AI coding agents follow an
 application's rules, 2.8 generates whole use cases, 2.9 adds an API
 skeleton, 2.10 validates every command and query, 2.11 generates a whole
 feature from one plan file, 2.12 runs the database on Doctrine DBAL, and
-2.13 adds the transactional outbox, and 2.14 idempotency keys.
+2.13 adds the transactional outbox, 2.14 idempotency keys, and 2.15 a
+security audit log.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
+
+## 2.15.0 — Unreleased
+
+2.15 completes phase T1 of the DRC event ticketing platform (FE-58): a
+security audit log for disputes and the data-protection rules, fed by new
+security events. It is backward compatible with 2.14. The log is off until
+`audit.log.enabled` is true.
+
+- **security:**
+  - with an event dispatcher, `SessionLogin` dispatches `SignInSucceeded`,
+    `SignInFailed` (wrong credentials or throttled) and `SignedOut`;
+  - `PasswordResetTokens` dispatches `PasswordResetRequested` and
+    `PasswordResetTokenUsed`;
+  - all of them implement `SecurityEvent`.
+- **audit** (ADR-030):
+  - `AuditLog::record()` writes entries with the actor, the subject, the
+    client address, the correlation id and the details;
+  - the log is append-only, with optional hash chaining (`audit:verify`);
+  - `#[Audited]` mediator commands record only the fields they list;
+  - security events are recorded;
+  - `audit:install-log`, `audit:prune` (optional retention), `audit:log`,
+    the `audit.log` and `audit.chain` checks, and `inspect audit-log`;
+  - tested on SQLite, MySQL and PostgreSQL, with four processes appending
+    to one chain.
+
+See [the audit guide](guides/audit.md#new-in-215-the-security-audit-log).
+
+**Upgrading from 2.14:** run `composer update`. To keep a security audit
+log, set `audit.log.enabled` (and `audit.log.chain` if you want hash
+chaining), then run `php bin/zana audit:install-log` and
+`php bin/zana migrate`.
 
 ## 2.14.0 — 2026-11-05
 

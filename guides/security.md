@@ -228,3 +228,23 @@ $user = $login->attempt($input->string('email'), $input->string('password'), $co
 The [back office chapter](../cookbook/back-office.md) puts it together.
 
 Reference: the [security README](https://github.com/mjnable/zana-security).
+
+## New in 2.15: security events
+
+With [events](events.md) installed, `SessionLogin` dispatches
+`SignInSucceeded`, `SignInFailed` and `SignedOut`. `SignInFailed` has the
+reason `invalid_credentials` or `throttled`. `PasswordResetTokens` dispatches
+`PasswordResetRequested` and `PasswordResetTokenUsed`. All of them implement
+`SecurityEvent`.
+
+[audit](audit.md#new-in-215-the-security-audit-log) records them in its
+security audit log. You can also listen to them yourself, for example to
+alert on repeated failures:
+
+```php
+$listeners->listen(SignInFailed::class, AlertOnRepeatedFailures::class);
+```
+
+A failed sign-in carries the login that was typed and the client address,
+never the password. Pass the client address to `logout()` as well, so the
+`SignedOut` event has it.

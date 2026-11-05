@@ -1,0 +1,5 @@
+#1 security.sign_in_failed {"login":"amani@example.com","reason":"invalid_credentials"}
+#2 security.sign_in by 7 on user:7 {"method":"session"}
+#3 payout.account_changed by 7 on organizer:12 {"bank":"Rawbank"}
+Chain intact: yes
+Chain intact: no (entry 3: The entry was changed after it was written.)
