@@ -30,6 +30,11 @@ compatible with 2.12.
   - `outbox:install`, a `check` for waiting and failed messages, and
     `inspect outbox`;
   - tested on SQLite, MySQL and PostgreSQL.
+- **queue:** fixed on PostgreSQL. A job with protected or private
+  properties could not be read back, because PostgreSQL truncated its
+  payload at the first NUL byte that `serialize()` writes. Payloads are
+  now stored as base64, and those written by 2.12 and earlier are still
+  read.
 
 See [the outbox guide](guides/outbox.md).
 
