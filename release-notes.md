@@ -8,9 +8,35 @@ errors and mail problems visible, 2.7 helps AI coding agents follow an
 application's rules, 2.8 generates whole use cases, 2.9 adds an API
 skeleton, 2.10 validates every command and query, 2.11 generates a whole
 feature from one plan file, 2.12 runs the database on Doctrine DBAL, and
-2.13 adds the transactional outbox.
+2.13 adds the transactional outbox, and 2.14 idempotency keys.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
+
+## 2.14.0 — Unreleased
+
+2.14 is the third step towards the DRC event ticketing platform (FE-61):
+a new package, `mj-zana/idempotency`, so a buyer who retries "pay" on a
+slow connection is charged once. It is backward compatible with 2.13.
+
+- **idempotency** (new, ADR-029):
+  - `#[Idempotent]` on a handler and `IdempotencyMiddleware` on its route:
+    a request with an `Idempotency-Key` runs once, and a retry gets the
+    stored response (`Idempotent-Replayed: true`);
+  - 409 while the first request still runs, 422 when the key comes with
+    another request, 400 when a required key is missing;
+  - keys claimed atomically in the database, per signed-in user; a server
+    error or an exception frees the key for a retry;
+  - `idempotency:install`, `idempotency:prune`, a `check` for marked
+    handlers without the middleware, and `inspect idempotency`;
+  - tested on SQLite, MySQL and PostgreSQL, with four simultaneous
+    processes.
+
+See [the idempotency guide](guides/idempotency.md).
+
+**Upgrading from 2.13:** run `composer update`. To use idempotency keys,
+run `composer require mj-zana/idempotency`, register
+`IdempotencyServiceProvider`, then `php bin/zana idempotency:install` and
+`php bin/zana migrate`.
 
 ## 2.13.0 — 2026-11-05
 

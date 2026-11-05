@@ -1,7 +1,7 @@
 # Zana documentation
 
-> **These pages document Zana 2.13, the latest release.** Each minor
-> version has its own branch, e.g. [`2.12`](https://github.com/mjnable/zana-docs/tree/2.12).
+> **These pages document Zana 2.14, the latest release.** Each minor
+> version has its own branch, e.g. [`2.13`](https://github.com/mjnable/zana-docs/tree/2.13).
 
 Zana is a modular PHP framework for business applications. You build an
 application from **modules**: self-contained features with their own
@@ -53,7 +53,7 @@ and PostgreSQL, and the queue fixed on PostgreSQL. See the [release notes](relea
 | Foundation | [container](guides/container.md), [core](guides/core.md), [configuration](guides/configuration.md), [logging](guides/logging.md), [events](guides/events.md) |
 | Delivery | [http](guides/http.md), [routing](guides/routing.md), [console](guides/console.md), [security](guides/security.md), [view, view-twig and view-markdown](guides/view.md), [translation](guides/translation.md), [session](guides/session.md) |
 | Business logic | [ddd](guides/ddd.md), [mediator](guides/mediator.md), [validation](guides/validation.md), [serialization](guides/serialization.md) |
-| Infrastructure | [database](guides/database.md), [cache](guides/cache.md), [filesystem](guides/filesystem.md), [queue](guides/queue.md), [outbox](guides/outbox.md), [communication](guides/communication.md), [media](guides/media.md), [scheduler](guides/scheduler.md), [audit](guides/audit.md) |
+| Infrastructure | [database](guides/database.md), [cache](guides/cache.md), [filesystem](guides/filesystem.md), [queue](guides/queue.md), [outbox](guides/outbox.md), [idempotency](guides/idempotency.md), [communication](guides/communication.md), [media](guides/media.md), [scheduler](guides/scheduler.md), [audit](guides/audit.md) |
 | Tooling | [testing](guides/testing.md), [maker](guides/maker.md) |
 
 Each is installed as `mj-zana/<name>`; the source is on GitHub as

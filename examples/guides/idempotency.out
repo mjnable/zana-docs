@@ -1,0 +1,4 @@
+First try:  201 {"payment":1}
+Retry:      201 {"payment":1} (replayed)
+Other body: 422 The Idempotency-Key was already used with a different request.
+Payments taken: 1
