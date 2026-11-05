@@ -7,9 +7,35 @@ websites need, 2.2 what content sites need, and 2.3 the way to put them online.
 errors and mail problems visible, 2.7 helps AI coding agents follow an
 application's rules, 2.8 generates whole use cases, 2.9 adds an API
 skeleton, 2.10 validates every command and query, 2.11 generates a whole
-feature from one plan file, and 2.12 runs the database on Doctrine DBAL.
+feature from one plan file, 2.12 runs the database on Doctrine DBAL, and
+2.13 adds the transactional outbox.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
+
+## 2.13.0 — Unreleased
+
+2.13 is the second step towards the DRC event ticketing platform (FE-55):
+a new package, `mj-zana/outbox`, so a paid order never loses its "tickets
+issued" event, and a rolled-back one never sends it. It is backward
+compatible with 2.12.
+
+- **outbox** (new, ADR-028):
+  - `Outbox::record()` and `add()` save events in the transaction of the
+    change; `transactional()` relays them right after the commit;
+  - the relay dispatches them through the event dispatcher, at least once,
+    with backoff and failure marking; `outbox:relay` (scheduled or
+    `--loop`) delivers what a crash or a failing listener left behind, and
+    `outbox:retry` makes failed messages due again;
+  - `Inbox::once()` handles each message once per consumer;
+  - `outbox:install`, a `check` for waiting and failed messages, and
+    `inspect outbox`;
+  - tested on SQLite, MySQL and PostgreSQL.
+
+See [the outbox guide](guides/outbox.md).
+
+**Upgrading from 2.12:** run `composer update`. To use the outbox, run
+`composer require mj-zana/outbox`, register `OutboxServiceProvider`, then
+`php bin/zana outbox:install` and `php bin/zana migrate`.
 
 ## 2.12.0 — 2026-11-04
 

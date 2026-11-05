@@ -46,6 +46,7 @@ Every package is installed as `mj-zana/<name>` and requires PHP 8.5 or later.
 | [Cache](cache.md) | `mj-zana/cache` | PSR-16 caches: memory, files, null |
 | [Filesystem](filesystem.md) | `mj-zana/filesystem` | Local and in-memory storage behind one interface |
 | [Queue](queue.md) | `mj-zana/queue` | Background jobs, retries, a scope per job |
+| [Outbox](outbox.md) | `mj-zana/outbox` | Events saved with their change, delivered at least once, handled once (2.13) |
 | [Communication](communication.md) | `mj-zana/communication` | Email with safe sender rules (2.1), newsletters (2.2) |
 | [Media](media.md) | `mj-zana/media` | Uploaded images: resized variants, `<picture>`, alt texts (2.2) |
 | [Scheduler](scheduler.md) | `mj-zana/scheduler` | Recurring tasks from one cron entry (2.2) |
