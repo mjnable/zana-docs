@@ -13,7 +13,7 @@ security audit log.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.15.0 — Unreleased
+## 2.15.0 — 2026-11-06
 
 2.15 completes phase T1 of the DRC event ticketing platform (FE-58): a
 security audit log for disputes and the data-protection rules, fed by new
