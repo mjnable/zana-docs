@@ -12,7 +12,7 @@ feature from one plan file, 2.12 runs the database on Doctrine DBAL, and
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.13.0 — Unreleased
+## 2.13.0 — 2026-11-05
 
 2.13 is the second step towards the DRC event ticketing platform (FE-55):
 a new package, `mj-zana/outbox`, so a paid order never loses its "tickets
