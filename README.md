@@ -1,7 +1,7 @@
 # Zana documentation
 
-> **These pages document Zana 2.13, the latest release.** Each minor
-> version has its own branch, e.g. [`2.12`](https://github.com/mjnable/zana-docs/tree/2.12).
+> **These pages document Zana 2.13.** Each minor version has its own branch;
+> [`main`](https://github.com/mjnable/zana-docs) documents the latest release.
 
 Zana is a modular PHP framework for business applications. You build an
 application from **modules**: self-contained features with their own
