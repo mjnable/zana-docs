@@ -14,9 +14,9 @@ domain, use cases, persistence and presentations. Zana gives them:
 - **Tools that keep modules apart:** contracts between modules, and
   architecture tests that enforce the boundaries.
 
-Zana 2 requires PHP 8.5 or later. **Status:** `2.13.0`, released on
-2026-11-05: the transactional outbox and inbox, tested on SQLite, MySQL
-and PostgreSQL, and the queue fixed on PostgreSQL. See the [release notes](release-notes.md).
+Zana 2 requires PHP 8.5 or later. **Status:** `2.14.0`, released on
+2026-11-05: idempotency keys for HTTP routes, tested on SQLite, MySQL and
+PostgreSQL with simultaneous requests. See the [release notes](release-notes.md).
 
 ## Start here
 

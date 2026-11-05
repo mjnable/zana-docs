@@ -12,7 +12,7 @@ feature from one plan file, 2.12 runs the database on Doctrine DBAL, and
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.14.0 — Unreleased
+## 2.14.0 — 2026-11-05
 
 2.14 is the third step towards the DRC event ticketing platform (FE-61):
 a new package, `mj-zana/idempotency`, so a buyer who retries "pay" on a
