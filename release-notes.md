@@ -13,7 +13,7 @@ security audit log, and 2.16 second factors.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.16.0 — Unreleased
+## 2.16.0 — 2026-11-06
 
 2.16 starts phase T2 of the DRC event ticketing platform (FE-56):
 organizer staff sign in with a second factor, and guest buyers confirm a
