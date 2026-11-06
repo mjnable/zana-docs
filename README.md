@@ -14,9 +14,9 @@ domain, use cases, persistence and presentations. Zana gives them:
 - **Tools that keep modules apart:** contracts between modules, and
   architecture tests that enforce the boundaries.
 
-Zana 2 requires PHP 8.5 or later. **Status:** `2.16.0`, released on
-2026-11-06: second factors (TOTP with recovery codes) for session sign-in,
-and one-time codes for SMS or WhatsApp confirmations. See the [release notes](release-notes.md).
+Zana 2 requires PHP 8.5 or later. **Status:** `2.17.0`, released on
+2026-11-06: roles in an organization or at an event, with scopes that nest,
+completing the ticketing platform's phases T1 and T2. See the [release notes](release-notes.md).
 
 ## Start here
 

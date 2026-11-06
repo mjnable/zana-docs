@@ -14,7 +14,7 @@ organization or at an event.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.17.0 — Unreleased
+## 2.17.0 — 2026-11-06
 
 2.17 completes phase T2 of the DRC event ticketing platform (FE-57): a user
 can be the owner of one organization, a box-office agent at another, and a
