@@ -190,3 +190,49 @@ Rules worth knowing:
   slug in the request's locale.
 - **Keep a history per locale** with [Audit](../guides/audit.md).
 - Media alt texts follow the same rule (see [Media](../guides/media.md)).
+
+## Checking the scope of every command
+
+With [scoped roles](../guides/security.md#new-in-217-roles-in-an-organization-or-at-an-event)
+(2.17), a [mediator](../guides/mediator.md) behaviour can check every
+command that names an event, so no handler forgets to. Add it to
+`mediator.behaviors`:
+
+<!-- example: examples/guides/scoped-roles.php#behavior -->
+```php
+// Every command that names an event is checked against the signed-in user's roles there.
+interface EventCommand
+{
+    public function eventId(): string;
+
+    public function permission(): string;
+}
+
+final readonly class EventScopeBehavior implements PipelineBehavior
+{
+    public function __construct(private SecurityContext $context, private Authorizer $authorizer)
+    {
+    }
+
+    public function handle(object $message, Closure $next): mixed
+    {
+        if ($message instanceof EventCommand) {
+            $this->authorizer->authorize($this->context->requireUser(), $message->permission(), new Scope('event', $message->eventId()));
+        }
+
+        return $next($message);
+    }
+}
+```
+
+A scanner at Rumba Goma can scan there, and nowhere else:
+
+<!-- example: examples/guides/scoped-roles.out -->
+```text
+Amani publishes Jazz Kinshasa (org-1): yes
+Amani publishes Rumba Goma (org-2): no
+Bisimwa scans at Rumba Goma: yes
+Bisimwa scans at Jazz Kinshasa: no
+Scan at rumba-goma: scanned
+Scan at jazz-kin: forbidden
+```

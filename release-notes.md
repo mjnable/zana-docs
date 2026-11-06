@@ -9,9 +9,36 @@ application's rules, 2.8 generates whole use cases, 2.9 adds an API
 skeleton, 2.10 validates every command and query, 2.11 generates a whole
 feature from one plan file, 2.12 runs the database on Doctrine DBAL, and
 2.13 adds the transactional outbox, 2.14 idempotency keys, 2.15 a
-security audit log, and 2.16 second factors.
+security audit log, 2.16 second factors, and 2.17 roles in an
+organization or at an event.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
+
+## 2.17.0 — Unreleased
+
+2.17 completes phase T2 of the DRC event ticketing platform (FE-57): a user
+can be the owner of one organization, a box-office agent at another, and a
+scanner at one event only. It is backward compatible with 2.16. Nothing
+changes until you turn the role store on.
+
+- **security** (ADR-032):
+  - `RoleAssignments` gives roles everywhere or in a `Scope`, kept in a
+    table (`security.role_assignments: database`) or your own store;
+  - the `Authorizer` counts the roles in the subject's scope and in the
+    scopes above it (`ScopeHierarchyInterface`), with policies still
+    first;
+  - `#[RequiresPermission(..., scope: 'event')]` reads the scope from the
+    route;
+  - `RoleAssigned` and `RoleRevoked`, and the `security.role_assignments`
+    check.
+- **audit:** records role changes, with who made them.
+
+See [the security guide](guides/security.md#new-in-217-roles-in-an-organization-or-at-an-event)
+and [a mediator behaviour that checks every command](cookbook/recipes.md#checking-the-scope-of-every-command).
+
+**Upgrading from 2.16:** run `composer update`. To give roles in a scope,
+set `security.role_assignments` to `"database"` and add a migration that
+returns `new RoleAssignmentsMigration()`.
 
 ## 2.16.0 — 2026-11-06
 

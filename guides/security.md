@@ -366,3 +366,81 @@ $codes->verify('+243810000000', 'phone.confirm', $typed);  // true once
 A code expires (10 minutes by default) and works once. It is refused after 5
 wrong tries, and issuing is limited per number and purpose
 (`security.one_time_codes.max_issues` per `security.one_time_codes.window`).
+
+## New in 2.17: roles in an organization or at an event
+
+A user can be the owner of one organization, a box-office agent at another,
+and a scanner at one event only. Turn on the store, and create its table
+with a migration that returns `new RoleAssignmentsMigration()`:
+
+```php
+// config/security.php
+'role_assignments' => 'database',   // with mj-zana/database; or register your own RoleAssignmentStoreInterface
+```
+
+When scopes nest, say so with a `ScopeHierarchyInterface`, registered in the
+container. Subjects say which scope they belong to:
+
+<!-- example: examples/guides/scoped-roles.php#hierarchy -->
+```php
+// Events belong to organizations: an organization's roles count at its events.
+final class EventsInOrganizations implements ScopeHierarchyInterface
+{
+    /** @param array<string, string> $organizationOf event id => organization id */
+    public function __construct(private array $organizationOf)
+    {
+    }
+
+    public function parentsOf(Scope $scope): array
+    {
+        $organization = $scope->type === 'event' ? ($this->organizationOf[$scope->id] ?? null) : null;
+
+        return $organization === null ? [] : [new Scope('organization', $organization)];
+    }
+}
+
+final readonly class ConcertEvent implements HasAuthorizationScope
+{
+    public function __construct(public string $id)
+    {
+    }
+
+    public function authorizationScope(): Scope
+    {
+        return new Scope('event', $this->id);
+    }
+}
+```
+
+Give roles with `RoleAssignments`, everywhere or in a scope. The
+`Authorizer` then counts the roles held in the subject's scope and in the
+scopes above it:
+
+<!-- example: examples/guides/scoped-roles.php#assign -->
+```php
+$roles = new RoleAssignments($store);
+$roles->assign('amani', 'owner', new Scope('organization', 'org-1'));
+$roles->assign('bisimwa', 'scanner', new Scope('event', 'rumba-goma'));
+
+$can = static fn (string $user, string $permission, object $subject): string => $authorizer->can(new Member($user), $permission, $subject) ? 'yes' : 'no';
+echo 'Amani publishes Jazz Kinshasa (org-1): ', $can('amani', 'events.publish', new ConcertEvent('jazz-kin')), "\n";
+echo 'Amani publishes Rumba Goma (org-2): ', $can('amani', 'events.publish', new ConcertEvent('rumba-goma')), "\n";
+echo 'Bisimwa scans at Rumba Goma: ', $can('bisimwa', 'tickets.scan', new ConcertEvent('rumba-goma')), "\n";
+echo 'Bisimwa scans at Jazz Kinshasa: ', $can('bisimwa', 'tickets.scan', new ConcertEvent('jazz-kin')), "\n";
+```
+
+- **Downward only:** an organization's owner has their roles at its events,
+  but a scanner at one event is not a scanner of its organization.
+- **Routes:** `#[RequiresPermission('tickets.scan', scope: 'event')]` checks
+  the permission at the event named by the route parameter `{eventId}`.
+  Pass `parameter:` for another name.
+- **Policies** still decide first; they receive the `Scope` as the subject.
+- **Events:** `RoleAssigned` and `RoleRevoked` name the user who made the
+  change, and [audit](audit.md) records them.
+- **Check:** `security.role_assignments` reports a missing table.
+- **Opt-in:** without `role_assignments` or a store of your own, nothing
+  changes.
+
+Filtering lists by organization stays in your repositories. To check every
+command against its event, see
+[the recipe](../cookbook/recipes.md#checking-the-scope-of-every-command).

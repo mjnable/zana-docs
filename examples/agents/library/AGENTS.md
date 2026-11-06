@@ -1,10 +1,10 @@
 # Instructions for AI coding agents
 
-This is a Zana 2.16 application (PHP 8.5). Zana is explicit by design: modules, services and
+This is a Zana 2.17 application (PHP 8.5). Zana is explicit by design: modules, services and
 routes are declared, and mistakes are caught at startup. Follow these rules; do not invent other
 conventions. The documentation for this version is at
-https://github.com/mjnable/zana-docs/tree/2.16, and its index for agents at
-https://raw.githubusercontent.com/mjnable/zana-docs/2.16/llms.txt.
+https://github.com/mjnable/zana-docs/tree/2.17, and its index for agents at
+https://raw.githubusercontent.com/mjnable/zana-docs/2.17/llms.txt.
 
 ## How to work
 
@@ -86,5 +86,5 @@ https://raw.githubusercontent.com/mjnable/zana-docs/2.16/llms.txt.
 | `php bin/console doctor` | Check that a server is ready to run the application |
 | `composer test` | Run the tests |
 
-This file was written by `php bin/console make:agents` for Zana 2.16. Run it again after
+This file was written by `php bin/console make:agents` for Zana 2.17. Run it again after
 upgrading Zana (`--force` replaces it); add project-specific rules in a section of your own below.
