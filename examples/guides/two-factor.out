@@ -1,0 +1,7 @@
+Scan: otpauth://totp/Billets%20RDC:amani%40exa...
+Recovery codes: 10
+Confirmed: yes
+After the password: second_factor_required, signed in as nobody
+A wrong code: failed
+The code from the app: signed_in, signed in as 7
+Device token for a cookie: yes

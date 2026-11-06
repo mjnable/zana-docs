@@ -248,3 +248,121 @@ $listeners->listen(SignInFailed::class, AlertOnRepeatedFailures::class);
 A failed sign-in carries the login that was typed and the client address,
 never the password. Pass the client address to `logout()` as well, so the
 `SignedOut` event has it.
+
+## New in 2.16: second factors
+
+Organizer staff who handle money sign in with a code from an authenticator
+app after their password. Your user provider stores one sealed string per
+user, in a nullable text column:
+
+<!-- example: examples/guides/two-factor.php#provider -->
+```php
+// Your user repository: one nullable text column, two_factor, holds the sealed state.
+final class StaffUsers implements PasswordUserProviderInterface, TwoFactorUserProviderInterface
+{
+    /** @var array<string, array{user: Staff, hash: string, two_factor: ?string}> */
+    public array $rows = [];
+
+    public function findByIdentifier(string $identifier): ?UserInterface
+    {
+        return $this->rows[$identifier]['user'] ?? null;
+    }
+
+    public function findByLogin(string $login): ?UserInterface
+    {
+        foreach ($this->rows as $row) {
+            if ($row['user']->email === $login) {
+                return $row['user'];
+            }
+        }
+
+        return null;
+    }
+
+    public function passwordHashFor(UserInterface $user): ?string
+    {
+        return $this->rows[$user->identifier()]['hash'] ?? null;
+    }
+
+    public function twoFactorStateFor(UserInterface $user): ?string
+    {
+        return $this->rows[$user->identifier()]['two_factor'] ?? null;
+    }
+
+    public function saveTwoFactorState(UserInterface $user, ?string $state): void
+    {
+        $this->rows[$user->identifier()]['two_factor'] = $state;
+    }
+}
+```
+
+Set `security.two_factor.key` from the environment
+(`APP_SECURITY__TWO_FACTOR__KEY`, at least 32 characters, e.g. from
+`php -r "echo bin2hex(random_bytes(32));"`). It is separate from
+`security.secret`, and changing it locks out every user with a second
+factor. `check` reports it when it is missing.
+
+A user enrols by scanning the `otpauth://` URI (draw it as a QR code) and
+typing a first code:
+
+<!-- example: examples/guides/two-factor.php#enrol -->
+```php
+$enrolment = $twoFactor->enrol($amani, $amani->email);
+echo 'Scan: ', substr($enrolment->uri, 0, 40), "...\n";        // show it as a QR code
+echo 'Recovery codes: ', count($enrolment->recoveryCodes), "\n";
+echo 'Confirmed: ', $twoFactor->confirm($amani, $app($enrolment->secret)) ? 'yes' : 'no', "\n";
+```
+
+From then on, `SessionLogin` asks for a code after the password:
+
+<!-- example: examples/guides/two-factor.php#sign-in -->
+```php
+$result = $login->start('amani@example.com', 'correct horse', '198.51.100.7');
+echo 'After the password: ', $result->status, ', signed in as ', $context->user()?->identifier() ?? 'nobody', "\n";
+
+$result = $login->completeSecondFactor('123456', '198.51.100.7');
+echo 'A wrong code: ', $result->status, "\n";
+
+$result = $login->completeSecondFactor($app($enrolment->secret), '198.51.100.7', remember: true);
+echo 'The code from the app: ', $result->status, ', signed in as ', $context->user()?->identifier() ?? 'nobody', "\n";
+echo 'Device token for a cookie: ', $result->deviceToken === null ? 'no' : 'yes', "\n";
+```
+
+<!-- example: examples/guides/two-factor.out -->
+```text
+Scan: otpauth://totp/Billets%20RDC:amani%40exa...
+Recovery codes: 10
+Confirmed: yes
+After the password: second_factor_required, signed in as nobody
+A wrong code: failed
+The code from the app: signed_in, signed in as 7
+Device token for a cookie: yes
+```
+
+- **The password alone never signs in** a user with a second factor, not
+  even through `attempt()`, which then returns null while
+  `hasPendingSecondFactor()` is true. The pending sign-in lasts 5 minutes.
+- **Codes** are accepted 30 seconds early or late, and only once. Attempts
+  are limited per user.
+- **Recovery codes** (10) are stored as HMACs. Each works once in place of a
+  code, and `regenerateRecoveryCodes()` replaces them.
+- **Remember this device:** put `$result->deviceToken` in a cookie and pass
+  it to `start()`. It expires after `security.two_factor.remember_days`
+  (30), and enrolling again forgets every device.
+- **Events:** `TwoFactorEnabled`, `TwoFactorDisabled`, `TwoFactorFailed` and
+  `RecoveryCodeUsed`. [audit](audit.md#new-in-215-the-security-audit-log)
+  records them.
+
+### One-time codes
+
+To confirm a phone number or an email address, issue a code and send it
+yourself, by SMS or WhatsApp:
+
+```php
+$code = $codes->issue('+243810000000', 'phone.confirm');   // OneTimeCodes
+$codes->verify('+243810000000', 'phone.confirm', $typed);  // true once
+```
+
+A code expires (10 minutes by default) and works once. It is refused after 5
+wrong tries, and issuing is limited per number and purpose
+(`security.one_time_codes.max_issues` per `security.one_time_codes.window`).

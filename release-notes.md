@@ -8,10 +8,38 @@ errors and mail problems visible, 2.7 helps AI coding agents follow an
 application's rules, 2.8 generates whole use cases, 2.9 adds an API
 skeleton, 2.10 validates every command and query, 2.11 generates a whole
 feature from one plan file, 2.12 runs the database on Doctrine DBAL, and
-2.13 adds the transactional outbox, 2.14 idempotency keys, and 2.15 a
-security audit log.
+2.13 adds the transactional outbox, 2.14 idempotency keys, 2.15 a
+security audit log, and 2.16 second factors.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
+
+## 2.16.0 — Unreleased
+
+2.16 starts phase T2 of the DRC event ticketing platform (FE-56):
+organizer staff sign in with a second factor, and guest buyers confirm a
+phone number with a code. It is backward compatible with 2.15. Nothing
+changes until a user provider holds second factors.
+
+- **security** (ADR-031):
+  - TOTP (RFC 6238) with recovery codes, enrolled with `TwoFactor` and
+    kept by your user provider (`TwoFactorUserProviderInterface`), sealed
+    under `security.two_factor.key`;
+  - `SessionLogin::start()` and `completeSecondFactor()`, so a user with
+    a second factor is never signed in by the password alone; remember
+    this device;
+  - `OneTimeCodes` for SMS or WhatsApp confirmations: they expire, work
+    once, and limit attempts and issuing;
+  - new events (`TwoFactorEnabled`, `TwoFactorDisabled`,
+    `TwoFactorFailed`, `RecoveryCodeUsed`), and the
+    `security.two_factor_key` check.
+- **audit:** records the second-factor events.
+
+See [the security guide](guides/security.md#new-in-216-second-factors).
+
+**Upgrading from 2.15:** run `composer update`. To offer second factors,
+add a nullable text column to your user table, implement
+`TwoFactorUserProviderInterface`, set `security.two_factor.key`, and show
+the code form when `start()` asks for it.
 
 ## 2.15.0 — 2026-11-06
 
