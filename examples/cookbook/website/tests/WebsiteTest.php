@@ -17,7 +17,12 @@ final class WebsiteTest extends ApplicationTestCase
     {
         return Bootstrap::builder(dirname(__DIR__))
             ->withEnvironment('testing')
-            ->withConfiguration(['security.secret' => str_repeat('t', 64)]);
+            ->withConfiguration([
+                'security.secret' => str_repeat('t', 64),
+                'security.csrf.minimum_age' => 0,                     // tests fill forms faster than people
+                'cache.stores.array' => ['driver' => 'array'],        // rate limits counted per test
+                'cache.default' => 'array',
+            ]);
     }
     // endregion: setup
 
@@ -100,6 +105,44 @@ final class WebsiteTest extends ApplicationTestCase
             ->assertSelector('textarea[name=message]', 'I would like a quote.');
     }
     // endregion: contact
+
+    // region: bots
+    public function testBotsThatFillTheHoneypotAreToldItWorked(): void
+    {
+        $this->browser()->form('/en/contact')
+            ->fill(['name' => 'Bot', 'email' => 'bot@example.com', 'message' => 'Cheap watches', 'website' => 'https://spam.example'])
+            ->submit()
+            ->assertRedirect('/en/contact/thanks');
+
+        $this->assertNoMailSent();
+    }
+
+    public function testFormsSentFasterThanAPersonCouldAreIgnored(): void
+    {
+        $this->withConfig(['security.csrf.minimum_age' => 3]);   // as in production
+
+        $this->browser()->form('/en/contact')
+            ->fill(['name' => 'Ada Lovelace', 'email' => 'ada@example.com', 'message' => 'I would like a quote.'])
+            ->submit()
+            ->assertRedirect('/en/contact/thanks');
+
+        $this->assertNoMailSent();
+    }
+
+    public function testTheSixthMessageInAnHourIsRefused(): void
+    {
+        $send = fn () => $this->browser()->form('/en/contact')
+            ->fill(['name' => 'Ada Lovelace', 'email' => 'ada@example.com', 'message' => 'I would like a quote.'])
+            ->submit();
+
+        foreach (range(1, 5) as $_) {
+            $send()->assertRedirect('/en/contact/thanks');
+        }
+        $send()->assertStatus(429)->assertHeader('RateLimit-Remaining', '0');
+
+        $this->assertMailSent(times: 5);
+    }
+    // endregion: bots
 
     // region: deployment
     public function testDebugOnAPublicAddressRefusesToStart(): void

@@ -15,6 +15,7 @@ use Zana\Container\Contracts\ServiceResolverInterface;
 use Zana\Core\Module;
 use Zana\Routing\Router;
 use Zana\Security\Middleware\CsrfMiddleware;
+use Zana\Security\Middleware\RateLimitMiddleware;
 
 final class ContactModule extends Module
 {
@@ -46,7 +47,8 @@ final class ContactModule extends Module
         // region: routes
         $paths = ['en' => '/contact', 'fr' => '/contact'];
         $router->localized($paths, [ContactController::class, 'show'])->name('contact');
-        $router->localized($paths, [ContactController::class, 'send'], ['POST'])->middleware(CsrfMiddleware::class);
+        // The rate limit counts every post, before the bot traps and the token are checked.
+        $router->localized($paths, [ContactController::class, 'send'], ['POST'])->middleware(RateLimitMiddleware::class, CsrfMiddleware::class);
         $router->localized(['en' => '/contact/thanks', 'fr' => '/contact/merci'], [ContactController::class, 'thanks'])->name('contact.thanks');
         // endregion: routes
     }

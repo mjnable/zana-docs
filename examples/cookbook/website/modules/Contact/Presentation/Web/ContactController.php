@@ -12,6 +12,7 @@ use Psr\Log\LoggerInterface;
 use Zana\Communication\MailException;
 use Zana\Http\ResponseFactory;
 use Zana\Routing\UrlGenerator;
+use Zana\Security\Attribute\RateLimit;
 use Zana\Validation\Validator;
 use Zana\View\View;
 
@@ -31,6 +32,9 @@ final readonly class ContactController
         return View::make('@Contact/form', ['page' => 'contact', 'old' => [], 'errors' => []]);
     }
 
+    // region: rate-limit
+    #[RateLimit(max: 5, per: 3600)]   // five messages per visitor per hour; the sixth gets 429
+    // endregion: rate-limit
     public function send(ServerRequestInterface $request): View|ResponseInterface
     {
         $body = $request->getParsedBody();

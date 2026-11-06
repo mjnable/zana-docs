@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Website;
 
+use Zana\Cache\CacheServiceProvider;
 use Zana\Communication\CommunicationServiceProvider;
 use Zana\Core\Application;
 use Zana\Core\ApplicationBuilder;
@@ -21,6 +22,7 @@ final class Bootstrap
         return Application::configure($basePath)
             ->withProviders(
                 HttpServiceProvider::class,
+                CacheServiceProvider::class,       // for the contact form's rate limit
                 RoutingServiceProvider::class,
                 TranslationServiceProvider::class,
                 SecurityServiceProvider::class,

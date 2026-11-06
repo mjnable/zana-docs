@@ -8,7 +8,7 @@ on modest hosting. This chapter builds one with Zana 2.1:
 - **Languages:** French and English, the visitor's browser choosing the
   first one, and one URL per language.
 - **A contact form:** validation with translated messages, CSRF
-  protection, and an email to the company.
+  protection, bot traps and a rate limit, and an email to the company.
 - **Security headers:** a Content-Security-Policy with a nonce, and safe
   defaults.
 - **Deployment safety:** the site refuses to start when it would leak
@@ -40,6 +40,7 @@ declare(strict_types=1);
 
 namespace Website;
 
+use Zana\Cache\CacheServiceProvider;
 use Zana\Communication\CommunicationServiceProvider;
 use Zana\Core\Application;
 use Zana\Core\ApplicationBuilder;
@@ -57,6 +58,7 @@ final class Bootstrap
         return Application::configure($basePath)
             ->withProviders(
                 HttpServiceProvider::class,
+                CacheServiceProvider::class,       // for the contact form's rate limit
                 RoutingServiceProvider::class,
                 TranslationServiceProvider::class,
                 SecurityServiceProvider::class,
@@ -154,6 +156,31 @@ return ['locales' => ['en', 'fr']];   // the first is the fallback
 return [
     // A placeholder: production refuses to start until APP_SECURITY__SECRET replaces it.
     'secret' => 'change-me-to-64-random-hex-characters-generated-on-the-server',
+
+    // Bot traps on the contact form, without a CAPTCHA (csrf_field() prints the honeypot).
+    'csrf' => [
+        'honeypot' => 'website',                  // a hidden field people never fill in
+        'minimum_age' => 3,                       // seconds: no person writes a message faster
+        'spam_redirect' => '/en/contact/thanks',  // bots are told it worked, and nothing is sent
+    ],
+];
+```
+
+The `csrf` settings are the contact form's bot traps (see
+[keeping bots out](#keeping-bots-out)). Its rate limit counts attempts in
+the cache, so the cache must outlive a request:
+
+<!-- example: examples/cookbook/website/config/cache.php -->
+```php
+<?php
+
+// Rate limiting counts attempts here, so it must outlive a request: files under var/, which
+// works on shared hosting. (The default, "array", forgets everything after each request.)
+return [
+    'default' => 'file',
+    'stores' => [
+        'file' => ['driver' => 'file', 'path' => 'var/cache/data', 'ttl' => 3600],
+    ],
 ];
 ```
 
@@ -524,6 +551,7 @@ use Psr\Log\LoggerInterface;
 use Zana\Communication\MailException;
 use Zana\Http\ResponseFactory;
 use Zana\Routing\UrlGenerator;
+use Zana\Security\Attribute\RateLimit;
 use Zana\Validation\Validator;
 use Zana\View\View;
 
@@ -543,6 +571,7 @@ final readonly class ContactController
         return View::make('@Contact/form', ['page' => 'contact', 'old' => [], 'errors' => []]);
     }
 
+    #[RateLimit(max: 5, per: 3600)]   // five messages per visitor per hour; the sixth gets 429
     public function send(ServerRequestInterface $request): View|ResponseInterface
     {
         $body = $request->getParsedBody();
@@ -613,9 +642,40 @@ first, then send: a mail failure then loses nothing.
 ```php
 $paths = ['en' => '/contact', 'fr' => '/contact'];
 $router->localized($paths, [ContactController::class, 'show'])->name('contact');
-$router->localized($paths, [ContactController::class, 'send'], ['POST'])->middleware(CsrfMiddleware::class);
+// The rate limit counts every post, before the bot traps and the token are checked.
+$router->localized($paths, [ContactController::class, 'send'], ['POST'])->middleware(RateLimitMiddleware::class, CsrfMiddleware::class);
 $router->localized(['en' => '/contact/thanks', 'fr' => '/contact/merci'], [ContactController::class, 'thanks'])->name('contact.thanks');
 ```
+
+### Keeping bots out
+
+A public form attracts bots. Three of Zana's protections stop most of them,
+with no CAPTCHA to annoy visitors:
+
+- **A honeypot:** a hidden field, `website`, that people never fill in and
+  bots do. `csrf_field()` prints it.
+- **A time trap:** a form sent less than 3 seconds after it was shown was not
+  written by a person.
+- **A rate limit:** five messages per visitor per hour. The sixth gets a 429
+  with `Retry-After`.
+
+The first two are settings of the form token (`csrf` in
+`config/security.php`, above). With `spam_redirect`, a caught bot is sent to
+the thank-you page, so it believes it succeeded and does not try harder;
+nothing is sent. The rate limit is an attribute on the handler:
+
+<!-- example: examples/cookbook/website/modules/Contact/Presentation/Web/ContactController.php#rate-limit -->
+```php
+#[RateLimit(max: 5, per: 3600)]   // five messages per visitor per hour; the sixth gets 429
+```
+
+and `RateLimitMiddleware` on the route, before `CsrfMiddleware`, so every
+post counts, even a bot's. Visitors are counted by address, which behind a
+proxy or CDN is right only with
+[trusted proxies](../guides/http.md#behind-a-proxy).
+
+Each protection can be turned on alone; see
+[spam on public forms](../guides/security.md#spam-on-public-forms).
 
 <!-- example: examples/cookbook/website/modules/Contact/Resources/views/form.php -->
 ```php
@@ -705,6 +765,7 @@ use Zana\Container\Contracts\ServiceResolverInterface;
 use Zana\Core\Module;
 use Zana\Routing\Router;
 use Zana\Security\Middleware\CsrfMiddleware;
+use Zana\Security\Middleware\RateLimitMiddleware;
 
 final class ContactModule extends Module
 {
@@ -735,7 +796,8 @@ final class ContactModule extends Module
 
         $paths = ['en' => '/contact', 'fr' => '/contact'];
         $router->localized($paths, [ContactController::class, 'show'])->name('contact');
-        $router->localized($paths, [ContactController::class, 'send'], ['POST'])->middleware(CsrfMiddleware::class);
+        // The rate limit counts every post, before the bot traps and the token are checked.
+        $router->localized($paths, [ContactController::class, 'send'], ['POST'])->middleware(RateLimitMiddleware::class, CsrfMiddleware::class);
         $router->localized(['en' => '/contact/thanks', 'fr' => '/contact/merci'], [ContactController::class, 'thanks'])->name('contact.thanks');
     }
 }
@@ -757,7 +819,12 @@ protected function createApplicationBuilder(): ApplicationBuilder
 {
     return Bootstrap::builder(dirname(__DIR__))
         ->withEnvironment('testing')
-        ->withConfiguration(['security.secret' => str_repeat('t', 64)]);
+        ->withConfiguration([
+            'security.secret' => str_repeat('t', 64),
+            'security.csrf.minimum_age' => 0,                     // tests fill forms faster than people
+            'cache.stores.array' => ['driver' => 'array'],        // rate limits counted per test
+            'cache.default' => 'array',
+        ]);
 }
 ```
 
@@ -846,6 +913,49 @@ public function testAMailFailureKeepsTheMessageAndSaysSo(): void
         ->assertStatus(503)
         ->assertSelector('p.error[role=alert]', 'Votre message n’a pas pu être envoyé.')
         ->assertSelector('textarea[name=message]', 'I would like a quote.');
+}
+```
+
+The tests turn the time trap off (`minimum_age` 0) and count rate limits in
+memory, so each test starts afresh. Then they check that each protection
+works, putting the time trap back where needed:
+
+<!-- example: examples/cookbook/website/tests/WebsiteTest.php#bots -->
+```php
+public function testBotsThatFillTheHoneypotAreToldItWorked(): void
+{
+    $this->browser()->form('/en/contact')
+        ->fill(['name' => 'Bot', 'email' => 'bot@example.com', 'message' => 'Cheap watches', 'website' => 'https://spam.example'])
+        ->submit()
+        ->assertRedirect('/en/contact/thanks');
+
+    $this->assertNoMailSent();
+}
+
+public function testFormsSentFasterThanAPersonCouldAreIgnored(): void
+{
+    $this->withConfig(['security.csrf.minimum_age' => 3]);   // as in production
+
+    $this->browser()->form('/en/contact')
+        ->fill(['name' => 'Ada Lovelace', 'email' => 'ada@example.com', 'message' => 'I would like a quote.'])
+        ->submit()
+        ->assertRedirect('/en/contact/thanks');
+
+    $this->assertNoMailSent();
+}
+
+public function testTheSixthMessageInAnHourIsRefused(): void
+{
+    $send = fn () => $this->browser()->form('/en/contact')
+        ->fill(['name' => 'Ada Lovelace', 'email' => 'ada@example.com', 'message' => 'I would like a quote.'])
+        ->submit();
+
+    foreach (range(1, 5) as $_) {
+        $send()->assertRedirect('/en/contact/thanks');
+    }
+    $send()->assertStatus(429)->assertHeader('RateLimit-Remaining', '0');
+
+    $this->assertMailSent(times: 5);
 }
 ```
 
