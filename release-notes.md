@@ -10,9 +10,28 @@ skeleton, 2.10 validates every command and query, 2.11 generates a whole
 feature from one plan file, 2.12 runs the database on Doctrine DBAL, and
 2.13 adds the transactional outbox, 2.14 idempotency keys, 2.15 a
 security audit log, 2.16 second factors, 2.17 roles in an
-organization or at an event, and 2.18 leaner release archives.
+organization or at an event, 2.18 leaner release archives, and 2.19
+the same exclusion rules on every route to a live server.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
+
+## 2.19.0 — Unreleased
+
+2.19 applies the exclusion rules of 2.18 however files reach a live server
+(FE-66). Each route keeps its own way of deploying. It is backward compatible
+with 2.18, and nothing changes on a server until you run the new command.
+
+- **console:**
+  - `release:clean` applies the rules on the server: Git's sparse-checkout in a
+    checkout, so that `git pull` keeps working, and deletion elsewhere. It
+    runs only with `APP_ENV=production`, and `--dry-run` shows what would go;
+  - `doctor` warns in production when these files are on the server;
+  - one list of rules, used by `release:build`, `release:clean` and `doctor`.
+- **Docs:** [the same rules on every route](deployment.md#the-same-rules-on-every-route).
+
+**Upgrading from 2.18:** run `composer update`. A site deployed with `git pull`
+or a copied folder gets a `doctor` warning until you add
+`php bin/console release:clean` to its deployment. It is only a warning.
 
 ## 2.18.0 — 2026-11-07
 

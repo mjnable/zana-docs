@@ -66,11 +66,14 @@ root, named by its `PROJECT_FOLDER` constant (`website` by default):
 ```
 git pull                       # or upload a release archive
 composer install --no-dev --optimize-autoloader
+php bin/console release:clean
 php bin/console cache:clear
 php bin/console cache:warm
 php bin/console doctor
 ```
 
+- `release:clean` (2.19) applies [the same exclusion rules](#the-same-rules-on-every-route)
+  as the release archives.
 - `cache:clear` deletes the compiled container, the configuration cache
   (2.4), and compiled Twig templates when Twig is installed.
   A container compiled for the previous code is an error in production,
@@ -185,6 +188,45 @@ APP_VIEW__ASSETS__PATH=/home/acme/public_html
   its `index.php` says so, but `bin/console` looks in `website/public`. Without
   this setting, an asset URL built in a command, such as a link in an email
   sent by a worker, has no version. With the `manifest` asset strategy, it fails.
+
+## The same rules on every route
+
+Since 2.19, the list above applies however the files reach a live server.
+Each route keeps its own way of deploying:
+
+| Route | How the rules apply |
+|---|---|
+| `release:build` | The archive is built without the files. Nothing else to do. |
+| `git pull` | `release:clean` keeps the files out of the checkout, and `git pull` keeps working. |
+| FTP, rsync or a copied folder | `release:clean` deletes the files. |
+
+```
+php bin/console release:clean --dry-run   # what would go; nothing changes
+php bin/console release:clean
+```
+
+It runs only with `APP_ENV=production`, so it never touches a development
+or test machine. Only `--dry-run` works anywhere.
+
+- **In a Git checkout,** it uses Git's sparse-checkout, so the files leave the
+  folder, `git status` stays clean, and later pulls skip them. Run it after each
+  pull, so that new rules apply. It needs a recent Git, and it refuses a checkout
+  that has sparse-checkout patterns of its own. The files stay in the history
+  inside `.git`, which the document root keeps out of reach.
+- **In any other folder,** it lists the files and asks, because a deleted file
+  comes back only with the next upload. `--force` skips the question, for a
+  script or a cron job.
+- **What stays.** `.env`, `.git`, `var/` and `vendor/` are never touched: the
+  server's `.env` is its configuration. A file changed on the server stays in
+  a checkout, and the command names it.
+- **Your own files.** `export-ignore` entries count when they name a plain path
+  such as `/docs`. Patterns such as `*.log` do not apply here, and the command
+  names them.
+- **`public/`** goes only with `--no-public`, for the split layout. In the other
+  layouts it is the site.
+
+`doctor` warns in production when any of these files are on the server, so a
+route that missed the step shows up. The warning does not fail it.
 
 ## Behind a CDN or a load balancer
 
