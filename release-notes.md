@@ -14,7 +14,7 @@ organization or at an event, and 2.18 leaner release archives.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.18.0 — Unreleased
+## 2.18.0 — 2026-11-07
 
 2.18 keeps project documents off the server (FE-65). It comes from packaging
 the MMC website, whose archives held files with no use in production. It is
