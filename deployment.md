@@ -210,8 +210,8 @@ or test machine. Only `--dry-run` works anywhere.
 
 - **In a Git checkout,** it uses Git's sparse-checkout, so the files leave the
   folder, `git status` stays clean, and later pulls skip them. Run it after each
-  pull, so that new rules apply. It needs a recent Git, and it refuses a checkout
-  that has sparse-checkout patterns of its own. The files stay in the history
+  pull, so that new rules apply. It needs Git 2.35 or later, and it refuses a
+  checkout that has sparse-checkout patterns of its own. The files stay in the history
   inside `.git`, which the document root keeps out of reach.
 - **In any other folder,** it lists the files and asks, because a deleted file
   comes back only with the next upload. `--force` skips the question, for a
@@ -220,8 +220,10 @@ or test machine. Only `--dry-run` works anywhere.
   server's `.env` is its configuration. A file changed on the server stays in
   a checkout, and the command names it.
 - **Your own files.** `export-ignore` entries count when they name a plain path
-  such as `/docs`. Patterns such as `*.log` do not apply here, and the command
-  names them.
+  such as `/docs` or `/docs/**`. Patterns such as `*.log` do not apply here, and
+  the command names them. It also names `docs` without a leading slash, which
+  Git matches in any folder and this command only at the root: write the full
+  path, such as `/src/docs`, for a nested one.
 - **`public/`** goes only with `--no-public`, for the split layout. In the other
   layouts it is the site.
 
