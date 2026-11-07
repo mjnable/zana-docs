@@ -220,8 +220,9 @@ or test machine. Only `--dry-run` works anywhere.
   server's `.env` is its configuration. A file changed on the server stays in
   a checkout, and the command names it.
 - **Your own files.** `export-ignore` entries count when they name a plain path
-  such as `/docs` or `/docs/**`. Patterns such as `*.log` do not apply here, and
-  the command names them. It also names `docs` without a leading slash, which
+  such as `/docs` or `/docs/**`, in ASCII letters, digits, `.`, `_` and `-`.
+  Patterns such as `*.log` do not apply here, and the command names them, as it
+  names a path that leads through a link. It also names `docs` without a leading slash, which
   Git matches in any folder and this command only at the root: write the full
   path, such as `/src/docs`, for a nested one.
 - **`public/`** goes only with `--no-public`, for the split layout. In the other
