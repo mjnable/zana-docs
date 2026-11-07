@@ -14,9 +14,9 @@ domain, use cases, persistence and presentations. Zana gives them:
 - **Tools that keep modules apart:** contracts between modules, and
   architecture tests that enforce the boundaries.
 
-Zana 2 requires PHP 8.5 or later. **Status:** `2.19.0`, released on
-2026-11-07: the same exclusion rules on every route to a live server, and a
-security check in the workflow for AI agents. See the [release notes](release-notes.md).
+Zana 2 requires PHP 8.5 or later. **Status:** `2.19.1`, released on
+2026-11-07: a security release for sign-in and sessions. Upgrade with
+`composer update`. See the [release notes](release-notes.md).
 
 ## Start here
 

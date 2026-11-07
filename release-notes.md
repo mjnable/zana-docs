@@ -15,7 +15,7 @@ the same exclusion rules on every route to a live server.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.19.1 — Unreleased
+## 2.19.1 — 2026-11-07
 
 A security release for sign-in and sessions, from the audit of the 2.1 to
 2.18 security code. Upgrade with `composer update`. Only `mj-zana/security`,
