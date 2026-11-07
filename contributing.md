@@ -57,6 +57,13 @@ composer analyse     # PHPStan, level 8
    when behaviour that users see changes.
 5. **Commit messages:** a short summary line in the imperative ("Add
    Schema::table()"), then what changed and why.
+6. **A security check** when the change reads outside input, deletes or
+   writes files, starts a process, touches sign-in, permissions, secrets or
+   cryptography, builds SQL or HTML, unserializes data, or changes a
+   dependency. Name who can reach the code and the worst outcome, then
+   attack it by running hostile inputs against the real code, and look at
+   what happened. Accept what is known to be safe rather than refuse what is
+   known to be bad, and keep a test for every hole you find.
 
 ## An AI-ready checklist for packages (2.11)
 
