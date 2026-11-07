@@ -9,10 +9,28 @@ application's rules, 2.8 generates whole use cases, 2.9 adds an API
 skeleton, 2.10 validates every command and query, 2.11 generates a whole
 feature from one plan file, 2.12 runs the database on Doctrine DBAL, and
 2.13 adds the transactional outbox, 2.14 idempotency keys, 2.15 a
-security audit log, 2.16 second factors, and 2.17 roles in an
-organization or at an event.
+security audit log, 2.16 second factors, 2.17 roles in an
+organization or at an event, and 2.18 leaner release archives.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
+
+## 2.18.0 — Unreleased
+
+2.18 keeps project documents off the server (FE-65). It comes from packaging
+the MMC website, whose archives held files with no use in production. It is
+backward compatible with 2.17.
+
+- **console:**
+  - `release:build` leaves `README.md`, `AGENTS.md`, `CLAUDE.md` and
+    `.env.example` out of the code archive;
+  - `release:build --no-public` leaves `public/` out of the code archive, for
+    the split layout, where `public_html.zip` is the only copy that is served.
+- **Docs:** [what the archives hold](deployment.md#what-the-archives-hold),
+  how to leave out your own files with `export-ignore`, and the two settings
+  that point at `public_html` in the split layout.
+
+If a server of yours uses one of these four files from the upload, keep a copy
+there yourself: for example, a `.env` made from `.env.example`.
 
 ## 2.17.0 — 2026-11-06
 

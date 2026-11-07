@@ -167,7 +167,7 @@ since 2.7, with the same report format.
 | `about` | The application, its environment, PHP, and the installed Zana packages. |
 | `doctor` | Checks the server before going live: the PHP version, the extensions in `app.extensions`, a writable `var/`, the length of `security.secret`, the startup deployment checks, and (2.4) that every singleton can be created. Exits with 1 when something is fatal. |
 | `mail:test` | (2.6, with `mj-zana/communication`) Sends a test email and prints the mail server's answer, passwords hidden. |
-| `release:build` | (2.5) Builds the upload archives for shared hosting from a commit, with the production dependencies installed. Options: `--folder`, `--ref`, `--output`, `--composer`, `--timeout`, `-v`. See [deployment](../deployment.md#without-ssh). Needs `ext-zip`. |
+| `release:build` | (2.5) Builds the upload archives for shared hosting from a commit, with the production dependencies installed. Options: `--folder`, `--ref`, `--output`, `--composer`, `--timeout`, `--no-public` (2.18), `-v`. See [deployment](../deployment.md#without-ssh) and [what the archives hold](../deployment.md#what-the-archives-hold). Needs `ext-zip`. |
 
 Packages and applications add their caches by tagging a service with
 `CacheClearerInterface::CLEARER_TAG` or `CacheWarmerInterface::WARMER_TAG`

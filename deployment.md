@@ -102,10 +102,13 @@ It takes the last commit (`--ref` another one), installs the production
 dependencies in a copy, and writes two archives:
 
 - `build/website.zip`: the project, with `vendor/` and an empty `var/`,
-  but not the tests or `.env`. Unpack it beside `public_html`.
+  ready to run. Unpack it beside `public_html`.
 - `build/public_html.zip`: the contents of `public/`. Unpack it into
   `public_html`. Its `index.php` points at `../website`; `--folder` picks
   another name for both.
+
+[What the archives hold](#what-the-archives-hold) explains what they leave
+out.
 
 The command comes with `mj-zana/console` (2.5), so `composer update` brings
 its fixes. It finds Composer on the `PATH`, including the `composer.phar` that
@@ -133,6 +136,55 @@ Then, in the file manager:
 Composer runs on your machine, so it must use the server's PHP version and
 extensions: set `config.platform.php` in `composer.json` when your machine
 runs a newer PHP.
+
+## What the archives hold
+
+`release:build` starts from the commit, so uncommitted files never ship.
+Since 2.18, the code archive holds what the server runs, and leaves out:
+
+- the tests and the development tooling: `tests/`, `.github/`,
+  `phpunit.xml.dist`, `phpunit.xml`, `.gitattributes` and `.gitignore`;
+- local settings: `.env`, `.env.testing` and `.env.example`;
+- the project's documents: `README.md`, `AGENTS.md` and `CLAUDE.md`.
+
+These are top-level names, so a `README.md` inside a module stays.
+
+**Your own files.** To leave out anything else, such as a `docs/` folder of
+project notes, mark it `export-ignore` in the application's `.gitattributes`
+and commit that. The path is then in neither archive:
+
+```
+/docs export-ignore
+```
+
+The files stay in the repository. Do not add this to a skeleton you publish:
+`composer create-project` installs from the same kind of archive, so a new
+project would not receive them.
+
+**`public/` in the split layout.** `public/` is in both archives by default,
+because `website.zip` is the only upload when the document root is `public/`
+or the project folder. In the split layout, the copy in `website/public` is
+not served, so leave it out:
+
+```
+php bin/console release:build --no-public
+```
+
+`public_html.zip` does not change. Use this option only in the split layout:
+the other two layouts have no `public/` without it. Two settings then point
+at `public_html`, in `website/.env`:
+
+```
+APP_FILESYSTEM__DISKS__PUBLIC__ROOT=/home/acme/public_html/files
+APP_VIEW__ASSETS__PATH=/home/acme/public_html
+```
+
+- The first is for a public disk: uploaded files must be written where the web
+  server finds them. The split layout needs it with or without the option.
+- The second is for commands. Web pages already read `public_html`, because
+  its `index.php` says so, but `bin/console` looks in `website/public`. Without
+  this setting, an asset URL built in a command, such as a link in an email
+  sent by a worker, has no version. With the `manifest` asset strategy, it fails.
 
 ## Behind a CDN or a load balancer
 
