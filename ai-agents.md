@@ -93,7 +93,13 @@ developer follows:
 6. **Write** the business logic in Domain and Application.
 7. **Check:** `php bin/console check --format=json`, and fix every error.
 8. **Test:** `composer test`.
-9. **Summarise** the files changed, the decisions and the commands run.
+9. **Security check** (2.19), when the change reads outside input, deletes or
+   writes files, starts a process, touches sign-in, permissions, secrets or
+   payments, builds SQL or HTML, or changes a dependency: name who can reach
+   the code and the worst outcome, attack it with tests that use hostile
+   input, and look at what happened in the database or on disk.
+10. **Summarise** the files changed, the decisions, the commands run, and what
+    the security check found and did not cover.
 
 Nothing in it is specific to one agent: it is plain commands and files, and
 a developer without an agent follows the same steps.
@@ -327,6 +333,7 @@ it from `composer create-project`.
 | `CLAUDE.md` and `.github/copilot-instructions.md` point to it | the two files (`make:agents` writes them) |
 | `check` passes without an error | `php bin/console check` exits with 0 |
 | The architecture rules apply to `modules/` | `mj-zana/testing` installed; `check` reports "Architecture: … no violation" |
+| Agents run a security check on risky changes, and report it | the workflow in `AGENTS.md` (2.19), and the tests each check leaves behind |
 | Tests run without `.env` | `config/testing/` (a secret, an in-memory database); `APP_ENV=testing php bin/console check` |
 | Module tests run with the others | `phpunit.xml.dist` includes `modules/*/Tests` |
 | CI runs the tests and `check` | `.github/workflows/ci.yml` |

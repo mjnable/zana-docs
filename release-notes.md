@@ -27,11 +27,16 @@ with 2.18, and nothing changes on a server until you run the new command.
     runs only with `APP_ENV=production`, and `--dry-run` shows what would go;
   - `doctor` warns in production when these files are on the server;
   - one list of rules, used by `release:build`, `release:clean` and `doctor`.
+- **maker:** `AGENTS.md` asks AI coding agents for a security check on risky
+  changes: attack the code with hostile input, keep the attacks as tests, and
+  report what was found and what was not covered (FE-67).
 - **Docs:** [the same rules on every route](deployment.md#the-same-rules-on-every-route).
 
 **Upgrading from 2.18:** run `composer update`. A site deployed with `git pull`
 or a copied folder gets a `doctor` warning until you add
-`php bin/console release:clean` to its deployment. It is only a warning.
+`php bin/console release:clean` to its deployment. It is only a warning. Run
+`php bin/console make:agents --force`, then add back any section of your own,
+so that agents get the security check.
 
 ## 2.18.0 — 2026-11-07
 
