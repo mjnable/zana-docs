@@ -15,7 +15,7 @@ the same exclusion rules on every route to a live server.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.19.2 — Unreleased
+## 2.19.2 — 2026-11-07
 
 The second security release from the audit of the 2.1 to 2.18 code, for
 proxies, uploads and the page cache. Upgrade with `composer update`.
