@@ -1,59 +1,59 @@
-# Zana 2.17 documentation
+# Zana 2.18 documentation
 
 > Zana is a modular PHP 8.5 framework for business applications: modules with Domain, Application,
 > Infrastructure and Presentation layers, an explicit dependency injection container validated at
 > startup, and packages for HTTP, routing, console, database, security, views and more. These pages
-> document Zana 2.17; every code example in them is tested against that release.
+> document Zana 2.18; every code example in them is tested against that release.
 
 In a Zana application, `php bin/console inspect` and `php bin/console check` (with `--format=json`)
 show the application and verify it; `AGENTS.md` at its root states its rules.
 
 ## Start here
 
-- [Getting started](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/getting-started.md): This guide builds a small but complete Zana application.
-- [Working with AI coding agents](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/ai-agents.md): Zana 2.7 helps AI coding agents (Claude Code, Codex, Copilot, Cursor and others) work on a Zana application the way its developers do.
-- [Deployment](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/deployment.md): This page puts a Zana website on a server.
-- [Upgrading from 1.x](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/upgrading.md): Zana 1.x shipped three packages.
-- [Release notes — Zana 2](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/release-notes.md): Zana 2.0 turns the three 1.x packages into a framework of 19 packages for modular business applications, on PHP 8.5.
+- [Getting started](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/getting-started.md): This guide builds a small but complete Zana application.
+- [Working with AI coding agents](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/ai-agents.md): Zana 2.7 helps AI coding agents (Claude Code, Codex, Copilot, Cursor and others) work on a Zana application the way its developers do.
+- [Deployment](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/deployment.md): This page puts a Zana website on a server.
+- [Upgrading from 1.x](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/upgrading.md): Zana 1.x shipped three packages.
+- [Release notes — Zana 2](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/release-notes.md): Zana 2.0 turns the three 1.x packages into a framework of 19 packages for modular business applications, on PHP 8.5.
 
 ## Guides
 
-- [Audit](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/audit.md): `mj-zana/audit` (2.2) keeps the revisions of edited content.
-- [Cache](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/cache.md): `mj-zana/cache` provides PSR-16 caches with a few additions.
-- [Communication: email](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/communication.md): `mj-zana/communication` sends email through Symfony Mailer transports, with safe sender rules and a recorder for tests.
-- [Configuration](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/configuration.md): `mj-zana/configuration` merges settings from PHP files, the environment and `.env` into one read-only, typed configuration.
-- [Console](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/console.md): `mj-zana/console` runs Symfony Console commands with two additions.
-- [Container](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/container.md): `mj-zana/container` creates your services and wires their dependencies.
-- [Application and modules](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/core.md): `mj-zana/core` turns packages and modules into a running application.
-- [Database](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/database.md): `mj-zana/database` provides PDO connections, a query builder, a schema builder, module-aware migrations and a transactional unit of work.
-- [Domain-driven design](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/ddd.md): `mj-zana/ddd` provides the building blocks for a domain model.
-- [Events](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/events.md): `mj-zana/events` is a PSR-14 event dispatcher.
-- [Filesystem](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/filesystem.md): `mj-zana/filesystem` puts local and in-memory storage behind one interface, `FilesystemInterface`.
-- [HTTP](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/http.md): `mj-zana/http` handles PSR-7 requests through a PSR-15 middleware pipeline.
-- [Idempotency](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/idempotency.md): `mj-zana/idempotency` (2.14) lets a client retry a request that must not run twice.
-- [Logging](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/logging.md): `mj-zana/logging` is a PSR-3 logger with handlers, formatters and a shared context.
-- [Maker](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/maker.md): `mj-zana/maker` generates code that follows the module layout.
-- [Media](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/media.md): `mj-zana/media` (2.2) handles the images editors upload.
-- [Mediator](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/mediator.md): `mj-zana/mediator` sends commands and queries to their handlers through pipeline behaviours, the CQRS style.
-- [Outbox](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/outbox.md): `mj-zana/outbox` (2.13) delivers events reliably.
-- [Queue](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/queue.md): `mj-zana/queue` runs work in the background.
-- [Routing](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/routing.md): `mj-zana/routing` maps HTTP methods and paths to handlers.
-- [Scheduler](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/scheduler.md): `mj-zana/scheduler` (2.2) runs recurring tasks from a single cron entry.
-- [Security](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/security.md): `mj-zana/security` provides password hashing, signed bearer tokens, authentication middleware, and authorization by roles, permissions and policies.
-- [Serialization](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/serialization.md): `mj-zana/serialization` turns objects into arrays and JSON, and hydrates typed objects from arrays and JSON through their constructors, collecting every error on the way.
-- [Sessions](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/session.md): `mj-zana/session` (2.2) stores server-side sessions for websites.
-- [Testing](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/testing.md): `mj-zana/testing` tests Zana applications with PHPUnit.
-- [Translation](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/translation.md): `mj-zana/translation` translates interface strings and knows the locale of the current request.
-- [Validation](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/validation.md): `mj-zana/validation` checks objects against constraint attributes and reports every violation with its path.
-- [Views](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/guides/view.md): `mj-zana/view` renders HTML pages from templates with layouts, partials and escaping by default.
+- [Audit](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/audit.md): `mj-zana/audit` (2.2) keeps the revisions of edited content.
+- [Cache](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/cache.md): `mj-zana/cache` provides PSR-16 caches with a few additions.
+- [Communication: email](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/communication.md): `mj-zana/communication` sends email through Symfony Mailer transports, with safe sender rules and a recorder for tests.
+- [Configuration](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/configuration.md): `mj-zana/configuration` merges settings from PHP files, the environment and `.env` into one read-only, typed configuration.
+- [Console](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/console.md): `mj-zana/console` runs Symfony Console commands with two additions.
+- [Container](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/container.md): `mj-zana/container` creates your services and wires their dependencies.
+- [Application and modules](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/core.md): `mj-zana/core` turns packages and modules into a running application.
+- [Database](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/database.md): `mj-zana/database` provides PDO connections, a query builder, a schema builder, module-aware migrations and a transactional unit of work.
+- [Domain-driven design](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/ddd.md): `mj-zana/ddd` provides the building blocks for a domain model.
+- [Events](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/events.md): `mj-zana/events` is a PSR-14 event dispatcher.
+- [Filesystem](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/filesystem.md): `mj-zana/filesystem` puts local and in-memory storage behind one interface, `FilesystemInterface`.
+- [HTTP](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/http.md): `mj-zana/http` handles PSR-7 requests through a PSR-15 middleware pipeline.
+- [Idempotency](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/idempotency.md): `mj-zana/idempotency` (2.14) lets a client retry a request that must not run twice.
+- [Logging](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/logging.md): `mj-zana/logging` is a PSR-3 logger with handlers, formatters and a shared context.
+- [Maker](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/maker.md): `mj-zana/maker` generates code that follows the module layout.
+- [Media](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/media.md): `mj-zana/media` (2.2) handles the images editors upload.
+- [Mediator](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/mediator.md): `mj-zana/mediator` sends commands and queries to their handlers through pipeline behaviours, the CQRS style.
+- [Outbox](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/outbox.md): `mj-zana/outbox` (2.13) delivers events reliably.
+- [Queue](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/queue.md): `mj-zana/queue` runs work in the background.
+- [Routing](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/routing.md): `mj-zana/routing` maps HTTP methods and paths to handlers.
+- [Scheduler](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/scheduler.md): `mj-zana/scheduler` (2.2) runs recurring tasks from a single cron entry.
+- [Security](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/security.md): `mj-zana/security` provides password hashing, signed bearer tokens, authentication middleware, and authorization by roles, permissions and policies.
+- [Serialization](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/serialization.md): `mj-zana/serialization` turns objects into arrays and JSON, and hydrates typed objects from arrays and JSON through their constructors, collecting every error on the way.
+- [Sessions](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/session.md): `mj-zana/session` (2.2) stores server-side sessions for websites.
+- [Testing](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/testing.md): `mj-zana/testing` tests Zana applications with PHPUnit.
+- [Translation](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/translation.md): `mj-zana/translation` translates interface strings and knows the locale of the current request.
+- [Validation](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/validation.md): `mj-zana/validation` checks objects against constraint attributes and reports every violation with its path.
+- [Views](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/guides/view.md): `mj-zana/view` renders HTML pages from templates with layouts, partials and escaping by default.
 
 ## Cookbook
 
-- [A back office](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/cookbook/back-office.md): A company website needs a place where staff edit the news, the services or the team page without a developer.
-- [The module cookbook](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/cookbook/modules.md): Zana applications are built from **modules**.
-- [Recipes for content sites](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/cookbook/recipes.md): Short, tested solutions for the things a company website or blog needs once its pages exist.
-- [A company website](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/cookbook/website.md): Most first projects are not APIs but a company website.
+- [A back office](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/cookbook/back-office.md): A company website needs a place where staff edit the news, the services or the team page without a developer.
+- [The module cookbook](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/cookbook/modules.md): Zana applications are built from **modules**.
+- [Recipes for content sites](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/cookbook/recipes.md): Short, tested solutions for the things a company website or blog needs once its pages exist.
+- [A company website](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/cookbook/website.md): Most first projects are not APIs but a company website.
 
 ## Contributing
 
-- [Contributing](https://raw.githubusercontent.com/mjnable/zana-docs/2.17/contributing.md): Thank you for helping with Zana.
+- [Contributing](https://raw.githubusercontent.com/mjnable/zana-docs/2.18/contributing.md): Thank you for helping with Zana.
