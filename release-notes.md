@@ -15,6 +15,37 @@ the same exclusion rules on every route to a live server.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
+## 2.19.1 — Unreleased
+
+A security release for sign-in and sessions, from the audit of the 2.1 to
+2.18 security code. Upgrade with `composer update`. Only `mj-zana/security`,
+`mj-zana/session` and the API skeleton change.
+
+- **security:**
+  - a stored second factor that cannot be opened, because
+    `security.two_factor.key` changed or the state was damaged, no longer
+    lets the password alone sign in;
+  - changing a password signs out the account's other sessions;
+  - only a valid bearer token skips the CSRF checks and the bot traps;
+  - the sign-in limit per address counts failed attempts only, and applies
+    only when an address is given.
+- **session:** a request still running at sign-out no longer brings the
+  session back.
+- **API skeleton:** the token endpoint takes as long for an unknown address
+  as for a known one.
+- **Docs:** the back-office cookbook's check of `?to=` refuses more ways of
+  naming another site.
+
+**Upgrading from 2.19.0:**
+
+- Everyone signed in through `SessionLogin` signs in again once.
+- An application that sends an `Authorization` header other than a bearer
+  token to a route with `CsrfMiddleware` now needs a CSRF token there.
+- **API projects** created from the skeleton have their own copy of the
+  token handler: check a password for an unknown address too, as in
+  `IssueTokenHandler` of the skeleton 2.19.1.
+- **Login pages** that copied the cookbook's `?to=` check: use the new one.
+
 ## 2.19.0 — 2026-11-07
 
 2.19 applies the exclusion rules of 2.18 however files reach a live server

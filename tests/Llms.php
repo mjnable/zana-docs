@@ -18,7 +18,7 @@ final class Llms
         'Start here' => ['getting-started.md', 'ai-agents.md', 'deployment.md', 'upgrading.md', 'release-notes.md'],
         'Guides' => 'guides/*.md',
         'Cookbook' => 'cookbook/*.md',
-        'Contributing' => ['contributing.md'],
+        'Contributing' => ['contributing.md', 'SECURITY.md'],
     ];
 
     /**

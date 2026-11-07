@@ -57,3 +57,4 @@ show the application and verify it; `AGENTS.md` at its root states its rules.
 ## Contributing
 
 - [Contributing](https://raw.githubusercontent.com/mjnable/zana-docs/2.19/contributing.md): Thank you for helping with Zana.
+- [Security policy](https://raw.githubusercontent.com/mjnable/zana-docs/2.19/SECURITY.md): How to report a security problem in Zana privately, and how fixes are released.

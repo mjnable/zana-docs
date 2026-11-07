@@ -160,8 +160,9 @@ $router->localized($paths, [ContactController::class, 'send'], ['POST'])->middle
 In templates, `csrf_field('contact')` prints both hidden fields
 ([views](view.md)).
 
-- **Exemptions:** requests with an `Authorization` header, and handlers
-  marked `#[WithoutCsrf]`, are not checked.
+- **Exemptions:** requests with a valid bearer token signed by the
+  application, and handlers marked `#[WithoutCsrf]`, are not checked.
+  Before 2.19.1, any `Authorization` header was enough.
 - **Lifetime:** tokens expire after `security.csrf.lifetime` seconds
   (7,200 by default).
 - **Single use:** with a PSR-16 cache, `security.csrf.single_use` makes
@@ -300,7 +301,9 @@ Set `security.two_factor.key` from the environment
 (`APP_SECURITY__TWO_FACTOR__KEY`, at least 32 characters, e.g. from
 `php -r "echo bin2hex(random_bytes(32));"`). It is separate from
 `security.secret`, and changing it locks out every user with a second
-factor. `check` reports it when it is missing.
+factor until it is set back. `check` reports it when it is missing.
+Before 2.19.1, a changed key, or a damaged state, let the password alone
+sign in: upgrade if you use second factors.
 
 A user enrols by scanning the `otpauth://` URI (draw it as a QR code) and
 typing a first code:

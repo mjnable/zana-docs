@@ -108,9 +108,14 @@ public function login(ServerRequestInterface $request, SessionLogin $login, Requ
     if ($login->attempt($input->string('email'), $input->string('password'), $context->clientIp()) === null) {
         return View::make('@Site/login', ['error' => 'Wrong email or password.'])->withStatus(422);
     }
-    $to = $request->getQueryParams()['to'] ?? '/admin/posts';
+    $to = $request->getQueryParams()['to'] ?? '';
+    $local = is_string($to)
+        && ctype_graph($to)               // no spaces, tabs or control characters, which browsers drop
+        && str_starts_with($to, '/')
+        && !str_starts_with($to, '//')    // //host is another site
+        && !str_contains($to, '\\');      // so is /\host
 
-    return $this->responses->redirect(is_string($to) && str_starts_with($to, '/') && !str_starts_with($to, '//') ? $to : '/admin/posts', 303);
+    return $this->responses->redirect($local ? $to : '/admin/posts', 303);
 }
 ```
 
@@ -121,7 +126,9 @@ public function login(ServerRequestInterface $request, SessionLogin $login, Requ
   `window` seconds, `attempt()` throws `TooManyRequestsHttpException`
   (429 with `Retry-After`).
 - Check that `to` is a local path, as above, so the login page cannot
-  send editors to another site.
+  send editors to another site. Browsers read `/\host` and a slash followed
+  by a tab as another site too (fixed in this example in 2.19.1).
+- Changing a password signs out the account's other sessions (2.19.1).
 
 `$login->logout()` signs out (in a POST route, with CSRF). For a "forgot
 password" page, `PasswordResetTokens` (scoped, so `Editors` may be scoped too) issues a signed, single-use token
