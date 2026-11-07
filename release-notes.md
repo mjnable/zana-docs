@@ -15,7 +15,7 @@ the same exclusion rules on every route to a live server.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.19.0 — Unreleased
+## 2.19.0 — 2026-11-07
 
 2.19 applies the exclusion rules of 2.18 however files reach a live server
 (FE-66). Each route keeps its own way of deploying. It is backward compatible
