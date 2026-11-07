@@ -142,26 +142,12 @@ runs a newer PHP.
 `release:build` starts from the commit, so uncommitted files never ship.
 Since 2.18, the code archive holds what the server runs, and leaves out:
 
-- the tests and the development tooling: `tests/`, `.github/`, PHPUnit's and
-  PHPStan's files, `.gitattributes`, `.gitignore`, `.editorconfig` and
-  `*.plan.json`;
-- local and test settings: `.env`, `.env.testing`, `.env.example` and
-  `config/testing/`;
-- the project's documents: `README.md`, `CHANGELOG.md`, `LICENSE`,
-  `CONTRIBUTING.md`, `SECURITY.md`, `UPGRADE.md`, `AGENTS.md` and `CLAUDE.md`;
-- at the root of each package in `vendor/`, the documents for its readers:
-  READMEs, changelogs and similar Markdown files, `docs/`, `.github/`,
-  `.gitignore`, `.editorconfig` and `.psalm/`.
+- the tests and the development tooling: `tests/`, `.github/`,
+  `phpunit.xml.dist`, `phpunit.xml`, `.gitattributes` and `.gitignore`;
+- local settings: `.env`, `.env.testing` and `.env.example`;
+- the project's documents: `README.md`, `AGENTS.md` and `CLAUDE.md`.
 
-Project paths count from the root, so a `README.md` inside a module stays.
-
-Three things that do not run stay on purpose:
-
-- the licence files in `vendor/`, because the licences of most packages
-  require them to travel with the code;
-- `composer.json` and `composer.lock`, so that Composer can run on an upload;
-- the root `.htaccess`, which keeps `.env` private if the project is ever
-  unpacked inside the document root by mistake.
+These are top-level names, so a `README.md` inside a module stays.
 
 **Your own files.** To leave out anything else, such as a `docs/` folder of
 project notes, mark it `export-ignore` in the application's `.gitattributes`

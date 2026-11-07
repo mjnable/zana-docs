@@ -21,21 +21,16 @@ the MMC website, whose archives held files with no use in production. It is
 backward compatible with 2.17.
 
 - **console:**
-  - `release:build` leaves the project's documents out of the code archive
-    (`README.md`, `CHANGELOG.md`, `LICENSE`, `AGENTS.md`, `CLAUDE.md` and the
-    like), with `.env.example`, `config/testing/`, plan files and PHPStan's
-    files;
-  - it also leaves out the documents of the packages in `vendor/`, and keeps
-    their licence files;
+  - `release:build` leaves `README.md`, `AGENTS.md`, `CLAUDE.md` and
+    `.env.example` out of the code archive;
   - `release:build --no-public` leaves `public/` out of the code archive, for
     the split layout, where `public_html.zip` is the only copy that is served.
 - **Docs:** [what the archives hold](deployment.md#what-the-archives-hold),
   how to leave out your own files with `export-ignore`, and the two settings
   that point at `public_html` in the split layout.
 
-If a server of yours uses one of these files from the upload, keep a copy
-there yourself: for example, a `.env` made from `.env.example`. If an
-application reads a top-level file on this list at run time, move it.
+If a server of yours uses one of these four files from the upload, keep a copy
+there yourself: for example, a `.env` made from `.env.example`.
 
 ## 2.17.0 — 2026-11-06
 
