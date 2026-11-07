@@ -88,6 +88,9 @@ What a client gets:
 | The same key with another method, path, query or body | 422 |
 | A key that is not 1 to 255 visible ASCII characters | 400 |
 
+- **Random keys:** keys belong to the signed-in user, and anonymous
+  clients share one space. Generate them at random (a UUID), never from an
+  order number, or one anonymous client could replay another's response.
 - **Atomic:** a key is claimed with one database insert, so of two
   simultaneous requests exactly one runs, even on several servers.
 - **Failures free the key:** a response of 500 or more, or an exception,

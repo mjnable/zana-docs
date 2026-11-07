@@ -150,6 +150,12 @@ Chain intact: yes
 Chain intact: no (entry 3: The entry was changed after it was written.)
 ```
 
+- **What the chain proves:** it catches a row changed, added or removed,
+  but not by someone who also recomputes the hashes. They use no secret, so
+  someone with write access to the database and Zana's source can rewrite
+  the log. Where the log must stand against database administrators, keep
+  `audit:verify`'s output and exports off the server. A keyed chain is
+  planned for 2.20.
 - **Append-only:** the API has no update and no delete. You can also deny
   the database user `UPDATE` and `DELETE` on `audit_log`.
 - **Checks:** `check` verifies the newest 1,000 entries, and

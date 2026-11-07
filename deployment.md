@@ -236,7 +236,9 @@ route that missed the step shows up. The warning does not fail it.
 Every request then comes from the proxy. List its addresses in
 `http.trusted_proxies` and keep `TrustedProxiesMiddleware` first in
 `http.middleware`, so that rate limits see visitors' addresses and
-generated URLs see HTTPS (see [HTTP](guides/http.md#behind-a-proxy)).
+generated URLs see HTTPS (see [HTTP](guides/http.md#behind-a-proxy)). Most
+proxies set X-Forwarded-For; for one that sets `Forwarded`, set
+`http.trusted_proxies_header` to `forwarded`.
 
 ## Lean dependencies
 

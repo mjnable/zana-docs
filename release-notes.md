@@ -15,6 +15,40 @@ the same exclusion rules on every route to a live server.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
+## 2.19.2 — Unreleased
+
+The second security release from the audit of the 2.1 to 2.18 code, for
+proxies, uploads and the page cache. Upgrade with `composer update`.
+
+- **http:**
+  - only one forwarding header is read: X-Forwarded-For by default, or
+    `Forwarded` with `http.trusted_proxies_header: forwarded`;
+  - the scheme and port come from the entry for the visitor's hop;
+  - a range in `http.trusted_proxies` that cannot be read matches nothing,
+    and `check` reports it;
+  - pages with a CSP nonce are not cached.
+- **filesystem:** uploads drop extensions a browser would run (`html`,
+  `svg`, `js`, …) unless you pass `trustedExtensions`, and a dangerous
+  extension gives way to the detected type's.
+- **security:** a token with a colon in its subject, such as a back-office
+  preview link, no longer skips the CSRF checks.
+- **maker:** `AGENTS.md` says that templates do not escape objects, and how
+  to print URLs and store uploads.
+- **Docs:** what the audit chain proves, why idempotency keys must be
+  random, and why each query string is a page cache entry.
+
+**Upgrading from 2.19.1:**
+
+- Behind a proxy that sets only `Forwarded`, set
+  `http.trusted_proxies_header` to `forwarded`, or every visitor shares the
+  proxy's address.
+- Run `check`. A range it reports used to trust every address.
+- To keep `.svg` uploads, pass `trustedExtensions: ['svg']`, and serve them
+  from another domain.
+- Templates that print objects: use `$this->e()`.
+- Run `php bin/console make:agents --force`, then add back any section of
+  your own.
+
 ## 2.19.1 — 2026-11-07
 
 A security release for sign-in and sessions, from the audit of the 2.1 to

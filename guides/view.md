@@ -49,7 +49,12 @@ echo $views->render('page', [
   arrays.
   - `Markup` is printed as is.
   - `$this->raw('title')` gives the original value.
-  - Objects must be escaped with `$this->e($object)`.
+  - Objects, such as entities, DTOs and `Stringable` values, are not
+    escaped: `<?= $post->title ?>` prints its HTML as it is. Write
+    `<?= $this->e($post->title) ?>`.
+- **URLs:** escaping does not make a URL safe, as a `javascript:` link
+  survives it. Before printing a URL that users gave in `href` or `src`,
+  check that it starts with `https://`, `http://` or `/`.
 - **Layouts and partials:** a template that calls `layout()` becomes its
   layout's `content` section. `start()`/`stop()` fill other sections, and
   `insert()` renders a partial.

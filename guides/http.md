@@ -145,8 +145,12 @@ the proxies in `http.trusted_proxies` (addresses and CIDR ranges) and put
 'trusted_proxies' => ['10.0.0.0/8', '173.245.48.0/20'],
 ```
 
-`X-Forwarded-For` (or `Forwarded`), `-Proto` and `-Port` are then read from
-those proxies only, since anyone can send them.
+`X-Forwarded-For`, `-Proto` and `-Port` are then read from those proxies
+only, since anyone can send them. For a proxy that sets the standard
+`Forwarded` header instead, set `http.trusted_proxies_header` to
+`forwarded`. Only one of the two is read (2.19.2), because a proxy passes
+the other on as the visitor sent it. `check` reports a range it cannot
+read, which matches nothing.
 `RequestContext::clientIp()` gives the visitor's address, and
 `isSecure()` and generated URLs see HTTPS.
 
@@ -178,6 +182,13 @@ page is stored only for a GET or HEAD without `Authorization` or a session
 cookie (`http.page_cache.private_cookies`), and when the response is a 200
 that sets no cookie and is not private. Responses carry `X-Page-Cache: HIT`
 or `MISS`.
+
+- **No CSP nonce (2.19.2):** a page with a Content-Security-Policy nonce is
+  never cached, since a nonce must be new for each response. Use hashes, or
+  scripts from files, on pages you cache.
+- **Each query string is a page:** `/news?page=2` and `/news?x=1` are
+  separate entries, so anyone can add entries by inventing query strings.
+  Keep the TTL short on a cache that cannot grow without limit.
 
 Tag pages, and invalidate the tags when the content changes:
 

@@ -66,7 +66,11 @@ return [
   to its extension, and never taken from what the client declares.
   - **Extensions:** the client's extension is kept, except ones a web
     server could execute (`php`, `phtml`, `phar`, `cgi`, `.htaccess`, …),
-    which are dropped.
+    and, since 2.19.2, ones a browser would run from your site (`html`,
+    `svg`, `js`, `xml`, …). Such an extension gives way to the detected
+    type's, so a PNG named `portrait.html` is stored as `.png`. To keep one,
+    for a disk served from another domain, pass
+    `trustedExtensions: ['svg']`.
   - **Still recommended:** pass the allowed MIME types, and keep upload
     disks outside the web root.
 

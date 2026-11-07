@@ -311,8 +311,9 @@ final class SiteModule extends Module
 
 ## 4. Templates
 
-Templates are plain PHP. Values from the controller are escaped before
-the template sees them, so `<?= $title ?>` is safe. Helpers are called on
+Templates are plain PHP. Strings and arrays from the controller are
+escaped before the template sees them, so `<?= $title ?>` is safe. Objects
+are not: print an object's values with `<?= $this->e($post->title) ?>`. Helpers are called on
 `$this`, and their output is escaped too:
 
 - `t()` translates;
