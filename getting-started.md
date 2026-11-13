@@ -306,6 +306,13 @@ php bin/zana greet                           # Hello, world!
 APP_GREETINGS__DEFAULT_NAME=Ada php bin/zana greet
 ```
 
+Use `127.0.0.1`, not `localhost`: on some systems `localhost` answers on IPv6
+only, and a client calling `127.0.0.1` then finds nothing. "Address already
+in use" means another server holds the port: stop it, or pick another port.
+In the skeletons, `composer serve` does this for you (2.20): the API on
+`127.0.0.1:8000`, a website on `127.0.0.1:8080`, so both can run side by
+side, and it keeps running until you stop it.
+
 Each request and each command runs in its own *scope*. Services registered
 as `scoped` live for exactly one request or command. Errors become proper
 responses: a JSON problem document for API clients, an HTML page for
