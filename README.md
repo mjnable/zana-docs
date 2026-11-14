@@ -14,7 +14,7 @@ domain, use cases, persistence and presentations. Zana gives them:
 - **Tools that keep modules apart:** contracts between modules, and
   architecture tests that enforce the boundaries.
 
-Zana 2 requires PHP 8.5 or later. **Status:** `2.24.0`, released on
+Zana 2 requires PHP 8.5 or later. **Status:** `2.24.1`, released on
 2026-11-14: spam rules per form, for links, blocked terms and the same text
 sent again, beside the honeypot and the time trap. See the [release notes](release-notes.md).
 

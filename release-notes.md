@@ -20,7 +20,7 @@ reads what spam a form was sent.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.24.1 — Unreleased
+## 2.24.1 — 2026-11-14
 
 Two fixes to the spam rules of 2.24, found when the owner reviewed them, and
 a word from `check` on how long audit entries are kept.
