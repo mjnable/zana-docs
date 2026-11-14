@@ -64,7 +64,8 @@ echo $views->render('page', [
   prints `#` (or its second argument) for anything else. It reads the URL
   as a browser does, so `java&#9;script:` and `javascript&#58;` are caught,
   and escapes it once. In PHP code, `SafeUrl::of($url)` does the same
-  check without escaping.
+  check without escaping. It does not check the host: `https://other.example`
+  and `//other.example` are kept, since they cannot run script.
 - **Layouts and partials:** a template that calls `layout()` becomes its
   layout's `content` section. `start()`/`stop()` fill other sections, and
   `insert()` renders a partial.

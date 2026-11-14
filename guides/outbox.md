@@ -155,7 +155,10 @@ anything; a message without a valid one fails. The key is `outbox.key` (at
 least 32 characters, from the environment), or one derived from
 `security.secret`. Without either, messages are neither signed nor
 checked, as before. Messages recorded before 2.20 are unsigned: set
-`outbox.accept_unsigned` while they drain, then remove it.
+`outbox.accept_unsigned` while they drain, then remove it. While it is on,
+an unsigned row is trusted as before, so keep that window short. The
+signature covers the message, not its row: a copied message is delivered
+again, which the inbox's deduplication absorbs for handlers that use it.
 
 `check` reports an error when the outbox table cannot be read. It warns
 when a message has waited longer than `warn_after`, and when messages have

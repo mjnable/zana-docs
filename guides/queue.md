@@ -111,6 +111,10 @@ php bin/zana queue:retry 12 13      # or: queue:retry all
   (`queue.payload_signing`).
 - **Jobs queued before 2.20 are unsigned,** so they are refused. To let
   them run while the queue drains, set `queue.accept_unsigned` to `true`,
-  then remove it: `check` warns while it is on.
+  then remove it: `check` warns while it is on. While it is on, an
+  unsigned row is trusted as before 2.20, so keep that window short.
+- **What the signature does not cover:** it signs the job, not its row.
+  Someone who can write to the jobs table can copy a job, which then runs
+  again; they cannot create or change one.
 
 Reference: the [queue README](https://github.com/mjnable/zana-queue).
