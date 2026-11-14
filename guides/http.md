@@ -167,6 +167,17 @@ set `http.base_path` to override it. `RequestContext::basePath()` gives it.
 and blank fields are absent, so validation sees `null` rather than `""`.
 `string()`, `optional()`, `list()`, `bool()`, `has()`, `only()` and `all()`.
 
+Pass `only()` to `insert()` or `update()`, never `all()`: the database
+writes every column an array names, so `insert($input->all())` lets a
+visitor add `is_admin=1` to the form.
+
+```php
+$db->table('contacts')->insert($input->only('name', 'email'));
+```
+
+A field sent as `email[]=x` is a list, even in `only()`. Since 2.20 the
+database refuses to bind a list, instead of storing the text `Array`.
+
 ### HTTP caching
 
 `#[Cache(maxAge: 600, sharedMaxAge: 3600)]` on a handler becomes its
@@ -186,9 +197,21 @@ or `MISS`.
 - **No CSP nonce (2.19.2):** a page with a Content-Security-Policy nonce is
   never cached, since a nonce must be new for each response. Use hashes, or
   scripts from files, on pages you cache.
-- **Each query string is a page:** `/news?page=2` and `/news?x=1` are
-  separate entries, so anyone can add entries by inventing query strings.
-  Keep the TTL short on a cache that cannot grow without limit.
+- **The query string in the key (2.20):** by default each query string is
+  a page, so `/news?page=2` and `/news?x=1` are separate entries, and
+  anyone can add entries by inventing query strings. Name the parameters
+  that change your pages instead:
+
+  ```php
+  // config/http.php
+  'page_cache' => ['query' => ['page', 'tag']],
+  ```
+
+  Other parameters are then left out, and the kept ones are sorted, so
+  `/news?utm_source=x&page=2` is served the `/news?page=2` entry. `none`
+  leaves the query out entirely, which is right only when no cached page
+  reads it. The default, `all`, keeps the 2.19 behaviour; anything else is
+  refused when the page cache is created.
 
 Tag pages, and invalidate the tags when the content changes:
 

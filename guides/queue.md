@@ -101,5 +101,16 @@ php bin/zana queue:retry 12 13      # or: queue:retry all
   of its typed properties are accepted. An object in an untyped or array
   property makes the job fail.
 - **Closures and anonymous classes cannot be queued.**
+- **Jobs are signed (2.20).** A stored job names its own class, so a row
+  written to the jobs table by anything but the application could make the
+  worker build any loaded class. Each job now carries an HMAC-SHA256
+  signature, which the worker checks before it unserializes anything, and
+  a job without a valid signature fails. The key is `queue.key` (at least
+  32 characters), or one derived from `security.secret`. Without either,
+  jobs are neither signed nor checked, as before, and `check` warns
+  (`queue.payload_signing`).
+- **Jobs queued before 2.20 are unsigned,** so they are refused. To let
+  them run while the queue drains, set `queue.accept_unsigned` to `true`,
+  then remove it: `check` warns while it is on.
 
 Reference: the [queue README](https://github.com/mjnable/zana-queue).

@@ -171,4 +171,25 @@ On the benchmark application, a cached boot plus one request went from
 about 900 µs to 510 µs with one configuration file, and from 1,530 µs to
 516 µs with five: boot no longer grows with the number of files.
 
+## New in 2.20
+
+- **The container cache is for production.** `withContainerCache()` now
+  caches the compiled container in production only, like the configuration
+  cache. Elsewhere the container is built at each boot, so a constructor
+  that gains a parameter works at the next request. Before, the cache was
+  checked against the registrations, not the constructors: a stale one
+  failed in the browser with "Too few arguments" while every test passed.
+  `withContainerCache($file, always: true)` keeps the old behaviour.
+- **`withoutDotEnv()`** reads no `.env` file. Use it in a test that builds
+  another environment, such as production to prove a deployment check:
+  `.env.testing` is read only in the testing environment, so such a test
+  read the developer's `.env`, and gave another result on another machine.
+  Variables already in the process environment still count.
+
+  ```php
+  $app = Bootstrap::builder($base)->withEnvironment('production')->withoutDotEnv()
+      ->withConfiguration(['app.debug' => false])
+      ->build();
+  ```
+
 Reference: the [core README](https://github.com/mjnable/zana-core).

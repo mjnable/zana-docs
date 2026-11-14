@@ -210,4 +210,122 @@ Locked: VIP
   must share its transactions. `pdo()` and the PDO `Connection` are
   deprecated.
 
+## New in 2.20: request input, grouped conditions, constraints and TLS
+
+### Values and columns that come from a request
+
+```php
+// A search box: the user's "%" and "_" are plain characters, on every database.
+$db->table('accounts')->whereLike('email', $request->query('q') ?? '', LikeMatch::StartsWith)->get();
+
+// A sort and a field list from the query string: only the names you list count.
+$db->table('events')
+    ->selectAllowed($request->query('fields'), ['title', 'starts_at', 'town' => 'city'])
+    ->orderByAllowed($request->query('sort'), ['title', 'newest' => 'created_at'], default: 'newest', direction: $request->query('dir'))
+    ->get();
+
+// A form: name the fields a visitor may set. insert($input->all()) would let them add is_admin=1.
+$db->table('contacts')->insert(FormInput::from($request)->only('name', 'email'));
+```
+
+- **`whereLike($column, $text, LikeMatch::StartsWith|Contains|EndsWith)`**
+  and `orWhereLike()` escape `%`, `_` and `!`, and add `ESCAPE '!'`. With
+  `where('email', 'like', $input . '%')`, a user's `%` matches anything, and
+  escaping by hand differs per database. Case follows the database: SQLite
+  and MySQL's default collation ignore it, PostgreSQL does not.
+- **`orderByAllowed()` and `selectAllowed()`:** `orderBy()` and `select()`
+  take any real column, so `?sort=reset_token` would sort by a secret. A
+  map (`'newest' => 'created_at'`) keeps column names out of URLs. An
+  unknown name, an array or a bad direction falls back to the default and
+  never causes an error. A default that is not in the list throws: it is a
+  mistake in code.
+- **Values must be scalars.** A form field sent as `email[]=x` is an array,
+  and an array was stored as the text `Array`. Binding an array or an object
+  that is not `Stringable` now throws a `DatabaseException`, which names the
+  type, never the value. A `Stringable` binds as its string.
+
+### Grouped conditions
+
+```php
+// city = 'London' AND (age < 18 OR age > 65)
+$db->table('patients')
+    ->where('city', 'London')
+    ->where(fn (QueryBuilder $q) => $q->where('age', '<', 18)->orWhere('age', '>', 65))
+    ->get();
+```
+
+`where(Closure)` and `orWhere(Closure)` put the group's conditions in
+parentheses. Groups nest, and an empty group adds nothing.
+
+### Constraints and column types
+
+```php
+$schema->create('stock', static function (Blueprint $t): void {
+    $t->id();
+    $t->integer('sold')->default(0);
+    $t->integer('quantity');
+    $t->smallInteger('rating')->nullable();
+    $t->check('sold_within_quantity', 'sold <= quantity');
+    $t->check('rating_range', 'rating BETWEEN 1 AND 5');
+});
+```
+
+- **`check($name, $expression)`** declares a CHECK constraint, so the
+  database refuses a row that breaks the invariant, whatever the code
+  does. It is named `{table}_{name}_check`, because MySQL needs constraint
+  names unique across the database. The expression is SQL you write, never
+  user input.
+- **In `table()`**, `check()` works on PostgreSQL and MySQL. SQLite cannot
+  add a constraint to an existing table, so declare it in `create()`.
+- **SQLite rebuilds a table** to add an index or drop a column, and the
+  rebuilt table would lose its CHECK constraints and triggers. `table()`
+  now refuses such a change, with an explanation. Adding a nullable column
+  needs no rebuild and still works. To make the change anyway, recreate the
+  table in the migration, or write it in raw SQL.
+- **`smallInteger()`** is `SMALLINT` on PostgreSQL and MySQL, and `INTEGER`
+  on SQLite.
+- **`uuid()` holds canonical UUIDs.** Store `Uuid::v7()`, not
+  `bin2hex(random_bytes(16))`. PostgreSQL accepts 32 hexadecimal digits but
+  returns them hyphenated, so such an id is not found by its own value
+  there, while every SQLite test passes. Put random hex ids in
+  `string(32)`.
+
+### Encrypted connections
+
+```php
+// config/database.php, for a database on another host
+'main' => [
+    'driver' => 'pgsql', 'host' => 'db.internal', 'database' => 'app', 'username' => 'app', 'password' => '…',
+    'sslmode' => 'verify-full', 'sslrootcert' => '/etc/ssl/db-ca.pem',
+],
+'reports' => [
+    'driver' => 'mysql', 'host' => 'mysql.internal', 'database' => 'reports', 'username' => 'app', 'password' => '…',
+    'ssl_ca' => '/etc/ssl/mysql-ca.pem', 'ssl_verify' => true,
+],
+```
+
+- **PostgreSQL:** `sslmode` (`disable`, `allow`, `prefer`, `require`,
+  `verify-ca`, `verify-full`; anything else is refused), `sslrootcert`,
+  `sslcert`, `sslkey` and `sslcrl`. Paths may be Windows paths and may
+  contain spaces. Setting `PGSSLMODE` in `.env` is not enough: PHP's
+  `.env` loading never reaches libpq on Windows.
+- **MySQL:** `ssl_ca`, `ssl_cert`, `ssl_key` and `ssl_verify`.
+- **`check` reports `database.tls`** when a connection to another host is
+  not encrypted, as the server itself reports it (`pg_stat_ssl`,
+  `Ssl_cipher`): an error in production, a warning elsewhere. Connections
+  to `localhost`, `127.0.0.1` and `::1` are not reported.
+
+### Smaller changes
+
+- **`scalar()` keeps `false`.** It returns `null` only for no row or SQL
+  `NULL`. Before, a PostgreSQL `false` read as `null`. SQLite and MySQL
+  return `0` and `1`, as before.
+- **SQLite quotes names with backticks.** It read a double-quoted name that
+  matched no column as a string, so `where('nope', 'nope')` matched every
+  row. An unknown column now fails, as on the other databases.
+- **Static analysis:** the methods that read or write the database are
+  marked `@phpstan-impure`, so PHPStan no longer calls the re-check in a
+  race-safe insert (check, insert, check again on `DatabaseException`)
+  "always false".
+
 Reference: the [database README](https://github.com/mjnable/zana-database).

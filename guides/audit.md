@@ -150,12 +150,26 @@ Chain intact: yes
 Chain intact: no (entry 3: The entry was changed after it was written.)
 ```
 
-- **What the chain proves:** it catches a row changed, added or removed,
-  but not by someone who also recomputes the hashes. They use no secret, so
-  someone with write access to the database and Zana's source can rewrite
-  the log. Where the log must stand against database administrators, keep
-  `audit:verify`'s output and exports off the server. A keyed chain is
-  planned for 2.20.
+- **What the chain proves:** without a key, it catches a row changed,
+  added or removed, but not by someone who also recomputes the hashes.
+  With `audit.log.key` (2.20), each hash is an HMAC-SHA256 under that key,
+  which someone who can only write to the database cannot compute. Keep the
+  key out of the database and out of the repository:
+
+  ```
+  php -r "echo bin2hex(random_bytes(32));"     # at least 32 characters
+  APP_AUDIT__LOG__KEY=…                        # in the server's environment
+  ```
+
+  Whoever can read both the key and the database can still rewrite the
+  log. Where it must stand against them too, keep `audit:verify`'s output
+  and exports off the server.
+- **A log started before the key:** its entries carry SHA-256 hashes, and
+  `verify()` reports the first one. Set `audit.log.unkeyed_until` to the
+  sequence of the newest entry written before the key. Older entries keep
+  verifying as they are, and every later one must be keyed, so a rewrite in
+  the unkeyed form is caught too. `check` warns (`audit.log_key`) when the
+  chain is on without a key.
 - **Append-only:** the API has no update and no delete. You can also deny
   the database user `UPDATE` and `DELETE` on `audit_log`.
 - **Checks:** `check` verifies the newest 1,000 entries, and

@@ -10,10 +10,93 @@ skeleton, 2.10 validates every command and query, 2.11 generates a whole
 feature from one plan file, 2.12 runs the database on Doctrine DBAL, and
 2.13 adds the transactional outbox, 2.14 idempotency keys, 2.15 a
 security audit log, 2.16 second factors, 2.17 roles in an
-organization or at an event, 2.18 leaner release archives, and 2.19
-the same exclusion rules on every route to a live server.
+organization or at an event, 2.18 leaner release archives, 2.19
+the same exclusion rules on every route to a live server, and 2.20
+closes the security audit and adds what request input needs in queries.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
+
+## 2.20.0 — Unreleased
+
+The last release from the security audit of the 2.1 to 2.18 code: its
+remaining findings are fixed, with one found while testing them. Queries
+gain safe ways to use request input, grouped conditions and CHECK
+constraints. Upgrade with `composer update`, then read the upgrading notes
+below: queued jobs and outbox messages written before 2.20 are refused
+until you let them drain.
+
+- **queue, outbox:** jobs and messages are signed, and the signature is
+  checked before anything is unserialized, so a row written to their
+  tables by anything but the application cannot make a worker build an
+  arbitrary class.
+- **audit:** `audit.log.key` keys the hash chain, so someone who can only
+  write to the database cannot rewrite the log undetected.
+- **database:**
+  - `whereLike()` with `LikeMatch`, where a user's `%` and `_` are plain
+    characters on every database;
+  - `orderByAllowed()` and `selectAllowed()` for a sort or a field list
+    from the request;
+  - an array or an object is no longer bound as the text `Array`;
+  - grouped `where(Closure)`, `check()` constraints and `smallInteger()`;
+  - TLS settings for PostgreSQL and MySQL connections, and a `check` for
+    unencrypted connections to another host;
+  - `scalar()` keeps a false value false; SQLite quotes names with
+    backticks, so an unknown column fails as elsewhere.
+- **security:** two sign-ins at the same moment cannot reuse a recovery
+  code (`TwoFactorStateSwapInterface`); the CSRF check compares the
+  `Origin` port; role scopes are compared by type and id.
+- **view:** `safe_url()` for URLs users gave, and a `check` warning for
+  templates that print an object without escaping it.
+- **http:** `http.page_cache.query` limits the query parameters in a page
+  cache key.
+- **idempotency:** an anonymous client's keys belong to its session, or to
+  its address.
+- **core:** the container cache is used in production only, so a changed
+  constructor works at once in development; `withoutDotEnv()` for tests
+  that build production.
+- **Skeletons:** `composer serve` no longer stops after 300 seconds and
+  listens on `127.0.0.1` (8080 for the website, 8000 for the API); the
+  API's CI runs `check` on a migrated database.
+- **maker:** `AGENTS.md` names `safe_url()`, `only()` and the allow-list
+  query methods.
+- **Static analysis:** database reads are `@phpstan-impure`, and
+  `send()` declares that it rethrows the handler's exceptions.
+
+**Upgrading from 2.19.2:**
+
+- **Queued jobs and outbox messages written before the upgrade** are
+  unsigned, and refused once a key is set (and one is, whenever
+  `security.secret` is). Before deploying, either empty the queue and the
+  outbox, or set `queue.accept_unsigned` and `outbox.accept_unsigned` to
+  `true`, deploy, let them drain, then remove both. `check` warns while
+  they are on.
+- **Audit log with a chain:** generate `audit.log.key` (at least 32
+  characters) and set it in the server's environment. If the log already
+  has entries, set `audit.log.unkeyed_until` to the newest entry's
+  sequence at that moment, or `audit:verify` reports the first old entry.
+- **Second factors:** implement `TwoFactorStateSwapInterface` on your user
+  provider ([security](guides/security.md#new-in-216-second-factors)).
+  Without it nothing breaks, but the race stays.
+- **Idempotency:** an anonymous retry that spans the upgrade runs again,
+  because its key is now stored under its session or address.
+- **PostgreSQL booleans through `scalar()`:** a false value is now `false`,
+  not `null`. Code that tested `=== null` for "no" must test `=== false`.
+- **SQLite migrations:** `table()` now refuses to add an index or drop a
+  column on a table with CHECK constraints or triggers, which the rebuild
+  would drop. Recreate the table in that migration instead.
+- **Code that passed an array as a query value,** such as a form field,
+  now gets a `DatabaseException`, where `Array` used to be stored.
+- **The development container cache is no longer written.** If you relied
+  on it outside production, pass `always: true` to
+  `withContainerCache()`.
+- **Skeleton files are yours.** To take the new `composer serve` script,
+  the CI step and the cache comment, copy them from the skeleton of
+  2.20.0. The serve script moves to `127.0.0.1`: update `app.url` in
+  `.env` if it named `localhost`.
+- Run `php bin/console make:agents --force`, then add back any section of
+  your own.
+- Run `check`, and fix what `view.unescaped_object` and `database.tls`
+  report.
 
 ## 2.19.2 — 2026-11-07
 

@@ -88,9 +88,14 @@ What a client gets:
 | The same key with another method, path, query or body | 422 |
 | A key that is not 1 to 255 visible ASCII characters | 400 |
 
-- **Random keys:** keys belong to the signed-in user, and anonymous
-  clients share one space. Generate them at random (a UUID), never from an
-  order number, or one anonymous client could replay another's response.
+- **Whose keys (2.20):** keys belong to the signed-in user. An anonymous
+  client's keys belong to its session, with [session](session.md), and
+  otherwise to its address (the one `TrustedProxiesMiddleware` found). Two
+  visitors who send the same key never see each other's response. Before
+  2.20 every anonymous client shared one space.
+- **Random keys:** still generate keys at random (a UUID), never from an
+  order number. Two clients behind one address and without a session
+  share a space.
 - **Atomic:** a key is claimed with one database insert, so of two
   simultaneous requests exactly one runs, even on several servers.
 - **Failures free the key:** a response of 500 or more, or an exception,
@@ -98,9 +103,11 @@ What a client gets:
   declined card, is an answer and is replayed.
 - **Stopped requests:** a request whose process stops holds its key for
   `idempotency.lock_seconds`; a retry after that runs again.
-- **Per user:** with [security](security.md), keys belong to the signed-in
-  user. Without a signed-in user they are shared, so clients must generate
-  unique keys.
+- **A new visitor's first request** has no session yet, so its key belongs
+  to its address. If the first response starts a session and the retry
+  carries its cookie, the retry is counted under the session and runs
+  again. A retry is usually sent because no response arrived, and then it
+  carries no new cookie either.
 
 ## Configuration
 

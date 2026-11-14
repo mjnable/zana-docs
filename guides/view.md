@@ -51,10 +51,20 @@ echo $views->render('page', [
   - `$this->raw('title')` gives the original value.
   - Objects, such as entities, DTOs and `Stringable` values, are not
     escaped: `<?= $post->title ?>` prints its HTML as it is. Write
-    `<?= $this->e($post->title) ?>`.
+    `<?= $this->e($post->title) ?>`. Since 2.20, `check` reports such lines
+    (`view.unescaped_object`).
 - **URLs:** escaping does not make a URL safe, as a `javascript:` link
-  survives it. Before printing a URL that users gave in `href` or `src`,
-  check that it starts with `https://`, `http://` or `/`.
+  survives it. Print a URL that users gave with `safe_url()` (2.20):
+
+  ```php
+  <a href="<?= $this->safe_url($profile->website) ?>">Website</a>
+  ```
+
+  It keeps relative URLs and `http`, `https`, `mailto` and `tel` ones, and
+  prints `#` (or its second argument) for anything else. It reads the URL
+  as a browser does, so `java&#9;script:` and `javascript&#58;` are caught,
+  and escapes it once. In PHP code, `SafeUrl::of($url)` does the same
+  check without escaping.
 - **Layouts and partials:** a template that calls `layout()` becomes its
   layout's `content` section. `start()`/`stop()` fill other sections, and
   `insert()` renders a partial.

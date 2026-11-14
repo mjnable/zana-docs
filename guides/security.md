@@ -163,6 +163,10 @@ In templates, `csrf_field('contact')` prints both hidden fields
 - **Exemptions:** requests with a valid bearer token signed by the
   application, and handlers marked `#[WithoutCsrf]`, are not checked.
   Before 2.19.1, any `Authorization` header was enough.
+- **The port counts (2.20):** an `Origin` that names a port must name the
+  application's, so `https://example.com:8443`, another service on the same
+  host, is another site. Browsers leave default ports out of `Origin`, so a
+  site behind a proxy on 443 is not affected.
 - **Lifetime:** tokens expire after `security.csrf.lifetime` seconds
   (7,200 by default).
 - **Single use:** with a PSR-16 cache, `security.csrf.single_use` makes
@@ -355,6 +359,29 @@ Device token for a cookie: yes
 - **Events:** `TwoFactorEnabled`, `TwoFactorDisabled`, `TwoFactorFailed` and
   `RecoveryCodeUsed`. [audit](audit.md#new-in-215-the-security-audit-log)
   records them.
+- **Two sign-ins at the same moment (2.20):** both read the stored state,
+  and the one that saves last wins, so a recovery code the other used comes
+  back, and one TOTP code can count twice. Implement
+  `TwoFactorStateSwapInterface` to close this: `swapTwoFactorState()`
+  stores the new state only if the stored one is still the one that was
+  read, and the losing sign-in's code is refused, so the person types the
+  next one.
+
+  ```php
+  final class StaffUsers implements PasswordUserProviderInterface, TwoFactorStateSwapInterface
+  {
+      // … the methods above, and:
+      public function swapTwoFactorState(UserInterface $user, ?string $expected, ?string $new): bool
+      {
+          $query = $this->db->table('staff')->where('id', $user->identifier());
+          $expected === null ? $query->whereNull('two_factor') : $query->where('two_factor', $expected);
+
+          return $query->update(['two_factor' => $new]) === 1;
+      }
+  }
+  ```
+
+  Without it, second factors work as before, with that race.
 
 ### One-time codes
 

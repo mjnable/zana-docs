@@ -142,7 +142,9 @@ $this->assertMailSent(fn (Message $m): bool => $m->subject === 'Website message 
 - **Configuration per test:** implement `createApplicationBuilder()`, then
   `$this->withConfig([...])` rebuilds the application for one test.
 - **No leaks from `.env`:** in the testing environment, `.env.testing`
-  replaces `.env` when it exists.
+  replaces `.env` when it exists. A test that builds another environment,
+  such as production, reads `.env` unless it calls `withoutDotEnv()`
+  (2.20, see [core](core.md#new-in-220)).
 
 The [website cookbook](../cookbook/website.md) tests a whole site this way.
 
@@ -167,5 +169,33 @@ $this->browser()->form('/en/quote')
 - **For a group** (`needs[]`, or several boxes of one name), say which
   value; for a single box, the value is optional.
 - Unticked boxes are not sent, as in a browser.
+
+## In CI: `check` on a migrated database (2.20)
+
+The skeletons' CI runs the tests, then `check`. The tests use a database
+in memory, so each one starts fresh. But every console command also starts
+with an empty memory database, so `check` there sees no table: it warns
+that each migration "has not run", and the audit log check fails. Run
+`check` on a migrated file instead, the schema the application will have:
+
+```yaml
+- name: check, on a migrated database
+  env:
+    APP_ENV: testing
+    APP_DATABASE__CONNECTIONS__MAIN__DATABASE: ${{ runner.temp }}/ci.sqlite
+  run: |
+    php bin/console migrate
+    php bin/console check
+```
+
+- The tests keep their memory database: only these two commands use the
+  file.
+- Use your connection's name in the variable (`MAIN` above), and add
+  `pdo_sqlite` to the PHP extensions.
+- Without the `migrate` line, `check` still reports the missing tables, so
+  nothing is hidden.
+
+skeleton-api ships this step; skeleton-web's workflow has it in a comment,
+for when you add `mj-zana/database`.
 
 Reference: the [testing README](https://github.com/mjnable/zana-testing).

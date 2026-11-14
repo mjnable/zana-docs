@@ -334,7 +334,8 @@ it from `composer create-project`.
 | `check` passes without an error | `php bin/console check` exits with 0 |
 | The architecture rules apply to `modules/` | `mj-zana/testing` installed; `check` reports "Architecture: … no violation" |
 | Agents run a security check on risky changes, and report it | the workflow in `AGENTS.md` (2.19), and the tests each check leaves behind |
-| Tests run without `.env` | `config/testing/` (a secret, an in-memory database); `APP_ENV=testing php bin/console check` |
+| Tests run without `.env` | `config/testing/` (a secret, an in-memory database for the tests); a build of another environment calls `withoutDotEnv()` |
+| CI checks the schema the application will have | `check` runs after `migrate` on a file database, not the tests' memory one ([testing](guides/testing.md#in-ci-check-on-a-migrated-database-220)) |
 | Module tests run with the others | `phpunit.xml.dist` includes `modules/*/Tests` |
 | CI runs the tests and `check` | `.github/workflows/ci.yml` |
 | Commands and queries are validated whatever sends them | `ValidationBehavior` in `config/mediator.php`, when `mj-zana/mediator` is installed |

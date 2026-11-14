@@ -142,12 +142,25 @@ return [
     'backoff' => [10, 60, 300, 1800], // seconds before each retry
     'claim_seconds' => 60,            // how long a relay holds a message it delivers
     'warn_after' => 300,              // check warns when a message waits longer
+    // 'key' => '…',                  // 2.20: signs messages; derived from security.secret when omitted
+    // 'accept_unsigned' => true,     // 2.20: only while messages written before 2.20 drain
 ];
 ```
 
+**Messages are signed (2.20).** A stored message names its event's class,
+so a row written to the outbox table by anything but the application could
+make the relay build any loaded class. Each message now carries an
+HMAC-SHA256 signature, which the relay checks before it unserializes
+anything; a message without a valid one fails. The key is `outbox.key` (at
+least 32 characters, from the environment), or one derived from
+`security.secret`. Without either, messages are neither signed nor
+checked, as before. Messages recorded before 2.20 are unsigned: set
+`outbox.accept_unsigned` while they drain, then remove it.
+
 `check` reports an error when the outbox table cannot be read. It warns
 when a message has waited longer than `warn_after`, and when messages have
-failed. `inspect outbox` shows the pending, failed and delivered counts and
+failed, and (`outbox.payload_signing`) when messages are not signed or
+unsigned ones are accepted. `inspect outbox` shows the pending, failed and delivered counts and
 the age of the oldest pending message.
 
 The outbox is tested on SQLite, MySQL and PostgreSQL.

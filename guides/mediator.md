@@ -102,6 +102,10 @@ registered Ada Lovelace
 
 - **Lookup:** the handler for a message's exact class wins, then its
   parents, then its interfaces. No handler means `HandlerNotFoundException`.
+- **Exceptions pass through.** What a handler or a behavior throws reaches
+  the caller of `send()` as it is. Since 2.20 `send()` declares
+  `@throws \Throwable`, so PHPStan no longer calls a `catch` of a handler's
+  domain exception "dead".
 - **One handler per message class.** Mapping a second one throws.
 - **Handlers return whatever the caller needs.** Return a plain result
   object rather than an aggregate, so presentations stay away from the
