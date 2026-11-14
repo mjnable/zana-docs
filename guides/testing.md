@@ -198,4 +198,60 @@ that each migration "has not run", and the audit log check fails. Run
 skeleton-api ships this step; skeleton-web's workflow has it in a comment,
 for when you add `mj-zana/database`.
 
+## New in 2.22: every route attacked
+
+`check` reads what each route declares
+([security](security.md#new-in-221-every-route-says-who-may-reach-it)); this
+test sends requests to see what each route does. A new route is attacked as
+soon as it exists, without anyone writing a test for it:
+
+```php
+final class SecurityTest extends ApplicationTestCase
+{
+    protected function createApplicationBuilder(): ApplicationBuilder
+    {
+        return Bootstrap::builder(dirname(__DIR__))->withEnvironment('testing');
+    }
+
+    public function testEveryRouteWithstandsTheBaselineAttacks(): void
+    {
+        $this->console()->run('migrate');   // when the routes read the database
+        $this->assertRoutesWithstandAttacks();
+    }
+}
+```
+
+Both skeletons ship it as `tests/SecurityTest.php`. The attacks, by route:
+
+| The route | Attacked with | Fails when |
+|---|---|---|
+| Says it needs a user | an anonymous request, an expired session cookie | the request reaches the handler |
+| Public, changes data, behind `CsrfMiddleware` | no token, a forged token, a cross-site `Origin` | the request reaches the handler |
+| `#[RateLimit(max: n)]` | n + 1 requests | more than n reach the handler |
+| Anyone may reach it | script, SQL, template, path traversal, NUL and long values; a list where a value is expected; a body that is not JSON; a 2 MB body | a server error, a PHP warning in your code, or an HTML page printing the script as sent |
+
+- **"Says it needs a user"** is what the route declares: `#[RequiresAuthentication]`
+  or `#[RequiresPermission]`, enforced or not, or your own sign-in middleware
+  declared in `security.access_middleware`. This is where a declaration is
+  tested against the truth: a sign-in middleware that does not refuse anyone
+  fails here.
+- **Nothing is written by the access attacks.** A probe, added as the
+  route's last middleware, sees whether a request got through every check;
+  for the access, CSRF and rate-limit attacks it answers itself, so the
+  handler never runs. The hostile-input attacks run the handler, as a
+  visitor could, so use the test database.
+- **An ordinary request goes first.** When it already fails, for example
+  because the route calls a service the test environment lacks, or a value
+  in its path is unknown and answered with 500, the report says so once.
+- **Parameters** get sample values that their patterns accept, including the
+  values a pattern lists (`news|services`). A route whose pattern accepts
+  none of them is reported as not attacked.
+- **Leaving a route out** needs the reason, which the report shows:
+  `$this->assertRoutesWithstandAttacks(except: ['POST /webhook' => 'Signed by the payment provider'])`.
+  Name the route as the report does.
+- **Not covered:** attacks as a signed-in user, such as CSRF on a route that
+  needs one, or one user reading another's data. Signing a user in belongs
+  to your application, and so do your permissions; test them yourself.
+- Without mj-zana/security only the hostile-input attacks run.
+
 Reference: the [testing README](https://github.com/mjnable/zana-testing).

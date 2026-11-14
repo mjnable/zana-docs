@@ -13,10 +13,52 @@ security audit log, 2.16 second factors, 2.17 roles in an
 organization or at an event, 2.18 leaner release archives, 2.19
 the same exclusion rules on every route to a live server, 2.20
 closes the security audit and adds what request input needs in queries,
-and 2.21 puts security rules in `check`, starting with: every route says
-who may reach it.
+2.21 puts security rules in `check`, starting with: every route says
+who may reach it, and 2.22 attacks every route to see what it does.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
+
+## 2.22.0 — Unreleased
+
+Layer 2 of the security verification (ADR-033): `check` reads what each
+route declares, and now a test attacks each route to see what it does.
+
+- **testing:** `assertRoutesWithstandAttacks()` attacks every route in
+  memory, so a new route is attacked as soon as it exists:
+  - a route that says it needs a user gets an anonymous request and an
+    expired session, which must not reach its handler. This tests your own
+    sign-in middleware declared in `security.access_middleware` too;
+  - a public form behind `CsrfMiddleware` gets no token, a forged one and a
+    cross-site `Origin`;
+  - a route with `#[RateLimit]` gets one request more than it allows;
+  - every route anyone may reach gets script, SQL, template, traversal, NUL
+    and long values, a list where a value is expected, a body that is not
+    JSON and a 2 MB body. A server error, a PHP warning in your code, or a
+    page printing the script as sent fails.
+- **The access attacks write nothing:** a probe, the route's last
+  middleware, answers instead of the handler.
+- **Skeletons:** `tests/SecurityTest.php` runs it, so CI fails when a route
+  does not withstand an attack.
+- **security:** `RouteAccess`, who may reach one route, read alike by `check`
+  and by the attacks.
+
+**Limits to know:**
+
+- **No attacks as a signed-in user.** Signing a user in belongs to your
+  application, so CSRF on a route that needs a user, and one user reading
+  another's data, stay for your own tests.
+- **Sample values:** parameters get values their patterns accept. A route
+  whose pattern accepts none is reported as not attacked, not as passed.
+- **The hostile-input attacks run handlers,** as a visitor could: run them on
+  the test database.
+
+**Upgrading from 2.21:**
+
+- Add a `tests/SecurityTest.php` like the skeletons' to your application
+  ([testing](guides/testing.md#new-in-222-every-route-attacked)). Expect
+  findings on the first run; each names the route and the attack.
+- Run `php bin/console make:agents --force`, then add back any section of
+  your own.
 
 ## 2.21.0 — 2026-11-14
 

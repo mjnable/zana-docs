@@ -565,10 +565,11 @@ $router->group('/manage', $routes, [SignedIn::class]);   // these routes now cou
 - **Shown apart:** `check` lists the routes that rely on it, with your
   reason (`security.application_access`). Zana's own protection is not in that
   list. A declared middleware that runs on no route is a warning.
-- **Zana trusts your reason.** It does not check that the middleware refuses
-  anonymous visitors, so the reason is there to be reviewed. Layer 2 of the
-  security verification (2.22) will send anonymous requests to every route,
-  and so test the claim.
+- **`check` trusts your reason; the attacks test it.** `check` cannot see
+  whether the middleware refuses anonymous visitors, so the reason is there
+  to be reviewed. Since 2.22, `assertRoutesWithstandAttacks()` sends anonymous
+  requests to every route it covers, and fails if one gets through
+  ([testing](testing.md#new-in-222-every-route-attacked)).
 - **Refused declarations** (`security.access_middleware`): one without a
   reason, a class that is not a middleware, and Zana's own middleware.
   `AuthenticationMiddleware` and `SessionAuthenticationMiddleware` let
