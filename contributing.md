@@ -33,6 +33,15 @@ composer analyse     # PHPStan, level 8
   ]
   ```
 
+  Pin each one to the version the local code is, e.g. `2.21.0`, and raise
+  the pins when you release: a pin left at an old version makes Composer
+  believe the local package is that old, and `composer update` fails once
+  another package needs a newer one.
+
+  `mj-zana/console` and `mj-zana/testing` require each other (console's
+  tests use testing), so in console name the root version:
+  `COMPOSER_ROOT_VERSION=2.21.0 composer update`.
+
   Don't commit `composer.lock`; packages are libraries.
 - **Branches:** work on a branch, and keep `main` releasable. Merges into
   `main` are fast-forwards.
