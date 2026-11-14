@@ -343,6 +343,7 @@ it from `composer create-project`.
 | Every route says who may reach it, and the security rules fail the build | `security.strict: true` in `config/security.php` (2.21); `check` reports `security.*` errors, and `release:build` refuses on them ([security](guides/security.md#new-in-221-every-route-says-who-may-reach-it)) |
 | CI fails on a vulnerable dependency | `composer audit` in `.github/workflows/ci.yml` (2.21) |
 | Every route is attacked, including new ones | `tests/SecurityTest.php` calls `assertRoutesWithstandAttacks()` (2.22) ([testing](guides/testing.md#new-in-222-every-route-attacked)) |
+| A new route, or a change of who may reach one, is reviewed by a person | `security/exposure.json`, written by `security:exposure`; `check` reports each change until it is written again (2.23) ([security](guides/security.md#new-in-223-the-reviewed-list-of-what-is-exposed)) |
 | Tests run without `.env` | `config/testing/` (a secret, an in-memory database for the tests); a build of another environment calls `withoutDotEnv()` |
 | CI checks the schema the application will have | `check` runs after `migrate` on a file database, not the tests' memory one ([testing](guides/testing.md#in-ci-check-on-a-migrated-database-220)) |
 | Module tests run with the others | `phpunit.xml.dist` includes `modules/*/Tests` |

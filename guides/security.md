@@ -578,3 +578,54 @@ $router->group('/manage', $routes, [SignedIn::class]);   // these routes now cou
   protects nothing.
 - Public routes stay public: declare them with `#[PublicRoute]`, never with
   this.
+
+## New in 2.23: the reviewed list of what is exposed
+
+`check` reads what each route declares, and the attacks test it. Neither
+tells you that a route is new, or that a route which needed a permission
+now lets in anyone signed in. `security/exposure.json` records who may
+reach each route, and is committed, so every such change is reviewed in a
+diff:
+
+```
+php bin/console security:exposure
+```
+
+```json
+{
+    "about": "Who may reach each route. …",
+    "format": 1,
+    "routes": {
+        "GET /api/me": {"access": "user"},
+        "GET /api/orders": {"access": "permission", "permissions": ["orders.view"]},
+        "GET /manage": {"access": "user", "middleware": "App\Web\SignedIn"},
+        "POST /api/tokens": {"access": "public", "reason": "Signing in"},
+        "GET /report": {"access": "anyone", "problem": "It requires a user, but AuthorizationMiddleware is not on the route."}
+    }
+}
+```
+
+- **What a route does, not what it says.** Each route is read as `check`
+  reads it. A `#[RequiresPermission]` that no `AuthorizationMiddleware`
+  enforces is recorded as `anyone`, with the problem, and so is a route that
+  says nothing.
+- **One line a route,** sorted by path, so a diff reads route by route.
+- **`security.exposure` in `check`:** a route that is new, or whose access
+  changed since the file was written, is an error with `security.strict`, a
+  warning otherwise. It names the route and the change, e.g. "from users
+  with users.manage to signed-in users". `release:build` stops on it in
+  strict mode. A route that is gone is a warning.
+- **The review is the diff.** After adding a route or changing its access,
+  run the command; it lists what changed. Read that before committing.
+  Never run it only to quiet `check`: that records the change without
+  anyone looking at it.
+- **Without the file,** `check` warns, in strict mode too, so an upgrade
+  fails nothing. Run the command once to start. The skeletons ship theirs.
+- **Run it where CI runs `check`.** The file lists the routes of the
+  environment it ran in. In most applications routes do not depend on the
+  environment.
+- A file saved with a byte order mark or CRLF line endings, or reordered by
+  hand, reads the same. One that is not such a list, or larger than 2 MB,
+  is an error in strict mode.
+
+`security:exposure` needs mj-zana/console.

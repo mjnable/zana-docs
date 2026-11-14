@@ -14,9 +14,39 @@ organization or at an event, 2.18 leaner release archives, 2.19
 the same exclusion rules on every route to a live server, 2.20
 closes the security audit and adds what request input needs in queries,
 2.21 puts security rules in `check`, starting with: every route says
-who may reach it, and 2.22 attacks every route to see what it does.
+who may reach it, 2.22 attacks every route to see what it does, and 2.23
+records who may reach each route, so every change is reviewed.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
+
+## 2.23.0 — Unreleased
+
+Layer 4 of the security verification (ADR-033), the last: a committed list
+of who may reach each route, so a new route, or one whose access changes,
+is reviewed by a person.
+
+- **security:** `php bin/console security:exposure` writes
+  `security/exposure.json`, one line a route: `public` with its reason,
+  `user`, `permission` with the permissions, or `anyone` with the problem,
+  for a route that says nothing or whose rule nothing enforces. It lists
+  what changed since it was last written.
+- **`check`:** `security.exposure` reports a route that is new or whose
+  access changed, until the file is written again: an error with
+  `security.strict`, so CI and `release:build` stop, a warning otherwise.
+  Without the file, a warning, in strict mode too: an upgrade fails nothing.
+- **Skeletons:** both ship their `security/exposure.json`.
+- **`AGENTS.md`:** after adding a route or changing its access, an agent runs
+  `security:exposure` and names each change in its summary.
+
+See [security](guides/security.md#new-in-223-the-reviewed-list-of-what-is-exposed).
+
+**Upgrading from 2.22:**
+
+- Run `php bin/console security:exposure`, read the list it writes, and
+  commit `security/exposure.json`. Each route open to `anyone` is one
+  `check` already reports.
+- Run `php bin/console make:agents --force`, then add back any section of
+  your own.
 
 ## 2.22.0 — 2026-11-14
 
