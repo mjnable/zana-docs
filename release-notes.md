@@ -16,7 +16,7 @@ closes the security audit and adds what request input needs in queries.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.20.0 — Unreleased
+## 2.20.0 — 2026-11-14
 
 The last release from the security audit of the 2.1 to 2.18 code: its
 remaining findings are fixed, with one found while testing them. Queries
