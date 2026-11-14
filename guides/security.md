@@ -743,13 +743,46 @@ return ['provider' => 'turnstile'];
   address. Refused with 403: no token; the provider says no; a score below
   `minimumScore`; a token made for another action; with
   `security.bot.hostnames`, one made on another site.
-- **The provider unreachable** (or the secret wrong) is not the visitor's
-  fault: the post is refused and logged, never taken for a bot.
-  `security.bot.on_unavailable: 'allow'` lets posts through while it lasts,
-  for a form where losing a message is worse than letting a bot in.
-- **A PSR-18 client** is needed to ask the provider, which you install:
-  `composer require symfony/http-client nyholm/psr7`, then register
-  `Psr18Client` as `Psr\Http\Client\ClientInterface`. No provider SDK.
+- **Expectations are strict (2.25.1).** When `#[VerifyHuman]` names an
+  action, a provider that reports actions (Turnstile, reCAPTCHA v3) must
+  return it: an answer without one is refused. With `security.bot.hostnames`,
+  an answer without a hostname is refused (every provider reports it).
+  Where a provider cannot report what you expect (reCAPTCHA v2 and hCaptcha
+  name no action), `check` warns that it cannot be enforced.
+- **A token is used once.** All three providers refuse a token they have
+  already verified (`timeout-or-duplicate`), and the request is refused.
+  Do not retry a verification: a retried token is a reused one.
+- **Three kinds of failure,** logged apart, and never with the token nor a
+  verifier's exception message (2.25.1):
+
+  | Kind | Log | Refused |
+  |---|---|---|
+  | Misconfigured: no or a wrong secret, no HTTP client, no provider, a verifier that throws | error | always |
+  | The provider out of reach: a timeout, a server error, an unreadable answer | warning | unless `security.bot.on_unavailable: 'allow'` |
+  | No person: no token, the provider says no, a low score, another action or site | notice | always |
+
+  `allow` is for riding out a provider's outage, where losing a message is
+  worse than letting a bot in. It never lets requests through a
+  misconfiguration: that would hide a missing secret indefinitely.
+- **A PSR-18 client** is needed to ask the provider, which you install and
+  bound: a time to connect, a time to wait for the answer, a total, and no
+  retries. Symfony's client waits as long as PHP's `default_socket_timeout`
+  (usually 60 s) between bytes, and sets no total by default:
+
+  ```php
+  // composer require symfony/http-client nyholm/psr7
+  $services->singleton(\Psr\Http\Client\ClientInterface::class, static fn () => new \Symfony\Component\HttpClient\Psr18Client(
+      \Symfony\Component\HttpClient\HttpClient::create([
+          'max_connect_duration' => 2,   // DNS, TCP and TLS (Symfony 8.1 or later)
+          'timeout' => 3,                // between two bytes of the answer
+          'max_duration' => 5,           // the whole request and answer
+      ]),
+  ));
+  ```
+
+  Do not wrap it in a retrying client. A slow provider then refuses the
+  post within seconds (or lets it through, with `on_unavailable: 'allow'`)
+  instead of holding the visitor. No provider SDK is needed.
 - **The provider is a setting:** change `captcha.provider` and the widget's
   helper and the verification follow.
 - **Who was refused:** `BotVerificationFailed`, recorded by the audit log as
@@ -765,7 +798,11 @@ return ['provider' => 'turnstile'];
   PSR-18 client (`captcha.http_client`), or a Content-Security-Policy that
   blocks the widget (`captcha.csp`). The default policy, `default-src 'self'`,
   blocks every provider, and a blocked widget sends no token, so every
-  visitor would be refused: `check` says what to add.
+  visitor would be refused: `check` says what to add. It reads the sources
+  each provider documents, by directive: Turnstile's script and frame;
+  reCAPTCHA's script, frames (two hosts) and connections, which may be
+  scoped to `/recaptcha/` as Google writes them, and v3's inline script,
+  which needs the nonce; hCaptcha's script, frame, style and connections.
 
 **Spam rules, too (2.25):** the same text sent while the first copy is still
 being handled is now caught: it is reserved as soon as the rules let a post

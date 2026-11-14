@@ -18,8 +18,11 @@ moment sales open.
   from the environment (`APP_CAPTCHA__SECRET`, `APP_CAPTCHA__SITE_KEY`).
   Changing provider is changing that setting.
 - **A PSR-18 client** asks the provider: install one and register it as
-  `Psr\Http\Client\ClientInterface`, e.g. Symfony's `Psr18Client`. No
-  provider SDK.
+  `Psr\Http\Client\ClientInterface`, with a connection timeout, a total
+  duration and no retries, e.g. Symfony's `Psr18Client` around
+  `HttpClient::create(['max_connect_duration' => 2, 'timeout' => 3, 'max_duration' => 5])`
+  (`max_connect_duration`: Symfony 8.1 or later). No provider
+  SDK.
 - **The widget:** `<?= $this->captcha_widget('contact', $csp_nonce) ?>` in
   the form prints the provider's script and widget, escaped.
 - **`check`** says when the widget cannot work: no provider, secret or site

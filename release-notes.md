@@ -20,6 +20,30 @@ reads what spam a form was sent, and 2.25 asks a CAPTCHA provider.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
+## 2.25.1 — Unreleased
+
+The owner's review of FE-64, each point checked by running 2.25.0:
+
+- **security:** a misconfiguration (no or a wrong secret, no HTTP client, no
+  provider, a verifier that throws) is always refused, whatever
+  `security.bot.on_unavailable` says; `allow` rides out a provider's outage
+  only. The three kinds of failure are logged apart (error, warning,
+  notice), and never with the token: a verifier's exception message is no
+  longer logged at all, since a custom one could hold the token.
+- **security:** expectations are strict: an expected action or hostname
+  that a provider reports but does not return is refused. `check` warns
+  where a provider cannot report what is expected. Verifiers written for
+  2.25.0 keep working, and are held to both.
+- **captcha:** reCAPTCHA's sources as Google documents them, with
+  `connect-src` and its second frame host; and `check` reads sources scoped
+  to a path, such as `https://www.google.com/recaptcha/`, which 2.25.0
+  wrongly reported as blocked.
+- **Docs:** bound the HTTP client (a timeout, a total duration, no retries).
+
+**Upgrading from 2.25.0:** `composer update`. Bound your HTTP client. If you
+set `#[VerifyHuman(action: …)]` with reCAPTCHA v2 or hCaptcha, `check` now
+says the action cannot be enforced.
+
 ## 2.25.0 — 2026-11-14
 
 FE-64: bot verification, for a form attacked despite the other defences
