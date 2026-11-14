@@ -190,5 +190,8 @@ Chain intact: no (entry 3: The entry was changed after it was written.)
   is better for privacy: entries hold client addresses.
 - **Reading:** `audit:log --action=security.sign_in_failed --limit=20`, and
   `inspect audit-log`.
+- **Spam refusals (2.25):** `audit:spam --days=7` counts the form posts
+  refused as spam, by form and by rule, without text or client addresses,
+  so a rule that refuses real messages is noticed and loosened.
 - **No secrets:** an entry cannot be changed, so record only what a dispute
   needs.

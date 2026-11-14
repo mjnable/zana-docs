@@ -15,10 +15,40 @@ the same exclusion rules on every route to a live server, 2.20
 closes the security audit and adds what request input needs in queries,
 2.21 puts security rules in `check`, starting with: every route says
 who may reach it, 2.22 attacks every route to see what it does, and 2.23
-records who may reach each route, so every change is reviewed, and 2.24
-reads what spam a form was sent.
+records who may reach each route, so every change is reviewed, 2.24
+reads what spam a form was sent, and 2.25 asks a CAPTCHA provider.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
+
+## 2.25.0 — Unreleased
+
+FE-64: bot verification, for a form attacked despite the other defences
+and for purchases bots race people for. Security holds the rule; the new
+mj-zana/captcha package holds the providers.
+
+- **security:** `#[VerifyHuman(action, minimumScore)]` and
+  `BotVerificationMiddleware` ask a `BotVerifierInterface` about the token
+  before the handler runs. A provider that cannot be asked refuses the post,
+  unless `security.bot.on_unavailable` allows it. `FakeBotVerifier` for
+  tests. Refusals are recorded, never the token.
+- **captcha (new):** Cloudflare Turnstile, reCAPTCHA v2 and v3, hCaptcha,
+  chosen by `captcha.provider`, asked through a PSR-18 client the
+  application installs; `captcha_widget()` prints the widget with the CSP
+  nonce.
+- **`check`:** an attribute nothing enforces, no verifier, a verifier that
+  asks nobody in production, no provider, secret or HTTP client, and a
+  Content-Security-Policy that would block the widget (the default does),
+  which would refuse every visitor.
+- **Spam rules:** a repeat sent while the first is being handled is caught;
+  `audit:spam` summarises refusals by form and rule.
+- **http:** `SecurityHeadersMiddleware::directives()`, the policy as sent.
+
+See [security](guides/security.md#new-in-225-bot-verification).
+
+**Upgrading from 2.24:** nothing changes until a handler asks for
+verification. To protect one, `composer require mj-zana/captcha
+symfony/http-client nyholm/psr7`, register the client, set
+`captcha.provider`, and run `php bin/console check`.
 
 ## 2.24.1 — 2026-11-14
 

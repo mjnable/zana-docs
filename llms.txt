@@ -20,6 +20,7 @@ show the application and verify it; `AGENTS.md` at its root states its rules.
 
 - [Audit](https://raw.githubusercontent.com/mjnable/zana-docs/2.24/guides/audit.md): `mj-zana/audit` (2.2) keeps the revisions of edited content.
 - [Cache](https://raw.githubusercontent.com/mjnable/zana-docs/2.24/guides/cache.md): `mj-zana/cache` provides PSR-16 caches with a few additions.
+- [Captcha](https://raw.githubusercontent.com/mjnable/zana-docs/2.24/guides/captcha.md): `mj-zana/captcha` (2.25) asks a CAPTCHA provider whether a person sent a form.
 - [Communication: email](https://raw.githubusercontent.com/mjnable/zana-docs/2.24/guides/communication.md): `mj-zana/communication` sends email through Symfony Mailer transports, with safe sender rules and a recorder for tests.
 - [Configuration](https://raw.githubusercontent.com/mjnable/zana-docs/2.24/guides/configuration.md): `mj-zana/configuration` merges settings from PHP files, the environment and `.env` into one read-only, typed configuration.
 - [Console](https://raw.githubusercontent.com/mjnable/zana-docs/2.24/guides/console.md): `mj-zana/console` runs Symfony Console commands with two additions.

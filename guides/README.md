@@ -52,6 +52,7 @@ Every package is installed as `mj-zana/<name>` and requires PHP 8.5 or later.
 | [Media](media.md) | `mj-zana/media` | Uploaded images: resized variants, `<picture>`, alt texts (2.2) |
 | [Scheduler](scheduler.md) | `mj-zana/scheduler` | Recurring tasks from one cron entry (2.2) |
 | [Audit](audit.md) | `mj-zana/audit` | Revisions of edited content, per locale (2.2); a security audit log (2.15) |
+| [Captcha](captcha.md) | `mj-zana/captcha` | Turnstile, reCAPTCHA and hCaptcha behind `#[VerifyHuman]` (2.25) |
 
 ## Tooling
 

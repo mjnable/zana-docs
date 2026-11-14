@@ -344,6 +344,7 @@ it from `composer create-project`.
 | CI fails on a vulnerable dependency | `composer audit` in `.github/workflows/ci.yml` (2.21) |
 | Every route is attacked, including new ones | `tests/SecurityTest.php` calls `assertRoutesWithstandAttacks()` (2.22) ([testing](guides/testing.md#new-in-222-every-route-attacked)) |
 | A new route, or a change of who may reach one, is reviewed by a person | `security/exposure.json`, the reviewed baseline; `check` reports each change, and an agent shows it with `security:exposure` but never records it (2.23) ([security](guides/security.md#new-in-223-the-reviewed-list-of-what-is-exposed)) |
+| Bots are kept off a form or a purchase | `#[VerifyHuman]` with `BotVerificationMiddleware`, and mj-zana/captcha (2.25); `check` says what the Content-Security-Policy must allow ([security](guides/security.md#new-in-225-bot-verification)) |
 | Tests run without `.env` | `config/testing/` (a secret, an in-memory database for the tests); a build of another environment calls `withoutDotEnv()` |
 | CI checks the schema the application will have | `check` runs after `migrate` on a file database, not the tests' memory one ([testing](guides/testing.md#in-ci-check-on-a-migrated-database-220)) |
 | Module tests run with the others | `phpunit.xml.dist` includes `modules/*/Tests` |

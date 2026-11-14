@@ -713,3 +713,63 @@ public function send(ServerRequestInterface $request): View|ResponseInterface { 
   every post, rather than accept them unchecked.
 - **Not a spam engine:** no learning, no hosted service. One can be added as
   a rule behind the same interface.
+
+## New in 2.25: bot verification
+
+When a form is attacked despite the honeypot, the time trap and the spam
+rules, or bots race people for a purchase, such as tickets the moment sales
+open, ask a CAPTCHA provider whether a person sent it. Security holds the
+rule; [mj-zana/captcha](https://github.com/mjnable/zana-captcha) holds the
+providers: Cloudflare Turnstile, Google reCAPTCHA (v2, and v3 with a score)
+and hCaptcha.
+
+```php
+#[Route('/checkout', methods: ['POST'], middleware: [RateLimitMiddleware::class, BotVerificationMiddleware::class])]
+#[VerifyHuman(action: 'checkout', minimumScore: 0.5)]   // minimumScore: reCAPTCHA v3
+public function pay(ServerRequestInterface $request): ResponseInterface { … }
+```
+
+```php
+<?= $this->captcha_widget('checkout', $csp_nonce) ?>   <!-- in the form -->
+```
+
+```php
+// config/captcha.php; the secret and site key from APP_CAPTCHA__SECRET, APP_CAPTCHA__SITE_KEY
+return ['provider' => 'turnstile'];
+```
+
+- **Before the handler,** the token, from the widget's field or an
+  `X-Bot-Token` header for an API, is sent to the provider with the client
+  address. Refused with 403: no token; the provider says no; a score below
+  `minimumScore`; a token made for another action; with
+  `security.bot.hostnames`, one made on another site.
+- **The provider unreachable** (or the secret wrong) is not the visitor's
+  fault: the post is refused and logged, never taken for a bot.
+  `security.bot.on_unavailable: 'allow'` lets posts through while it lasts,
+  for a form where losing a message is worse than letting a bot in.
+- **A PSR-18 client** is needed to ask the provider, which you install:
+  `composer require symfony/http-client nyholm/psr7`, then register
+  `Psr18Client` as `Psr\Http\Client\ClientInterface`. No provider SDK.
+- **The provider is a setting:** change `captcha.provider` and the widget's
+  helper and the verification follow.
+- **Who was refused:** `BotVerificationFailed`, recorded by the audit log as
+  `security.bot_verification_failed`, with the reasons and score, never the
+  token.
+- **In tests,** register `FakeBotVerifier` as `BotVerifierInterface`:
+  `new FakeBotVerifier(['person' => true])`, then post `bot_token=person`.
+  No test calls a provider. `NullBotVerifier` accepts everything, for
+  development only.
+- **`check`:** `#[VerifyHuman]` with no middleware on its route, no verifier,
+  or a verifier that asks nobody in production (`security.bot_verification`);
+  and, with mj-zana/captcha, no provider or secret (`captcha.config`), no
+  PSR-18 client (`captcha.http_client`), or a Content-Security-Policy that
+  blocks the widget (`captcha.csp`). The default policy, `default-src 'self'`,
+  blocks every provider, and a blocked widget sends no token, so every
+  visitor would be refused: `check` says what to add.
+
+**Spam rules, too (2.25):** the same text sent while the first copy is still
+being handled is now caught: it is reserved as soon as the rules let a post
+through, and released if the handler fails. PSR-16 has no atomic "add if
+absent", so two posts read in the very same instant can still both pass.
+`php bin/console audit:spam --days=7` summarises refusals by form and rule
+([audit](audit.md#new-in-215-the-security-audit-log)).
