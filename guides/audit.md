@@ -82,7 +82,7 @@ return [
     'log' => [
         'enabled' => true,          // record security events; check the table
         'chain' => true,            // hash chaining (off by default)
-        'retention_days' => null,   // keep entries forever; or, e.g., 3650
+        'retention_days' => 730,    // how long investigations and your obligations need
     ],
 ];
 ```
@@ -179,7 +179,15 @@ Chain intact: no (entry 3: The entry was changed after it was written.)
   with four processes on SQLite, MySQL and PostgreSQL.
 - **Retention:** `audit:prune` deletes entries older than
   `audit.log.retention_days`, oldest first, and the rest of the chain still
-  verifies. Without that setting, nothing is ever deleted.
+  verifies. Run it every day, e.g. from the scheduler. Without that setting,
+  nothing is ever deleted, and since 2.24.1 `check` says so
+  (`audit.retention`, a warning): keeping everything should be a choice.
+  A value `audit:prune` cannot use, such as `0` or `1.5`, is an error.
+- **Choosing the period:** one period for every entry, sign-ins and spam
+  refusals alike, so an investigation sees them side by side. Take the
+  longest of what your legal obligations require and how far back you would
+  investigate an incident; two years (730 days) is a common choice. Shorter
+  is better for privacy: entries hold client addresses.
 - **Reading:** `audit:log --action=security.sign_in_failed --limit=20`, and
   `inspect audit-log`.
 - **No secrets:** an entry cannot be changed, so record only what a dispute

@@ -695,7 +695,16 @@ public function send(ServerRequestInterface $request): View|ResponseInterface { 
 - **Who was refused, and why:** each refusal dispatches `SpamRefused`, with
   the rules that found something, never the text. With the audit log on, it
   is recorded as `security.spam_refused`. Read it before tightening a rule,
-  and loosen one that refuses real messages.
+  and loosen one that refuses real messages. Zana's rules are recorded with
+  their reasons (a count, the configured term); your own rules by name and
+  points only, since a reason could quote the visitor (2.24.1). A rule's
+  name must read as one (`shouting`, `no-urls`), or its class is recorded.
+  `Verdict::reasons()` still has every reason, for your own code. The entry
+  is kept as long as other audit entries: see
+  [retention](audit.md#new-in-215-the-security-audit-log).
+- **A cache that fails** never refuses a real message nor tells a visitor
+  that a received one failed (2.24.1): the repeat rule finds nothing for that
+  post, the other rules still apply, and the failure is logged.
 - **`check` (`security.spam_rules`):** settings that cannot be used (an
   unknown setting such as `max_link`, a wrong value, a redirect off the
   site, no rule, repeats without a cache), `#[SpamRules]` with no

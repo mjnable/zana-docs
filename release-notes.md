@@ -20,6 +20,25 @@ reads what spam a form was sent.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
+## 2.24.1 — Unreleased
+
+Two fixes to the spam rules of 2.24, found when the owner reviewed them, and
+a word from `check` on how long audit entries are kept.
+
+- **security:** an application's own spam rule could put the visitor's text
+  in the audit log through its reason. Such rules are now recorded by name
+  and points only; Zana's rules keep their reasons, which hold no text.
+- **security:** a cache that fails no longer turns a received message into
+  an error for the visitor, nor refuses a real one: the repeat rule finds
+  nothing for that post, the other rules still apply, and it is logged.
+- **audit:** `check` warns when the audit log is on and
+  `audit.log.retention_days` is not set, so keeping every entry forever is
+  a choice; a value `audit:prune` cannot use is an error. See
+  [choosing the period](guides/audit.md#new-in-215-the-security-audit-log).
+
+**Upgrading from 2.24.0:** `composer update`. With the audit log on and no
+retention set, `check` now warns: set `audit.log.retention_days`.
+
 ## 2.24.0 — 2026-11-14
 
 FE-63: spam rules per form, beside the honeypot and the time trap, for spam
