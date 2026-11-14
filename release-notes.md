@@ -20,7 +20,7 @@ reads what spam a form was sent.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.24.0 — Unreleased
+## 2.24.0 — 2026-11-14
 
 FE-63: spam rules per form, beside the honeypot and the time trap, for spam
 that people type or that bots send slowly.
