@@ -18,7 +18,7 @@ who may reach it, and 2.22 attacks every route to see what it does.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.22.0 — Unreleased
+## 2.22.0 — 2026-11-14
 
 Layer 2 of the security verification (ADR-033): `check` reads what each
 route declares, and now a test attacks each route to see what it does.

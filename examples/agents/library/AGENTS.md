@@ -1,10 +1,10 @@
 # Instructions for AI coding agents
 
-This is a Zana 2.21 application (PHP 8.5). Zana is explicit by design: modules, services and
+This is a Zana 2.22 application (PHP 8.5). Zana is explicit by design: modules, services and
 routes are declared, and mistakes are caught at startup. Follow these rules; do not invent other
 conventions. The documentation for this version is at
-https://github.com/mjnable/zana-docs/tree/2.21, and its index for agents at
-https://raw.githubusercontent.com/mjnable/zana-docs/2.21/llms.txt.
+https://github.com/mjnable/zana-docs/tree/2.22, and its index for agents at
+https://raw.githubusercontent.com/mjnable/zana-docs/2.22/llms.txt.
 
 ## How to work
 
@@ -83,6 +83,8 @@ https://raw.githubusercontent.com/mjnable/zana-docs/2.21/llms.txt.
   `#[PublicRoute]` only to silence it: give the real reason, or protect the route. When the application signs
   users in with its own middleware, declare that middleware in `security.access_middleware` with how it refuses
   anonymous visitors; it never stands for a permission check.
+- `tests/SecurityTest.php` attacks every route (`assertRoutesWithstandAttacks()`). When it fails, fix the route;
+  leave one out with `except:` only with the real reason, which the report shows.
 - Templates escape the strings and arrays given to them, not objects: print an entity's or a DTO's
   values with `<?= $this->e($post->title) ?>`, never `<?= $post->title ?>`. Never mark user input as safe.
 - Escaping does not make a URL safe: print a URL that users gave in `href` or `src` with
@@ -116,5 +118,5 @@ https://raw.githubusercontent.com/mjnable/zana-docs/2.21/llms.txt.
 | `php bin/console doctor` | Check that a server is ready to run the application |
 | `composer test` | Run the tests |
 
-This file was written by `php bin/console make:agents` for Zana 2.21. Run it again after
+This file was written by `php bin/console make:agents` for Zana 2.22. Run it again after
 upgrading Zana (`--force` replaces it); add project-specific rules in a section of your own below.
