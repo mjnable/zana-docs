@@ -21,30 +21,37 @@ own `CHANGELOG.md`.
 
 ## 2.23.0 — Unreleased
 
-Layer 4 of the security verification (ADR-033), the last: a committed list
-of who may reach each route, so a new route, or one whose access changes,
-is reviewed by a person.
+Layer 4 of the security verification (ADR-033), the last: a committed
+baseline of who may reach each route, so a new route, or one whose access
+changes, is reviewed by a person.
 
-- **security:** `php bin/console security:exposure` writes
-  `security/exposure.json`, one line a route: `public` with its reason,
-  `user`, `permission` with the permissions, or `anyone` with the problem,
-  for a route that says nothing or whose rule nothing enforces. It lists
-  what changed since it was last written.
-- **`check`:** `security.exposure` reports a route that is new or whose
-  access changed, until the file is written again: an error with
-  `security.strict`, so CI and `release:build` stop, a warning otherwise.
-  Without the file, a warning, in strict mode too: an upgrade fails nothing.
+- **security:** `security/exposure.json`, one line a route: `public` with
+  its reason, `user`, `permission` with the permissions, or `anyone` with
+  the problem, for a route nothing protects. Deterministic: sorted, and
+  nothing from the environment or the machine.
+- **Showing and recording are separate.** `php bin/console
+  security:exposure` shows what differs and writes nothing, exiting with 1;
+  `--init` records the first baseline, `--update` the reviewed changes.
+  Running the command again never approves a change.
+- **`check`** compares and never writes: `security.exposure` reports a route
+  that is new or whose access changed, including a permission changed on a
+  route that stays protected, as an error with `security.strict`, so CI and
+  `release:build` stop. Without the baseline, a warning, in strict mode too:
+  an upgrade fails nothing.
+- **Integrity:** only a baseline the command writes is accepted. A hand
+  edit, a route named twice, or an unknown access fails in strict mode.
 - **Skeletons:** both ship their `security/exposure.json`.
-- **`AGENTS.md`:** after adding a route or changing its access, an agent runs
-  `security:exposure` and names each change in its summary.
+- **`AGENTS.md`:** an agent shows the changes and names each in its
+  summary; it never records them.
 
 See [security](guides/security.md#new-in-223-the-reviewed-list-of-what-is-exposed).
 
 **Upgrading from 2.22:**
 
-- Run `php bin/console security:exposure`, read the list it writes, and
-  commit `security/exposure.json`. Each route open to `anyone` is one
-  `check` already reports.
+- Run `php bin/console security:exposure`, review who may reach each route,
+  then `php bin/console security:exposure --init`, and commit
+  `security/exposure.json`. Each route open to `anyone` is one `check`
+  already reports.
 - Run `php bin/console make:agents --force`, then add back any section of
   your own.
 

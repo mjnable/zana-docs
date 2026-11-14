@@ -583,17 +583,13 @@ $router->group('/manage', $routes, [SignedIn::class]);   // these routes now cou
 
 `check` reads what each route declares, and the attacks test it. Neither
 tells you that a route is new, or that a route which needed a permission
-now lets in anyone signed in. `security/exposure.json` records who may
-reach each route, and is committed, so every such change is reviewed in a
-diff:
-
-```
-php bin/console security:exposure
-```
+now lets in anyone signed in. `security/exposure.json` is the reviewed
+baseline of who may reach each route. It is committed, so every change to
+it is reviewed in a diff:
 
 ```json
 {
-    "about": "Who may reach each route. …",
+    "about": "Who may reach each route, as reviewed. …",
     "format": 1,
     "routes": {
         "GET /api/me": {"access": "user"},
@@ -605,27 +601,42 @@ php bin/console security:exposure
 }
 ```
 
+**Showing and recording are separate,** so a change is never approved by
+running a command:
+
+| Command | What it does |
+|---|---|
+| `php bin/console security:exposure` | Shows every route that differs from the baseline. Writes nothing; exits with 1 while anything differs |
+| `php bin/console security:exposure --init` | Records the first baseline; refused when one exists |
+| `php bin/console security:exposure --update` | Records the changes into the baseline, listing each; refused when the baseline cannot be read |
+
+- **`check` compares, and never writes.** `security.exposure` reports a
+  route that is new, or whose access changed, as an error with
+  `security.strict`, a warning otherwise. That includes a permission
+  changed on a route that stays protected, e.g. "from users with
+  users.manage to signed-in users". `release:build` stops on it in strict
+  mode. A route that is gone is a warning.
 - **What a route does, not what it says.** Each route is read as `check`
-  reads it. A `#[RequiresPermission]` that no `AuthorizationMiddleware`
-  enforces is recorded as `anyone`, with the problem, and so is a route that
-  says nothing.
-- **One line a route,** sorted by path, so a diff reads route by route.
-- **`security.exposure` in `check`:** a route that is new, or whose access
-  changed since the file was written, is an error with `security.strict`, a
-  warning otherwise. It names the route and the change, e.g. "from users
-  with users.manage to signed-in users". `release:build` stops on it in
-  strict mode. A route that is gone is a warning.
-- **The review is the diff.** After adding a route or changing its access,
-  run the command; it lists what changed. Read that before committing.
-  Never run it only to quiet `check`: that records the change without
-  anyone looking at it.
-- **Without the file,** `check` warns, in strict mode too, so an upgrade
-  fails nothing. Run the command once to start. The skeletons ship theirs.
-- **Run it where CI runs `check`.** The file lists the routes of the
-  environment it ran in. In most applications routes do not depend on the
-  environment.
-- A file saved with a byte order mark or CRLF line endings, or reordered by
-  hand, reads the same. One that is not such a list, or larger than 2 MB,
-  is an error in strict mode.
+  reads it. `public` is a route that says anyone may reach it, and why.
+  `anyone` is a route nothing protects: one that says nothing, or whose
+  `#[RequiresPermission]` no `AuthorizationMiddleware` enforces. A change
+  from one to the other is a change.
+- **The review is the commit.** After adding a route or changing its access,
+  run the command and read what it shows. Record it with `--update` only
+  once you agree, and commit the file with the change, so a second person
+  sees it in the diff. An agent never records it: see `AGENTS.md`.
+- **Only the command writes it.** A baseline edited by hand, reordered, or
+  naming a route twice (which could hide an entry) fails `check` in strict
+  mode, even when it matches the routes. So do an unknown access or field
+  and a file over 2 MB. A byte order mark and CRLF line endings, as Git and
+  Windows editors write them, are accepted. If it is broken, restore it
+  from Git: `--update` refuses to replace it, as that would record every
+  route unreviewed.
+- **Deterministic:** routes sorted by path then methods, permissions
+  sorted, nothing from the environment or the machine: no path, no date,
+  no setting. The same routes give the same file in every environment.
+- **Without the baseline,** `check` warns, in strict mode too, so an upgrade
+  fails nothing. Start with the command, review what it shows, then
+  `--init`. The skeletons ship theirs.
 
 `security:exposure` needs mj-zana/console.
