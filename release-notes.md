@@ -62,6 +62,23 @@ until you let them drain.
 - **Static analysis:** database reads are `@phpstan-impure`, and
   `send()` declares that it rethrows the handler's exceptions.
 
+**Limits to know:**
+
+- **The drain window:** while `queue.accept_unsigned` or
+  `outbox.accept_unsigned` is on, unsigned rows are trusted as before 2.20,
+  so a row written by anything but the application can again build any
+  loaded class. Keep it on only until the old jobs and messages are gone;
+  `check` warns while it is.
+- **Copied jobs:** the signature covers a job or message, not its row.
+  Someone who can write to the table can copy a signed one, which then runs
+  again. They cannot create or change one. The outbox inbox skips a copied
+  message for handlers that use it.
+- **`safe_url()` checks the scheme, not the host:**
+  `https://other.example` and `//other.example` are kept, since they cannot
+  run script. Check the host yourself where a link must stay on your site.
+- **The keyed audit chain** stops someone who can only write to the
+  database. Whoever can read the key as well can still rewrite the log.
+
 **Upgrading from 2.19.2:**
 
 - **Queued jobs and outbox messages written before the upgrade** are
