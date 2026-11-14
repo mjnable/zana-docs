@@ -34,6 +34,11 @@ warnings until you turn on `security.strict`.
   `AuthorizationMiddleware` on its route, and `AuthorizationMiddleware` or
   `RateLimitMiddleware` placed in `http.middleware`, where they run before
   routing and enforce nothing.
+- **Your own sign-in:** an application that signs users in its own way, such
+  as a website in front of an API, declares its middleware in
+  `security.access_middleware` with how it refuses anonymous visitors. Its
+  routes then count as needing a user, listed apart from Zana's own
+  protection; it never counts as a permission check.
 - **Forms:** a route that changes data with session sign-in and no CSRF
   protection; a public one without a rate limit (a warning).
 - **Uploads and templates:** a disk inside `public/` (a warning), and
@@ -56,7 +61,9 @@ warnings until you turn on `security.strict`.
   another's invoice. Your policies, your tests and the security step of
   `AGENTS.md` cover that.
 - **A declared reason is trusted.** `#[PublicRoute]` with a poor reason
-  passes; the reason is there to be reviewed.
+  passes, and so does a declared sign-in middleware that does not really
+  refuse anonymous visitors: each reason is there to be reviewed. Layer 2,
+  in 2.22, will test them by sending anonymous requests to every route.
 
 **Upgrading from 2.20:**
 

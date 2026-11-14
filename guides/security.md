@@ -510,6 +510,8 @@ public: the route it leads to has its own access.
 | `security.csrf` | A route that changes data with session sign-in, and neither `CsrfMiddleware` nor `#[WithoutCsrf]` |
 | `security.rate_limit` | A public route that changes data without `#[RateLimit]` and `RateLimitMiddleware`; always a warning |
 | `security.public_disk` | A local disk inside `public/` ([filesystem](filesystem.md)); always a warning |
+| `security.access_middleware` | A declaration of your own sign-in middleware that cannot be accepted (below) |
+| `security.application_access` | Information: the routes that rely on your own declared sign-in middleware; a warning when it runs on none |
 | `view.unescaped_object` | A template printing an object without `$this->e()` ([views](view.md)) |
 
 - **Authentication middleware is not protection.** `AuthenticationMiddleware`
@@ -534,3 +536,44 @@ public: the route it leads to has its own access.
   That is business logic, for your policies and tests, and the security
   step of the workflow in `AGENTS.md`.
 - **Generators** write the declaration for you: [maker](maker.md#new-in-221-generated-routes-say-who-may-reach-them).
+
+### Your own sign-in middleware
+
+Not every application signs users in with Zana. A website in front of an
+API keeps the API's token in its session, and its own middleware sends
+visitors without one to the sign-in page; single sign-on works the same
+way. Declare such a middleware, with how it refuses anonymous visitors:
+
+```php
+// config/security.php
+'access_middleware' => [
+    App\Web\SignedIn::class => 'Sends visitors without an API session to sign in; the API checks every permission',
+],
+```
+
+```php
+$router->group('/manage', $routes, [SignedIn::class]);   // these routes now count as needing a user
+```
+
+- **Only where it runs:** a route counts when the middleware is on the
+  route or its group. In `http.middleware` it counts nowhere: there it is not
+  tied to a route.
+- **Signing in is not a permission.** The middleware counts as "needs a
+  user", nothing more. `#[RequiresPermission]` still needs
+  `AuthorizationMiddleware`, and what each user may do stays with your
+  application or its API.
+- **Shown apart:** `check` lists the routes that rely on it, with your
+  reason (`security.application_access`). Zana's own protection is not in that
+  list. A declared middleware that runs on no route is a warning.
+- **Zana trusts your reason.** It does not check that the middleware refuses
+  anonymous visitors, so the reason is there to be reviewed. Layer 2 of the
+  security verification (2.22) will send anonymous requests to every route,
+  and so test the claim.
+- **Refused declarations** (`security.access_middleware`): one without a
+  reason, a class that is not a middleware, and Zana's own middleware.
+  `AuthenticationMiddleware` and `SessionAuthenticationMiddleware` let
+  anonymous requests through, and `AuthorizationMiddleware`, `CsrfMiddleware`
+  and `RateLimitMiddleware` check something else. A refused declaration
+  protects nothing.
+- Public routes stay public: declare them with `#[PublicRoute]`, never with
+  this.
