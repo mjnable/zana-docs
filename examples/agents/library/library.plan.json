@@ -5,7 +5,7 @@
     "value_objects": ["BookTitle"],
     "repositories": ["Book"],
     "features": [
-        {"name": "AddBook", "http": true, "fields": ["title:string", "author:string"]},
-        {"name": "ListBooks", "query": true, "http": true}
+        {"name": "AddBook", "http": true, "fields": ["title:string", "author:string"], "public": "The open library: anyone may add a book"},
+        {"name": "ListBooks", "query": true, "http": true, "public": "The open library: anyone may list its books"}
     ]
 }

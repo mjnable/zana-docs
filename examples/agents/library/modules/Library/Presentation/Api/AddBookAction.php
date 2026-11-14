@@ -9,12 +9,14 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zana\Http\ResponseFactory;
 use Zana\Mediator\MediatorInterface;
+use Zana\Routing\Attribute\PublicRoute;
 use Zana\Routing\Attribute\Route;
 
 /**
  * POST /api/library/add-book with a JSON object: sends AddBookCommand. Answers 204 when it
  * is handled, 422 with the field errors when the input is invalid.
  */
+#[PublicRoute(reason: 'The open library: anyone may add a book')]
 final readonly class AddBookAction
 {
     public function __construct(

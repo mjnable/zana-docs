@@ -96,7 +96,9 @@ final class WalkthroughTest extends TestCase
 
         // FE-51: the plan file shown on the page stands for the same commands and writes the same files.
         $plan = Plan::fromJson((string) file_get_contents(Examples::ROOT . '/' . self::EXAMPLE . '/library.plan.json'));
-        $this->assertSame($commands, $plan->commands());
+        // The plan quotes --public for the shell it runs in (escapeshellarg): ' on Linux, " on Windows.
+        $unquoted = static fn (array $list): array => array_map(static fn (string $c): string => str_replace(["'", '"'], '', $c), $list);
+        $this->assertSame($unquoted($commands), $unquoted($plan->commands()));
         $planned = $this->base . '-plan';
         mkdir($planned);
         try {

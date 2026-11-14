@@ -1,10 +1,10 @@
 # Instructions for AI coding agents
 
-This is a Zana 2.20 application (PHP 8.5). Zana is explicit by design: modules, services and
+This is a Zana 2.21 application (PHP 8.5). Zana is explicit by design: modules, services and
 routes are declared, and mistakes are caught at startup. Follow these rules; do not invent other
 conventions. The documentation for this version is at
-https://github.com/mjnable/zana-docs/tree/2.20, and its index for agents at
-https://raw.githubusercontent.com/mjnable/zana-docs/2.20/llms.txt.
+https://github.com/mjnable/zana-docs/tree/2.21, and its index for agents at
+https://raw.githubusercontent.com/mjnable/zana-docs/2.21/llms.txt.
 
 ## How to work
 
@@ -77,6 +77,12 @@ https://raw.githubusercontent.com/mjnable/zana-docs/2.20/llms.txt.
 
 ## Web
 
+- Every route says who may reach it: `#[RequiresAuthentication]` or `#[RequiresPermission('…')]`, with
+  `AuthorizationMiddleware` on the route or its group, or `#[PublicRoute(reason: '…')]` when anyone may.
+  `check` reports a route that says nothing, and an access rule no middleware enforces. Never add
+  `#[PublicRoute]` only to silence it: give the real reason, or protect the route. When the application signs
+  users in with its own middleware, declare that middleware in `security.access_middleware` with how it refuses
+  anonymous visitors; it never stands for a permission check.
 - Templates escape the strings and arrays given to them, not objects: print an entity's or a DTO's
   values with `<?= $this->e($post->title) ?>`, never `<?= $post->title ?>`. Never mark user input as safe.
 - Escaping does not make a URL safe: print a URL that users gave in `href` or `src` with
@@ -110,5 +116,5 @@ https://raw.githubusercontent.com/mjnable/zana-docs/2.20/llms.txt.
 | `php bin/console doctor` | Check that a server is ready to run the application |
 | `composer test` | Run the tests |
 
-This file was written by `php bin/console make:agents` for Zana 2.20. Run it again after
+This file was written by `php bin/console make:agents` for Zana 2.21. Run it again after
 upgrading Zana (`--force` replaces it); add project-specific rules in a section of your own below.

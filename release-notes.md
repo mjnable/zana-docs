@@ -18,7 +18,7 @@ who may reach it.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.21.0 — Unreleased
+## 2.21.0 — 2026-11-14
 
 Security verification becomes part of every build, not only of reviews
 (ADR-033, layers 1 and 3). `check` gains security rules, the skeletons make

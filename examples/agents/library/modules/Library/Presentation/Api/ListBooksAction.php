@@ -9,12 +9,14 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zana\Http\ResponseFactory;
 use Zana\Mediator\MediatorInterface;
+use Zana\Routing\Attribute\PublicRoute;
 use Zana\Routing\Attribute\Route;
 
 /**
  * GET /api/library/list-books: sends ListBooksQuery with the values of the query string and
  * answers {"data": …}, or 422 with the field errors when they are invalid.
  */
+#[PublicRoute(reason: 'The open library: anyone may list its books')]
 final readonly class ListBooksAction
 {
     public function __construct(

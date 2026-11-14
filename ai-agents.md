@@ -125,9 +125,15 @@ php bin/console make:module Library
 php bin/console make:entity Library Book
 php bin/console make:value-object Library BookTitle
 php bin/console make:repository Library Book
-php bin/console make:feature Library AddBook --field=title:string --field=author:string --http
-php bin/console make:feature Library ListBooks --query --http
+php bin/console make:feature Library AddBook --field=title:string --field=author:string --http --public="The open library: anyone may add a book"
+php bin/console make:feature Library ListBooks --query --http --public="The open library: anyone may list its books"
 ```
+
+Since 2.21 an API action needs a signed-in user unless `--public` says why
+anyone may call it. This library has no sign-in at all, so both actions are
+public, and say so. In an application with users, leave `--public` out:
+the action then requires a signed-in user, and its generated test proves
+that an anonymous request is refused.
 
 Add `--dry-run --format=json` to any of them to see its plan first. The
 same six commands can be one file (2.11), which an agent proposes and a
@@ -142,8 +148,8 @@ person reviews before anything is written:
     "value_objects": ["BookTitle"],
     "repositories": ["Book"],
     "features": [
-        {"name": "AddBook", "http": true, "fields": ["title:string", "author:string"]},
-        {"name": "ListBooks", "query": true, "http": true}
+        {"name": "AddBook", "http": true, "fields": ["title:string", "author:string"], "public": "The open library: anyone may add a book"},
+        {"name": "ListBooks", "query": true, "http": true, "public": "The open library: anyone may list its books"}
     ]
 }
 ```
