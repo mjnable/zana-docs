@@ -1,10 +1,10 @@
 # Instructions for AI coding agents
 
-This is a Zana 2.24 application (PHP 8.5). Zana is explicit by design: modules, services and
+This is a Zana 2.25 application (PHP 8.5). Zana is explicit by design: modules, services and
 routes are declared, and mistakes are caught at startup. Follow these rules; do not invent other
 conventions. The documentation for this version is at
-https://github.com/mjnable/zana-docs/tree/2.24, and its index for agents at
-https://raw.githubusercontent.com/mjnable/zana-docs/2.24/llms.txt.
+https://github.com/mjnable/zana-docs/tree/2.25, and its index for agents at
+https://raw.githubusercontent.com/mjnable/zana-docs/2.25/llms.txt.
 
 ## How to work
 
@@ -93,6 +93,10 @@ https://raw.githubusercontent.com/mjnable/zana-docs/2.24/llms.txt.
   `#[SpamRules('form')]` on its handler, with `RateLimitMiddleware` and `SpamGuardMiddleware` on the route, and its
   rules in `security.spam.forms`. Answer a validation error with 422, not a redirect, so a corrected form is not
   taken for the same message sent again.
+- A form that bots attack despite those, or a purchase they race for (tickets as sales open), also gets
+  `#[VerifyHuman]` with `BotVerificationMiddleware` on the route, a provider from mj-zana/captcha, and
+  `<?= $this->captcha_widget('action', $csp_nonce) ?>` in the form. Run `php bin/console check`: it says what the
+  Content-Security-Policy must allow. In tests, register `FakeBotVerifier`; never call a provider.
 - Templates escape the strings and arrays given to them, not objects: print an entity's or a DTO's
   values with `<?= $this->e($post->title) ?>`, never `<?= $post->title ?>`. Never mark user input as safe.
 - Escaping does not make a URL safe: print a URL that users gave in `href` or `src` with
@@ -126,5 +130,5 @@ https://raw.githubusercontent.com/mjnable/zana-docs/2.24/llms.txt.
 | `php bin/console doctor` | Check that a server is ready to run the application |
 | `composer test` | Run the tests |
 
-This file was written by `php bin/console make:agents` for Zana 2.24. Run it again after
+This file was written by `php bin/console make:agents` for Zana 2.25. Run it again after
 upgrading Zana (`--force` replaces it); add project-specific rules in a section of your own below.

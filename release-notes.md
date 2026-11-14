@@ -20,7 +20,7 @@ reads what spam a form was sent, and 2.25 asks a CAPTCHA provider.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.25.0 — Unreleased
+## 2.25.0 — 2026-11-14
 
 FE-64: bot verification, for a form attacked despite the other defences
 and for purchases bots race people for. Security holds the rule; the new
