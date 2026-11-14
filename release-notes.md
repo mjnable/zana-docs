@@ -15,9 +15,35 @@ the same exclusion rules on every route to a live server, 2.20
 closes the security audit and adds what request input needs in queries,
 2.21 puts security rules in `check`, starting with: every route says
 who may reach it, 2.22 attacks every route to see what it does, and 2.23
-records who may reach each route, so every change is reviewed.
+records who may reach each route, so every change is reviewed, and 2.24
+reads what spam a form was sent.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
+
+## 2.24.0 — Unreleased
+
+FE-63: spam rules per form, beside the honeypot and the time trap, for spam
+that people type or that bots send slowly.
+
+- **security:** `#[SpamRules('contact')]` and `SpamGuardMiddleware`, with the
+  rules in `security.spam.forms.contact`: `max_links`, `blocked_terms`
+  (whole words, whatever the case, spacing or invisible characters),
+  `duplicate_minutes` (the same text again, with a fresh token), your own
+  `rules`, a `threshold`. Spam is treated as a filled honeypot: sent to the
+  form's `redirect` as if it had succeeded, or refused with 403.
+- **Who was refused, and why:** `SpamRefused`, recorded by the audit log as
+  `security.spam_refused`, with the rules that found something, never the
+  text.
+- **`check`:** `security.spam_rules` reports settings that cannot be used and
+  rules nothing enforces.
+- **`AGENTS.md`:** a public form that sends a message to people gets a rate
+  limit and spam rules, and answers a validation error with 422.
+
+See [security](guides/security.md#new-in-224-spam-rules).
+
+**Upgrading from 2.23:** nothing changes until a form names its rules. To
+protect one, add `#[SpamRules]`, `SpamGuardMiddleware` on its route and its
+settings, then run `php bin/console check`.
 
 ## 2.23.0 — 2026-11-14
 

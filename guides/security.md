@@ -203,7 +203,8 @@ Two settings stop most bots without a CAPTCHA:
 
 `csrf_field()` prints the honeypot. A filled honeypot or a form sent too
 fast is refused, or, with `spam_redirect`, sent to that page so the bot
-believes it succeeded.
+believes it succeeded. For what was sent, such as links and repeated
+text, see [spam rules](#new-in-224-spam-rules) (2.24).
 
 ### Signing in with a session
 
@@ -640,3 +641,66 @@ running a command:
   `--init`. The skeletons ship theirs.
 
 `security:exposure` needs mj-zana/console.
+
+## New in 2.24: spam rules
+
+The honeypot and the time trap catch bots by how they post. Some spam is
+typed by people, or by bots that wait and leave the honeypot empty: links,
+known phrases, the same text again with a fresh form each time. Spam rules
+read what was sent, per form:
+
+```php
+// config/security.php
+'spam' => ['forms' => ['contact' => [
+    'max_links' => 1,                                   // more is spam
+    'blocked_terms' => ['casino', 'crypto investment'], // whole words, whatever the case
+    'duplicate_minutes' => 30,                          // the same text again (a PSR-16 cache)
+    'fields' => ['name', 'subject', 'message'],         // the fields read; all text fields without it
+    'redirect' => '/en/contact/thanks',                 // as if it had succeeded
+]]],
+```
+
+```php
+#[Route('/contact', methods: ['POST'], middleware: [RateLimitMiddleware::class, SpamGuardMiddleware::class])]
+#[PublicRoute(reason: 'The contact form')]
+#[RateLimit(max: 5, per: 3600)]
+#[SpamRules('contact')]
+public function send(ServerRequestInterface $request): View|ResponseInterface { … }
+```
+
+- **Spam is treated as a filled honeypot:** sent to the form's `redirect`,
+  or `security.csrf.spam_redirect`, with 303, so the bot believes it
+  succeeded; otherwise refused with 403, in the same words. The handler
+  never runs.
+- **The form is named on the server,** in `#[SpamRules]`, never by the
+  request, so a bot cannot pick a form with weaker rules. `redirect` must be
+  a path on the site.
+- **Points and a threshold:** each rule that finds something gives a point;
+  a post with `threshold` points (1 by default) is spam.
+- **Hard to dodge by typing:** blocked terms and repeated text ignore case,
+  spacing and invisible characters such as zero-width spaces. A blocked term
+  is a whole word: `casino` does not match "occasionally".
+- **Repeated text** is kept as a hash in the cache, never the text, and only
+  when the handler answered without an error. Answer a validation error with
+  422 and the form, as the [website cookbook](../cookbook/website.md) does:
+  a visitor who corrects the e-mail and sends the same message again goes
+  through. A form that redirects back on an error would be taken for a
+  repeat. `duplicate_scope: 'everyone'` compares with what anyone sent,
+  which catches a bot that changes address, and refuses two people who
+  write the same short text.
+- **Your own rules:** a class implementing `SpamRuleInterface`, named in
+  `rules`, returns a `Signal` with its points and reason. It comes from the
+  container when registered there. In tests, `FixedScore` makes every post
+  spam, so you can test what follows.
+- **Who was refused, and why:** each refusal dispatches `SpamRefused`, with
+  the rules that found something, never the text. With the audit log on, it
+  is recorded as `security.spam_refused`. Read it before tightening a rule,
+  and loosen one that refuses real messages.
+- **`check` (`security.spam_rules`):** settings that cannot be used (an
+  unknown setting such as `max_link`, a wrong value, a redirect off the
+  site, no rule, repeats without a cache), `#[SpamRules]` with no
+  `SpamGuardMiddleware` on its route, or naming a form without settings.
+  Errors with `security.strict`. A form without usable settings refuses
+  every post, rather than accept them unchecked.
+- **Not a spam engine:** no learning, no hosted service. One can be added as
+  a rule behind the same interface.
