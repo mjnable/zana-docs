@@ -101,6 +101,11 @@ When Composer cannot run on the server, build the upload on your machine:
 php bin/console release:build
 ```
 
+It runs the security rules of `check` first (2.21). With
+`security.strict: true`, as in the skeletons, an error among them stops it
+before anything is built; otherwise it prints them and builds
+([security](guides/security.md#new-in-221-every-route-says-who-may-reach-it)).
+
 It takes the last commit (`--ref` another one), installs the production
 dependencies in a copy, and writes two archives:
 

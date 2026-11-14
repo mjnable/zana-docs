@@ -168,7 +168,7 @@ since 2.7, with the same report format.
 | `doctor` | Checks the server before going live: the PHP version, the extensions in `app.extensions`, a writable `var/`, the length of `security.secret`, the startup deployment checks, (2.4) that every singleton can be created, and (2.19) in production, files that do not belong on a live server. Exits with 1 when something is fatal. |
 | `mail:test` | (2.6, with `mj-zana/communication`) Sends a test email and prints the mail server's answer, passwords hidden. |
 | `release:clean` | (2.19) Applies the same exclusion rules on a live server: sparse-checkout in a Git checkout, deletion elsewhere. Runs only in production. Options: `--dry-run`, `--force`, `--no-public`. See [deployment](../deployment.md#the-same-rules-on-every-route). |
-| `release:build` | (2.5) Builds the upload archives for shared hosting from a commit, with the production dependencies installed. Options: `--folder`, `--ref`, `--output`, `--composer`, `--timeout`, `--no-public` (2.18), `-v`. See [deployment](../deployment.md#without-ssh) and [what the archives hold](../deployment.md#what-the-archives-hold). Needs `ext-zip`. |
+| `release:build` | (2.5) Builds the upload archives for shared hosting from a commit, with the production dependencies installed. Options: `--folder`, `--ref`, `--output`, `--composer`, `--timeout`, `--no-public` (2.18), `-v`. See [deployment](../deployment.md#without-ssh) and [what the archives hold](../deployment.md#what-the-archives-hold). Needs `ext-zip`. With `security.strict` (2.21), it refuses to build while a security rule of `check` reports an error. |
 
 Packages and applications add their caches by tagging a service with
 `CacheClearerInterface::CLEARER_TAG` or `CacheWarmerInterface::WARMER_TAG`

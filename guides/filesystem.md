@@ -86,5 +86,11 @@ return [
 - **URLs:** `url()` needs the disk's `url` setting, and throws without it.
 - **Symbolic links:** a local disk follows symbolic links inside its root.
   Don't let untrusted users create links there.
+- **Keep uploads outside `public/` (2.21).** The web server serves every
+  file inside the web root without asking the application, so `check` warns
+  (`security.public_disk`) about a local disk there. Store uploads in
+  `var/storage` and send them through a controller that checks access. A
+  disk meant to be public, such as images, says so with a `url`, and is not
+  reported. This stays a warning, also with `security.strict`.
 
 Reference: the [filesystem README](https://github.com/mjnable/zana-filesystem).

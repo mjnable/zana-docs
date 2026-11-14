@@ -171,4 +171,31 @@ $router->redirect('/webmail', 'https://mail.acme.example:2096', 302, [
   breaks are refused when the route is defined.
 - Redirect routes answer GET and HEAD.
 
+## New in 2.21: public routes
+
+Every route says who may reach it, and `check` reports one that does not
+([security](security.md#new-in-221-every-route-says-who-may-reach-it)). A route
+anyone may reach says so, and why:
+
+```php
+#[PublicRoute(reason: 'The pages of the public website')]
+final class PageController { … }                 // every method; one on a method wins over its class
+
+$router->group('', static function (Router $r): void {
+    $r->localized(['en' => '/about', 'fr' => '/a-propos'], [PageController::class, 'about'])->name('about');
+}, public: 'The public website');                // every route of the group
+```
+
+- **The reason is required.** An empty one is refused when the route is
+  defined.
+- **Closures** take the attribute too:
+  `$router->get('/ping', #[PublicRoute(reason: 'Uptime checks')] fn () => 'pong')`.
+- **A redirect is public:** the route it leads to has its own access.
+- **`PublicRoute::reasonFor($route)`** reads it, from the group, the method,
+  the class or the closure. A group's reason is kept in the route cache, and
+  `inspect routes` shows it in its `public` column.
+- Routes that need a user use `#[RequiresAuthentication]` or
+  `#[RequiresPermission]` from [security](security.md), with
+  `AuthorizationMiddleware` on the route.
+
 Reference: the [routing README](https://github.com/mjnable/zana-routing).

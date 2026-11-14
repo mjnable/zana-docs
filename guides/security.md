@@ -474,3 +474,63 @@ echo 'Bisimwa scans at Jazz Kinshasa: ', $can('bisimwa', 'tickets.scan', new Con
 Filtering lists by organization stays in your repositories. To check every
 command against its event, see
 [the recipe](../cookbook/recipes.md#checking-the-scope-of-every-command).
+
+## New in 2.21: every route says who may reach it
+
+`check` now holds security rules, so a mistake shows up in CI rather than in
+production. The first is deny by default: every route declares who may
+reach it.
+
+```php
+#[Route('/api/orders', middleware: [AuthorizationMiddleware::class])]
+#[RequiresPermission('orders.view')]          // a user with this permission
+final class OrderController { … }
+
+#[Route('/api/me', middleware: [AuthorizationMiddleware::class])]
+#[RequiresAuthentication]                    // any signed-in user
+final class ProfileController { … }
+
+#[PublicRoute(reason: 'The pages of the public website')]   // anyone, and why
+final class PageController { … }
+
+$router->group('', $routes, public: 'The public website');   // every route of a group
+```
+
+`#[PublicRoute]` comes from [routing](routing.md#new-in-221-public-routes). Its
+reason is required, so each exception can be reviewed. A redirect counts as
+public: the route it leads to has its own access.
+
+**The rules,** as errors with `security.strict: true`, warnings otherwise:
+
+| Id | What `check` reports |
+|---|---|
+| `security.route_access` | A route that says nothing about who may reach it |
+| `security.access_unenforced` | `#[RequiresAuthentication]` or `#[RequiresPermission]` without `AuthorizationMiddleware` on that route |
+| `security.global_middleware` | `AuthorizationMiddleware` or `RateLimitMiddleware` in `http.middleware`, where it runs before routing and enforces nothing |
+| `security.csrf` | A route that changes data with session sign-in, and neither `CsrfMiddleware` nor `#[WithoutCsrf]` |
+| `security.rate_limit` | A public route that changes data without `#[RateLimit]` and `RateLimitMiddleware`; always a warning |
+| `security.public_disk` | A local disk inside `public/` ([filesystem](filesystem.md)); always a warning |
+| `view.unescaped_object` | A template printing an object without `$this->e()` ([views](view.md)) |
+
+- **Authentication middleware is not protection.** `AuthenticationMiddleware`
+  and `SessionAuthenticationMiddleware` identify the user when there is one,
+  and let anonymous requests through. Only `#[RequiresAuthentication]` or
+  `#[RequiresPermission]`, enforced by `AuthorizationMiddleware` on the route,
+  keeps a route closed. A rule nobody enforces looks safe and is not, which
+  is why `security.access_unenforced` exists.
+- **Strict mode** (`security.strict: true` in `config/security.php`) makes
+  the rules errors: `check` exits with 1, and so does CI. It is off by
+  default, so an upgrade fails nobody's build: an existing application gets
+  warnings and opts in with that one setting. The skeletons turn it on.
+- **The gate:** `release:build` runs the rules first. In strict mode an error
+  stops it before anything is built; otherwise it prints them and builds.
+  The skeletons' CI also runs `composer audit`, which fails on a known
+  vulnerability in a dependency.
+- **False alarms:** the two warnings stay warnings, because a form behind a
+  CAPTCHA, or images meant to be public, are good reasons. For the errors,
+  the way out is a declaration with a reason, never silence: do not add
+  `#[PublicRoute]` only to quiet `check`.
+- **What `check` cannot see:** whether one user may see another's invoice.
+  That is business logic, for your policies and tests, and the security
+  step of the workflow in `AGENTS.md`.
+- **Generators** write the declaration for you: [maker](maker.md#new-in-221-generated-routes-say-who-may-reach-them).

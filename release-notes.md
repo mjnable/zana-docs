@@ -11,10 +11,65 @@ feature from one plan file, 2.12 runs the database on Doctrine DBAL, and
 2.13 adds the transactional outbox, 2.14 idempotency keys, 2.15 a
 security audit log, 2.16 second factors, 2.17 roles in an
 organization or at an event, 2.18 leaner release archives, 2.19
-the same exclusion rules on every route to a live server, and 2.20
-closes the security audit and adds what request input needs in queries.
+the same exclusion rules on every route to a live server, 2.20
+closes the security audit and adds what request input needs in queries,
+and 2.21 puts security rules in `check`, starting with: every route says
+who may reach it.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
+
+## 2.21.0 — Unreleased
+
+Security verification becomes part of every build, not only of reviews
+(ADR-033, layers 1 and 3). `check` gains security rules, the skeletons make
+them errors, and `release:build` refuses to build while one fails. Nothing
+fails in an existing application on `composer update`: the rules are
+warnings until you turn on `security.strict`.
+
+- **Deny by default:** every route says who may reach it, with
+  `#[RequiresAuthentication]`, `#[RequiresPermission]`, or the new
+  `#[PublicRoute(reason: '…')]` (on a handler, a class, a closure, or a
+  whole group with `public:`). `check` reports a route that says nothing.
+- **Rules nobody enforces:** an access attribute without
+  `AuthorizationMiddleware` on its route, and `AuthorizationMiddleware` or
+  `RateLimitMiddleware` placed in `http.middleware`, where they run before
+  routing and enforce nothing.
+- **Forms:** a route that changes data with session sign-in and no CSRF
+  protection; a public one without a rate limit (a warning).
+- **Uploads and templates:** a disk inside `public/` (a warning), and
+  `view.unescaped_object`, an error in strict mode.
+- **The gate:** `security.strict: true` makes the rules errors in `check`,
+  and `release:build` refuses to build on them. Both skeletons turn it on,
+  and their CI runs `composer audit`.
+- **Generators:** pages are public, API actions need a signed-in user, and
+  `--public="reason"` makes one public. The generated API test proves an
+  anonymous request is refused.
+- **`AGENTS.md`:** every route says who may reach it, and `#[PublicRoute]`
+  is never added only to silence `check`.
+
+**Limits to know:**
+
+- **Authentication middleware is not protection.** It identifies a user
+  when there is one, and lets anonymous requests through. Only an access
+  attribute enforced by `AuthorizationMiddleware` closes a route.
+- **`check` cannot judge business logic,** such as whether one user may see
+  another's invoice. Your policies, your tests and the security step of
+  `AGENTS.md` cover that.
+- **A declared reason is trusted.** `#[PublicRoute]` with a poor reason
+  passes; the reason is there to be reviewed.
+
+**Upgrading from 2.20:**
+
+- Run `check`: each `security.*` warning names a route or a setting to fix.
+  When none is left, set `security.strict` to `true` in
+  `config/security.php`, so that a new one fails CI.
+- Give your public routes a reason, e.g. `$router->group('', $routes,
+  public: 'The public website')` for a website's pages.
+- If `AuthorizationMiddleware` is in `http.middleware`, move it to the
+  routes or groups that need it: there it never ran.
+- Add `- run: composer audit` after `composer install` in your CI.
+- Run `php bin/console make:agents --force`, then add back any section of
+  your own.
 
 ## 2.20.0 — 2026-11-14
 

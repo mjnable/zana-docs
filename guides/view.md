@@ -52,7 +52,7 @@ echo $views->render('page', [
   - Objects, such as entities, DTOs and `Stringable` values, are not
     escaped: `<?= $post->title ?>` prints its HTML as it is. Write
     `<?= $this->e($post->title) ?>`. Since 2.20, `check` reports such lines
-    (`view.unescaped_object`).
+    (`view.unescaped_object`); with `security.strict` (2.21), as errors.
 - **URLs:** escaping does not make a URL safe, as a `javascript:` link
   survives it. Print a URL that users gave with `safe_url()` (2.20):
 

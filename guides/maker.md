@@ -168,4 +168,33 @@ With the maker installed, `check` also warns when `AGENTS.md` is missing
 or names another Zana version (`agents.instructions`), and `make:agents`
 writes the commands with your console script, e.g. `php bin/zana`.
 
+## New in 2.21: generated routes say who may reach them
+
+Generated code passes the security rules of `check`
+([security](security.md#new-in-221-every-route-says-who-may-reach-it)) as it is:
+
+| Command | The route it writes |
+|---|---|
+| `make:page`, `make:controller --web` | `#[PublicRoute(reason: …)]`: a page of the public website |
+| `make:controller`, `make:feature --http` | `#[RequiresAuthentication]`, with `AuthorizationMiddleware` on the route |
+| `make:crud` | the back office needs its permission, as before; the preview link is public, its signed token being the access |
+
+```
+php bin/console make:feature Shop ListProducts --query --http --public="The public catalogue"
+```
+
+- **`--public="reason"`** makes an API route public; in a plan, a feature
+  takes `"public": "The public catalogue"`. An empty reason is refused.
+- **A protected route needs mj-zana/security.** Without it, the command
+  refuses and says to install it or pass `--public`. When `src/Bootstrap.php`
+  does not register `SecurityServiceProvider`, the command lists that as a
+  step to do by hand.
+- **The generated API test** of a protected action proves that an anonymous
+  request gets 401. How to sign a user in belongs to your application, so the
+  request of a signed-in user is an incomplete test, with the request in a
+  comment: sign a user in (for example with `->withToken($token)`) and
+  complete it.
+- To make a generated route require a permission, replace
+  `#[RequiresAuthentication]` with `#[RequiresPermission('…')]`.
+
 Reference: the [maker README](https://github.com/mjnable/zana-maker).
