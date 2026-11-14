@@ -14,8 +14,8 @@ domain, use cases, persistence and presentations. Zana gives them:
 - **Tools that keep modules apart:** contracts between modules, and
   architecture tests that enforce the boundaries.
 
-Zana 2 requires PHP 8.5 or later. **Status:** `2.25.0`, released on
-2026-11-14: bot verification with Cloudflare Turnstile, reCAPTCHA or
+Zana 2 requires PHP 8.5 or later. **Status:** `2.25.1`, released on
+2026-11-15: bot verification with Cloudflare Turnstile, reCAPTCHA or
 hCaptcha, through the new `mj-zana/captcha`. See the [release notes](release-notes.md).
 
 ## Start here

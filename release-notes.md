@@ -20,7 +20,7 @@ reads what spam a form was sent, and 2.25 asks a CAPTCHA provider.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.25.1 — Unreleased
+## 2.25.1 — 2026-11-15
 
 The owner's review of FE-64, each point checked by running 2.25.0:
 
