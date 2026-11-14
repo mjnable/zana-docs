@@ -35,18 +35,27 @@ route declares, and now a test attacks each route to see what it does.
     and long values, a list where a value is expected, a body that is not
     JSON and a 2 MB body. A server error, a PHP warning in your code, or a
     page printing the script as sent fails.
+- **As a signed-in user too:** with `signIn:` (how your users sign in) and
+  `holding:` (the permissions that user holds), a route that needs another
+  permission must refuse them, and the routes they may reach get the CSRF
+  attacks and the hostile input as that user. A sign-in that gets nobody
+  in, or a `holding` that names a permission the user lacks, fails, so the
+  attacks cannot pass by proving nothing.
 - **The access attacks write nothing:** a probe, the route's last
   middleware, answers instead of the handler.
 - **Skeletons:** `tests/SecurityTest.php` runs it, so CI fails when a route
-  does not withstand an attack.
+  does not withstand an attack. The API skeleton signs in a user without
+  roles with a token.
 - **security:** `RouteAccess`, who may reach one route, read alike by `check`
   and by the attacks.
 
 **Limits to know:**
 
-- **No attacks as a signed-in user.** Signing a user in belongs to your
-  application, so CSRF on a route that needs a user, and one user reading
-  another's data, stay for your own tests.
+- **One user reading another's data is not attacked.** Which records belong
+  to whom is your application's knowledge: test it with two users of your
+  own.
+- **The signed-in attacks are as good as the sign-in you give them,** and
+  CSRF is only tried with a session, not with a bearer token.
 - **Sample values:** parameters get values their patterns accept. A route
   whose pattern accepts none is reported as not attacked, not as passed.
 - **The hostile-input attacks run handlers,** as a visitor could: run them on

@@ -249,9 +249,46 @@ Both skeletons ship it as `tests/SecurityTest.php`. The attacks, by route:
 - **Leaving a route out** needs the reason, which the report shows:
   `$this->assertRoutesWithstandAttacks(except: ['POST /webhook' => 'Signed by the payment provider'])`.
   Name the route as the report does.
-- **Not covered:** attacks as a signed-in user, such as CSRF on a route that
-  needs one, or one user reading another's data. Signing a user in belongs
-  to your application, and so do your permissions; test them yourself.
 - Without mj-zana/security only the hostile-input attacks run.
+
+### As a signed-in user
+
+Only your application knows how its users sign in, so tell the test, and
+which permissions that user holds:
+
+```php
+$token = $this->http()->post('/api/tokens', ['email' => 'grace@example.com', 'password' => '…'])->jsonPath('token');
+
+$this->assertRoutesWithstandAttacks(
+    signIn: static fn (ServerRequestInterface $request) => $request->withHeader('Authorization', "Bearer {$token}"),
+    holding: [],   // grace has no role
+);
+```
+
+For a website, sign in through its form and carry the session cookie:
+`signIn: fn ($request) => $request->withHeader('Cookie', $cookie)->withCookieParams([$name => $value])`.
+
+| The route | Attacked with, as that user | Fails when |
+|---|---|---|
+| Needs a permission the user does not hold | a signed-in request | it reaches the handler |
+| Needs only a user, or permissions the user holds | a signed-in request | it does **not** get through: the sign-in or `holding` is wrong |
+| The same, changing data behind `CsrfMiddleware` | no token, a forged token, a cross-site `Origin` | the request reaches the handler |
+| The same | the hostile input above | a server error, a PHP warning in your code, or the script printed as sent |
+
+- **Sign in the user with the fewest permissions**, ideally none: every route
+  that needs another permission is then tried both ways. When even the
+  smallest role holds some, as an editor in a back office does, name them in
+  `holding`. A permission named there that the user does not hold is
+  reported, so the list cannot drift from your roles.
+- **The sign-in is checked.** When no signed-in request gets through to any
+  route the user may reach, the test fails: attacks that never got in prove
+  nothing.
+- **CSRF needs a session.** With a bearer token, the CSRF attacks are skipped,
+  and the report says so: a token is sent by your client, not by the browser
+  another site controls.
+- **Behind CSRF, signed-in hostile forms** are refused before the handler,
+  so only GET requests are tried with hostile input there.
+- **Not covered:** one user reading another's data. Which records belong to
+  whom is your application's knowledge; test it with two users of your own.
 
 Reference: the [testing README](https://github.com/mjnable/zana-testing).
