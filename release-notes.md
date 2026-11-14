@@ -19,7 +19,7 @@ records who may reach each route, so every change is reviewed.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.23.0 — Unreleased
+## 2.23.0 — 2026-11-14
 
 Layer 4 of the security verification (ADR-033), the last: a committed
 baseline of who may reach each route, so a new route, or one whose access
