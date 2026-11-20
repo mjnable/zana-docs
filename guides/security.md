@@ -537,7 +537,9 @@ public: the route it leads to has its own access.
   `#[PublicRoute]` only to quiet `check`.
 - **What `check` cannot see:** whether one user may see another's invoice.
   That is business logic, for your policies and tests, and the security
-  step of the workflow in `AGENTS.md`.
+  step of the workflow in `AGENTS.md`. Since 2.27,
+  `assertRecordsStayWithTheirOwners()` tries every route on a record with two
+  users: [testing](testing.md#new-in-227-one-users-records-stay-theirs).
 - **Generators** write the declaration for you: [maker](maker.md#new-in-221-generated-routes-say-who-may-reach-them).
 
 ### Your own sign-in middleware

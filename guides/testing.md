@@ -288,7 +288,58 @@ For a website, sign in through its form and carry the session cookie:
   another site controls.
 - **Behind CSRF, signed-in hostile forms** are refused before the handler,
   so only GET requests are tried with hostile input there.
-- **Not covered:** one user reading another's data. Which records belong to
-  whom is your application's knowledge; test it with two users of your own.
+- **Not covered here:** one user reading another's data. That needs to know
+  who owns what: see the next section.
+
+## New in 2.27: one user's records stay theirs
+
+Only your application knows who owns what, so tell the test: how to sign in
+two users, and how to make a record of the first one's. Every route with a
+parameter you name is then tried as both users, on a fresh record each time:
+
+```php
+public function testOrdersStayWithTheirOwners(): void
+{
+    $ada = $this->tokenFor('ada@example.com');
+    $grace = $this->tokenFor('grace@example.com');
+
+    $this->assertRecordsStayWithTheirOwners(
+        owner: static fn (ServerRequestInterface $r) => $r->withHeader('Authorization', "Bearer {$ada}"),
+        other: static fn (ServerRequestInterface $r) => $r->withHeader('Authorization', "Bearer {$grace}"),
+        records: ['orderId' => fn (): string => $this->http()->withToken($ada)->post('/api/orders', [...])->jsonPath('data.id')],
+        writes: true,
+        json: true,
+        bodies: ['PUT /api/orders/{orderId}' => ['note' => 'Leave at the door']],
+    );
+}
+```
+
+| Asked by | Must get | So that |
+|---|---|---|
+| The other user, first | 401, 403 or 404 | a page that shows the record, a change, or a redirect after one, fails |
+| The owner, after | anything but 401, 403, 404 or a server error | the refusal is known to be about the owner, not a record that does not exist or a sign-in that does not work |
+
+- **GET by default.** `writes: true` adds POST, PUT, PATCH and DELETE, each
+  on a fresh record, with a valid CSRF token when mj-zana/security issues
+  them. The other user asks first, so the owner's own delete cannot hide a
+  leak.
+- **Give a write a valid body** in `bodies`, by route. Many applications
+  check a request's input before its owner: when both users get the same 400
+  or 422, nothing is known, and the route is reported as not proven. A 400 or
+  422 that only the other user gets fails: the answer depended on who asked.
+- **An API** reads JSON: pass `json: true`, and the requests ask for JSON
+  and send their bodies as JSON, with any CSRF token in `X-CSRF-Token`. A
+  website gets form bodies.
+- **Several parameters:** a record function may return the ids of several,
+  `fn () => ['project' => $p, 'task' => $t]`. A route with a parameter that
+  no record names is reported as not attacked.
+- **Public routes are tried too**: a receipt page anyone may open can leak a
+  record as well. One meant to be shared, for example by a secret link, is
+  left out with the reason: `except: ['GET /receipts/{id}' => 'Shared by link']`.
+- **The attacks must prove something.** When the owner gets through on no
+  route, the test fails: check the owner's sign-in and the records made.
+- **A parameter name means one thing.** When `userId` is a member on one
+  route and any user on an admin route, leave the admin route out with its
+  reason, or test it with a records function of its own.
 
 Reference: the [testing README](https://github.com/mjnable/zana-testing).
