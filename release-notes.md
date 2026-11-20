@@ -20,7 +20,7 @@ reads what spam a form was sent, and 2.25 asks a CAPTCHA provider.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.26.0 — Unreleased
+## 2.26.0 — 2026-11-20
 
 Limits that hold when requests arrive at the same instant.
 
