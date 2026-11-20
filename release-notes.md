@@ -20,6 +20,25 @@ reads what spam a form was sent, and 2.25 asks a CAPTCHA provider.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
+## 2.26.0 — Unreleased
+
+Limits that hold when requests arrive at the same instant.
+
+- **security:** rate limits and single-use CSRF tokens read a value and
+  then wrote it, so concurrent requests all passed: twenty at once passed a
+  limit of five, including the limit on sign-in attempts. On a Zana cache
+  they now count and claim in one step. `check` warns when the application's
+  cache cannot (`security.atomic_cache`).
+- **cache:** `add()` and `increment()`, atomic on every Zana store
+  (`AtomicCacheInterface`); the file store locks the key while it reads and
+  writes.
+
+See [security](guides/security.md#new-in-226-limits-that-hold-under-concurrent-requests)
+and [cache](guides/cache.md#new-in-226-adding-and-counting-atomically).
+
+**Upgrading from 2.25:** `composer update`. With a cache other than
+mj-zana/cache's, read what `check` says.
+
 ## 2.25.1 — 2026-11-15
 
 The owner's review of FE-64, each point checked by running 2.25.0:

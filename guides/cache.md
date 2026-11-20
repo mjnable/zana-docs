@@ -84,4 +84,26 @@ return [
 - **The in-memory store lives for one process.** In PHP-FPM that is one
   request; in a worker, until it restarts.
 
+## New in 2.26: adding and counting atomically
+
+`get()` then `set()` is two steps: two requests at the same instant can both
+find a key empty, or both read the same count. Every Zana store has two
+operations that cannot be split (`AtomicCacheInterface`):
+
+```php
+$cache->add('order.42.paid', true, 3600);       // true for the first caller only
+$hits = $cache->increment('api.hits', 1, 60);   // each caller gets its own number
+```
+
+- **`add()`** stores only when the key holds nothing (or something expired),
+  and says whether it did.
+- **`increment()`** adds to a whole number, created at 0 with the TTL;
+  an existing number keeps its expiry, so a counting window does not slide.
+- **The file store** locks the key's `.lock` file between the read and the
+  write, so processes take turns; it refuses, with an exception, rather
+  than run unlocked. The in-memory store needs no lock in its one process.
+- Security's rate limits and single-use tokens use them (see
+  [security](security.md#new-in-226-limits-that-hold-under-concurrent-requests)).
+  A PSR-16 cache from elsewhere may not have them; `check` then warns.
+
 Reference: the [cache README](https://github.com/mjnable/zana-cache).

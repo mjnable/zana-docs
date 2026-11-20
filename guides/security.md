@@ -187,7 +187,9 @@ address (`by: 'ip'`, the client address behind
 sliding window by default (`strategy: 'fixed'` is cheaper). `name:` shares
 one counter between handlers. Refused requests get a 429 with `Retry-After`,
 and limited responses carry `RateLimit-Limit`, `-Remaining` and `-Reset`.
-It needs a PSR-16 cache. `RateLimiter` can be used directly too.
+It needs a PSR-16 cache. `RateLimiter` can be used directly too. Since 2.26
+the limit holds for requests at the same instant on a Zana cache; see
+[below](#new-in-226-limits-that-hold-under-concurrent-requests).
 
 ### Spam on public forms
 
@@ -810,3 +812,24 @@ through, and released if the handler fails. PSR-16 has no atomic "add if
 absent", so two posts read in the very same instant can still both pass.
 `php bin/console audit:spam --days=7` summarises refusals by form and rule
 ([audit](audit.md#new-in-215-the-security-audit-log)).
+
+## New in 2.26: limits that hold under concurrent requests
+
+Until 2.26, a rate limit read its count and then wrote it back, so requests
+arriving at the same instant all read the same count. Twenty sent at once
+all passed a limit of five, and a single-use CSRF token could be accepted
+several times. That made the limit on sign-in attempts easy to multiply
+with parallel requests.
+
+- **On a Zana cache** (`cache.default: file` or `array`), the count is now
+  taken and decided in one step (`increment()`), and a single-use token is
+  claimed in one (`add()`): twenty at once pass a limit of five exactly five
+  times, and a token is accepted once. A refused attempt takes its count
+  back, so limits count as they did one request at a time.
+- **Nothing to change** in an application that uses mj-zana/cache: run
+  `composer update`.
+- **Another PSR-16 cache** (a Symfony or Laravel adapter, for example)
+  keeps the old behaviour. `check` warns (`security.atomic_cache`) when a
+  rate limit, sign-in, single-use tokens or the spam rules rely on it. Use a
+  Zana store, or a cache implementing `Zana\Cache\AtomicCacheInterface`,
+  for example on Redis `INCR` and `SET NX`.
