@@ -23,7 +23,7 @@ spam rules' race.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.29.1 — Unreleased
+## 2.29.1 — 2026-11-21
 
 Found by asking the CAPTCHA providers' real endpoints, with their test keys:
 
