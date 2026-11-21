@@ -21,9 +21,34 @@ makes limits hold under concurrent requests, 2.27 tests that one user's
 records stay theirs, 2.28 closes three documented limits, 2.29 the
 spam rules' race, 2.30 adds a shared kernel, 2.31 sets the
 known-device cookie for you, 2.32 answers cross-origin requests, 2.33
-closes two more documented limits, and 2.34 refuses copied queue jobs.
+closes two more documented limits, 2.34 refuses copied queue jobs, and
+2.35 signs the PHP files it writes to `var/cache`.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
+
+## 2.35.0 — Unreleased
+
+The PHP files Zana writes to `var/cache` are signed: code put in them does
+not run.
+
+- **core:** the compiled container and the configuration cache are signed
+  with a key derived from `security.secret`, when `.env` sets it, as in the
+  skeletons. A file that was changed stops the boot with the 503 page and a
+  log line naming it; a file without a signature is written again. The
+  bytes checked are the bytes that run, so the file cannot be swapped after
+  the check. `includeCompiledCaches()` includes them instead, for OPcache,
+  where the web server cannot write to `var/cache`.
+- **view-twig:** compiled templates are signed the same way; one that was
+  changed is compiled again from its template.
+- **console:** `check` warns (`core.compiled_signing`) when nothing is
+  signed.
+
+See [core](guides/core.md#new-in-235-signed-cache-files).
+
+**Upgrading from 2.34:** `composer update`, then `php bin/console
+cache:warm`, as after any deployment. Run `cache:warm` again whenever the
+secret changes: until then, production refuses the files signed with the
+old one.
 
 ## 2.34.0 — 2026-11-21
 

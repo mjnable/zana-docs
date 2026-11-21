@@ -122,6 +122,12 @@ Register `TwigServiceProvider` as well. Templates then end in
 
 - **Autoescape** is `html`, and every helper is a Twig function.
 - **Cache:** in production, compiled templates are cached in `view.cache`.
+  Since 2.35 they are signed when `security.secret` is set: a compiled
+  template that was changed, or written without the signature, is not run,
+  and Twig compiles the template again from its source. As for the
+  [compiled container](core.md#new-in-235-signed-cache-files), the bytes
+  checked are the bytes that run, unless `includeCompiledCaches()` asks for
+  OPcache.
 
 ## Rules worth knowing
 

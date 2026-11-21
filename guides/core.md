@@ -192,4 +192,40 @@ about 900 µs to 510 µs with one configuration file, and from 1,530 µs to
       ->build();
   ```
 
+## New in 2.35: signed cache files
+
+The compiled container and the configuration cache are PHP files the
+application runs. Someone who could write to `var/cache` (through an upload
+that lands in the wrong place, say) could put code in them, which the next
+request ran. When `.env`, an `APP_*` variable or `withConfiguration()` sets
+`security.secret`, as the skeletons do, both files are signed:
+
+- **Each file carries a signature** of its contents, made with a key derived
+  from the secret. A file without one, written by 2.34 or before the secret
+  was set, is treated as missing and written again.
+- **A file with another signature stops the boot** in production: the
+  visitor gets the 503 page, and the log names the file. It was changed, or
+  written with another secret. `cache:warm` writes both files again; run it
+  after changing the secret. Elsewhere, and in `bin/console`, such a file is
+  written again.
+- **The bytes checked are the bytes that run.** A file is read once, checked
+  and evaluated. Including it after the check would leave a moment in which
+  it could be swapped: a test that swapped it as fast as it could won 9
+  requests in 300 that way, and none in 1,000 once the checked bytes were
+  evaluated. Evaluating costs about 2 ms per request for a large container,
+  as the file no longer comes from OPcache.
+- **`includeCompiledCaches()`** checks, then includes, for OPcache. Use it
+  only where the web server cannot write to `var/cache`: the deployment runs
+  `cache:warm` as another user.
+- **The secret must not come from a configuration file:** the configuration
+  cache cannot hold the key that checks it. With a secret only in
+  `config/`, nothing is signed, and `check` warns (`core.compiled_signing`).
+- **A signature proves who wrote a file, not when.** A configuration cache
+  of an earlier deployment, put back, is read with its older values until
+  the next `cache:warm`; no code but the application's runs. An earlier
+  container is refused as stale once the registrations have changed.
+
+Compiled Twig templates are signed the same way (see
+[view](view.md#twig)).
+
 Reference: the [core README](https://github.com/mjnable/zana-core).
