@@ -24,7 +24,7 @@ known-device cookie for you, and 2.32 answers cross-origin requests.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.32.0 — Unreleased
+## 2.32.0 — 2026-11-21
 
 Front ends on other sites, with CORS.
 
