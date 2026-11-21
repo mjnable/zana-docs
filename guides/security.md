@@ -883,21 +883,34 @@ known device gets through.
 
 ### Known devices
 
-Each sign-in returns a token for a "known device" cookie. Send it back, and
-that browser is not held by the limit on the login from every address:
+Each sign-in issues a token for a "known device" cookie. A browser that
+sends it back is not held by the limit on the login from every address.
+
+**Since 2.31, add `KnownDeviceMiddleware` to the sign-in routes**, before
+`SessionMiddleware`, and nothing else changes: it gives `SessionLogin` the
+cookie the browser sent, and sets the new one after a sign-in.
 
 ```php
-$result = $login->start($email, $password, $context->clientIp(), knownDevice: $cookies['known_device'] ?? null);
-if ($result->knownDevice !== null) {
-    // Set it: HttpOnly, Secure, SameSite=Lax, for security.login.known_device_days (90 by default).
-}
+$router->post('/login', [AuthController::class, 'login'])
+    ->middleware(KnownDeviceMiddleware::class, SessionMiddleware::class, RateLimitMiddleware::class, CsrfMiddleware::class);
 ```
 
+- **The cookie:** `zana_device` (`security.login.known_device_cookie`),
+  HttpOnly, SameSite=Lax, Secure on HTTPS, for
+  `security.login.known_device_days` (90 by default), on the application's
+  base path. Only a value shaped like a signed token reaches the signer.
+- **Before `SessionMiddleware`,** so the session cookie is the first
+  `Set-Cookie` of the response: a test that carries only the first one, as
+  MMC's did, keeps working.
 - It is for that login only, and never replaces the password. The limit
   from its own address still holds.
 - It names the user by a hash of their identifier, so the cookie says
   nothing about who they are. No other token of Zana's counts as one.
-- Applications that do not set the cookie get the new limits only.
+- Shown on MMC: after 50 guesses from ten addresses, Ada was locked out
+  without her cookie (429) and signed in with it (303).
+- **By hand,** as in 2.28: `$login->start(…, knownDevice: $cookie)` and
+  `LoginResult::$knownDevice`. Applications that set no cookie get the new
+  limits only.
 
 ### CSRF tokens tied to the session (opt-in)
 

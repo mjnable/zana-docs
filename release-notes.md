@@ -19,9 +19,24 @@ records who may reach each route, so every change is reviewed, 2.24
 reads what spam a form was sent, 2.25 asks a CAPTCHA provider, 2.26
 makes limits hold under concurrent requests, 2.27 tests that one user's
 records stay theirs, 2.28 closes three documented limits, 2.29 the
-spam rules' race, and 2.30 adds a shared kernel.
+spam rules' race, 2.30 adds a shared kernel, and 2.31 sets the
+known-device cookie for you.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
+
+## 2.31.0 — Unreleased
+
+The account lockout's whole protection, with one middleware.
+
+- **security:** `KnownDeviceMiddleware` reads and sets the "known device"
+  cookie of 2.28 around the sign-in routes, so a browser that signed in
+  before gets in while others are locked out of its login, with no change
+  to the sign-in controller. Put it before `SessionMiddleware`.
+
+See [security](guides/security.md#known-devices).
+
+**Upgrading from 2.30:** `composer update`, then add
+`KnownDeviceMiddleware` to the routes that sign in.
 
 ## 2.30.0 — 2026-11-21
 
