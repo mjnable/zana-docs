@@ -17,10 +17,33 @@ closes the security audit and adds what request input needs in queries,
 who may reach it, 2.22 attacks every route to see what it does, and 2.23
 records who may reach each route, so every change is reviewed, 2.24
 reads what spam a form was sent, 2.25 asks a CAPTCHA provider, 2.26
-makes limits hold under concurrent requests, and 2.27 tests that one
-user's records stay theirs.
+makes limits hold under concurrent requests, 2.27 tests that one user's
+records stay theirs, and 2.28 closes three documented limits.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
+
+## 2.28.0 — Unreleased
+
+Three limits that were documented, closed.
+
+- **cache:** file entries are signed, and only a file the application
+  signed is unserialized, so a file planted in the cache directory can no
+  longer run code. The key is `cache.key`, or one derived from
+  `security.secret`; a cache from before 2.28 fills again.
+- **security:** a guesser locks out only their own address, not the
+  account's owner: five tries per login per address, and ten times as many
+  for the login from every address. Each sign-in gives a "known device"
+  token, which lets that browser in while others are locked out.
+- **security:** with `security.csrf.bind_to_session`, a visitor who has a
+  session gets CSRF tokens tied to it, so another visitor's token no longer
+  passes. Off by default.
+
+See [cache](guides/cache.md#new-in-228-signed-cache-files) and
+[security](guides/security.md#new-in-228-lockouts-known-devices-and-tokens-tied-to-a-session).
+
+**Upgrading from 2.27:** `composer update`. Set `security.secret` or
+`cache.key` if `check` warns about the cache. To use known devices, set the
+cookie from `LoginResult::$knownDevice` and pass it to `start()`.
 
 ## 2.27.1 — 2026-11-21
 

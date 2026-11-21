@@ -78,9 +78,10 @@ return [
   "expire now".
 - **The file store writes atomically**, so concurrent readers never see a
   half-written entry. `clear()` only removes the store's own files.
-- **Protect the cache directory.** File entries are PHP-serialized, so
-  only the application may write to the directory. Anyone who can write
-  files there can run code.
+- **Protect the cache directory.** File entries are PHP-serialized. Since
+  2.28 they are signed, so a file the application did not write is never
+  unserialized ([below](#new-in-228-signed-cache-files)); without a key,
+  anyone who can write files there can run code.
 - **The in-memory store lives for one process.** In PHP-FPM that is one
   request; in a worker, until it restarts.
 
@@ -105,5 +106,25 @@ $hits = $cache->increment('api.hits', 1, 60);   // each caller gets its own numb
 - Security's rate limits and single-use tokens use them (see
   [security](security.md#new-in-226-limits-that-hold-under-concurrent-requests)).
   A PSR-16 cache from elsewhere may not have them; `check` then warns.
+
+## New in 2.28: signed cache files
+
+A file store's entries are PHP-serialized, and `unserialize()` builds
+objects, whose code can run as they are built. So a file written to the
+cache directory by anything but the application could run code. Since 2.28
+every file is signed, and only a file with a valid signature is unserialized:
+
+- **The key** is `cache.key` (at least 32 characters), or one derived from
+  `security.secret`, as the queue and outbox derive theirs. The skeletons
+  set `security.secret`, so their caches are signed with nothing to change.
+- **A file that is unsigned or signed wrongly** is a miss, and is removed.
+  A cache written before 2.28 simply fills again after the upgrade.
+- **The signature covers the key too:** a valid file copied to where
+  another key's file goes is refused.
+- **Without a key**, files are neither signed nor checked, as before, and
+  `check` warns (`cache.file_signing`).
+- **Not covered:** the compiled container and configuration that
+  `cache:warm` writes are PHP files, which PHP includes; whoever can write
+  to `var/cache` can still change them.
 
 Reference: the [cache README](https://github.com/mjnable/zana-cache).

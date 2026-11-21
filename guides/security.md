@@ -171,6 +171,8 @@ In templates, `csrf_field('contact')` prints both hidden fields
   (7,200 by default).
 - **Single use:** with a PSR-16 cache, `security.csrf.single_use` makes
   each token work once.
+- **Tied to the session (2.28, opt-in):** `security.csrf.bind_to_session`;
+  see [below](#new-in-228-lockouts-known-devices-and-tokens-tied-to-a-session).
 
 ## New in 2.2
 
@@ -224,7 +226,8 @@ $user = $login->attempt($input->string('email'), $input->string('password'), $co
 - A failed attempt never reveals whether the account exists.
 - Attempts are limited per login and per address
   (`security.login.max_attempts`, default 5, per `security.login.window`,
-  default 900 seconds).
+  default 900 seconds). Since 2.28 a guesser locks out only their own
+  address; see [lockouts](#new-in-228-lockouts-known-devices-and-tokens-tied-to-a-session).
 - The session gets a new id at login.
 - An HTML request that needs a user is redirected to
   `security.login.path` with `?to=`; JSON requests get a 401.
@@ -835,3 +838,66 @@ with parallel requests.
   rate limit, sign-in, single-use tokens or the spam rules rely on it. Use a
   Zana store, or a cache implementing `Zana\Cache\AtomicCacheInterface`,
   for example on Redis `INCR` and `SET NX`.
+
+## New in 2.28: lockouts, known devices, and tokens tied to a session
+
+### A guesser no longer locks the owner out
+
+Until 2.28, five wrong passwords for a login, from anywhere, locked that
+login for the window: anyone who knew an e-mail address could keep its
+owner out. Now `SessionLogin` counts:
+
+| Limit | Default | Holds |
+|---|---|---|
+| A login from one address | `security.login.max_attempts`, 5 per `security.login.window` | that address, for that login: the guesser, not the owner |
+| A login from every address together | `security.login.max_attempts_per_login`, 10 × the above | guessing from many addresses |
+| Failed attempts from one address, any login | `security.login.max_attempts` | one address trying many logins (since 2.19.1) |
+
+To lock the owner out, a guesser now needs many addresses, and even then a
+known device gets through.
+
+### Known devices
+
+Each sign-in returns a token for a "known device" cookie. Send it back, and
+that browser is not held by the limit on the login from every address:
+
+```php
+$result = $login->start($email, $password, $context->clientIp(), knownDevice: $cookies['known_device'] ?? null);
+if ($result->knownDevice !== null) {
+    // Set it: HttpOnly, Secure, SameSite=Lax, for security.login.known_device_days (90 by default).
+}
+```
+
+- It is for that login only, and never replaces the password. The limit
+  from its own address still holds.
+- It names the user by a hash of their identifier, so the cookie says
+  nothing about who they are. No other token of Zana's counts as one.
+- Applications that do not set the cookie get the new limits only.
+
+### CSRF tokens tied to the session (opt-in)
+
+CSRF tokens are stateless, so a token one visitor got from the site passes
+for another visitor. The other defences (`Sec-Fetch-Site`, `Origin` and
+SameSite cookies) stop most of it; a browser that sends none of them relied
+on SameSite alone. With
+
+```php
+'csrf' => ['bind_to_session' => true],
+```
+
+a visitor who has a session gets tokens tied to it, and a request that has
+a session is accepted only with such a token:
+
+- **Another visitor's token is refused**, also from another signed-in user.
+  On MMC's back office, a second administrator's token no longer changed
+  the first one's settings or signed them out.
+- **A visitor without a session** keeps stateless tokens, so no session, and
+  no cookie, is started for a form.
+- **Put `CsrfMiddleware` after `SessionMiddleware`, and on the pages that
+  show the forms too** (it lets GET requests through): it sets the session
+  the tokens are tied to. A form printed elsewhere, or before the visitor had
+  a session, is refused once, and shown again.
+- **Cached pages:** a form on a page the page cache keeps was printed for
+  someone without a session; a visitor with one cannot post it. Keep such
+  forms off cached pages, or leave binding off.
+- Off by default, so nothing changes until you turn it on.
