@@ -19,10 +19,29 @@ records who may reach each route, so every change is reviewed, 2.24
 reads what spam a form was sent, 2.25 asks a CAPTCHA provider, 2.26
 makes limits hold under concurrent requests, 2.27 tests that one user's
 records stay theirs, 2.28 closes three documented limits, 2.29 the
-spam rules' race, 2.30 adds a shared kernel, and 2.31 sets the
-known-device cookie for you.
+spam rules' race, 2.30 adds a shared kernel, 2.31 sets the
+known-device cookie for you, and 2.32 answers cross-origin requests.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
+
+## 2.32.0 — Unreleased
+
+Front ends on other sites, with CORS.
+
+- **http:** `CorsMiddleware` and `http.cors`: the sites listed may read the
+  answers from their pages, errors included; a preflight is answered before
+  routing, 204 for what is listed and 403 otherwise. Exact origins, or
+  `https://*.example.com` for subdomains; `*` only without credentials;
+  `null` never. `check` reports each mistake, and a wrong entry allows less,
+  never more.
+- **API skeleton:** `CorsMiddleware` in `http.middleware`, with no site
+  listed.
+
+See [http](guides/http.md#new-in-232-cross-origin-requests-cors).
+
+**Upgrading from 2.31:** `composer update`. An API called from a browser on
+another site: list that site in `http.cors.origins`, and add
+`CorsMiddleware` to `http.middleware`.
 
 ## 2.31.0 — 2026-11-21
 

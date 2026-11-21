@@ -111,7 +111,8 @@ X-Correlation-Id: trace-1
 - **Serving:** `HttpKernel::serve($app)` builds the request from PHP's
   globals, emits the response, and terminates the application.
 - **Not included in 2.0:** CSRF protection, CORS and security headers.
-  Add them as middleware ([security](security.md)).
+  CSRF and security headers came in 2.1, CORS in
+  [2.32](#new-in-232-cross-origin-requests-cors).
 
 ## New in 2.1
 
@@ -286,5 +287,47 @@ $services->singleton(OrderNotFoundMapper::class)->tag(ExceptionMapperInterface::
 a request would (`http.middleware` findings): a middleware whose factory
 needs a service nobody registered, such as the user provider of
 `AuthenticationMiddleware`, is reported before the first request fails.
+
+## New in 2.32: cross-origin requests (CORS)
+
+A front end on another site, such as `https://app.example.com` calling
+`https://api.example.com`, can read the API's answers only when the API
+says so. List the sites, and add `CorsMiddleware` to `http.middleware` (the
+API skeleton has it, with no site listed):
+
+```php
+// config/http.php
+'middleware' => [TrustedProxiesMiddleware::class, CorsMiddleware::class, SecurityHeadersMiddleware::class, AuthenticationMiddleware::class],
+'cors' => [
+    'origins' => ['https://app.example.com', 'https://*.example.com'],
+    'methods' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],                       // the default
+    'headers' => ['Content-Type', 'Authorization', 'Accept', 'Accept-Language', 'Idempotency-Key', 'X-CSRF-Token'],   // the default
+    'expose' => [],              // response headers the page may read, such as X-Total-Count
+    'credentials' => false,      // true only if those pages send cookies
+    'max_age' => 600,            // seconds a browser keeps a preflight answer (a day at most)
+],
+```
+
+- **Origins are exact:** a scheme, a host and an optional port, as a browser
+  sends them. `https://*.example.com` is any subdomain, never `example.com`
+  itself nor `evil-example.com`. `*` is any site, and only without
+  credentials. `null` is never allowed.
+- **A preflight** (`OPTIONS` with `Access-Control-Request-Method`) is answered
+  by the middleware, before routing: 204 when the site, the method and the
+  headers are listed, otherwise 403.
+- **Answers to a listed site** carry `Access-Control-Allow-Origin` with its
+  origin, errors included, so the front end can read a problem JSON. Every
+  answer says `Vary: Origin`, so a cache never gives one site's answer to
+  another.
+- **CORS decides what a page may read, not what runs.** A request from an
+  unlisted site still reaches the application, without CORS headers, as it
+  would without CORS; authentication and CSRF protection stop what must not
+  run.
+- **`check`** (`http.cors`) reports `*` with credentials, an entry that is not
+  an origin, a pattern over a whole top-level domain (`https://*.com`),
+  plain HTTP for a host other than localhost, and origins listed while
+  `CorsMiddleware` is not in `http.middleware`. A wrong entry is left out:
+  the policy allows less, never more.
+- With no origin listed, the middleware does nothing, as before 2.32.
 
 Reference: the [http README](https://github.com/mjnable/zana-http).
