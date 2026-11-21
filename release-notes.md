@@ -22,6 +22,15 @@ user's records stay theirs.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
+## 2.27.1 — 2026-11-21
+
+- **database:** a SQLite database's folder is made when it is missing. On a
+  fresh API skeleton there is no `var/`, so the first
+  `php bin/console migrate` failed with "unable to open database file". A
+  folder that cannot be made is named in the error.
+
+**Upgrading from 2.27.0:** `composer update`.
+
 ## 2.27.0 — 2026-11-21
 
 Tests that one user cannot reach another's records.

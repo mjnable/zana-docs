@@ -14,9 +14,10 @@ domain, use cases, persistence and presentations. Zana gives them:
 - **Tools that keep modules apart:** contracts between modules, and
   architecture tests that enforce the boundaries.
 
-Zana 2 requires PHP 8.5 or later. **Status:** `2.27.0`, released on
+Zana 2 requires PHP 8.5 or later. **Status:** `2.27.1`, released on
 2026-11-21: tests that one user cannot reach another's records, on every
-route with a record of theirs. See the [release notes](release-notes.md).
+route with a record of theirs; and a fresh API skeleton's first `migrate`
+makes its database folder. See the [release notes](release-notes.md).
 
 ## Start here
 

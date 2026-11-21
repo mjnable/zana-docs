@@ -96,6 +96,8 @@ return [
 
 - **Connections:** inject `ConnectionInterface` for the default connection.
   `DatabaseManager::connection('name')` gives any other.
+- **A SQLite file** is made on first use, and since 2.27.1 its folder too
+  (`var/` above).
 - **Migrations:** they live in `database/migrations` and in each module's
   `Infrastructure/Persistence/Migrations`. Each file returns a
   `Migration`:
