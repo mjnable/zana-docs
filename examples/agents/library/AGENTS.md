@@ -1,10 +1,10 @@
 # Instructions for AI coding agents
 
-This is a Zana 2.29 application (PHP 8.5). Zana is explicit by design: modules, services and
+This is a Zana 2.30 application (PHP 8.5). Zana is explicit by design: modules, services and
 routes are declared, and mistakes are caught at startup. Follow these rules; do not invent other
 conventions. The documentation for this version is at
-https://github.com/mjnable/zana-docs/tree/2.29, and its index for agents at
-https://raw.githubusercontent.com/mjnable/zana-docs/2.29/llms.txt.
+https://github.com/mjnable/zana-docs/tree/2.30, and its index for agents at
+https://raw.githubusercontent.com/mjnable/zana-docs/2.30/llms.txt.
 
 ## How to work
 
@@ -61,6 +61,9 @@ https://raw.githubusercontent.com/mjnable/zana-docs/2.29/llms.txt.
   - `Presentation`: controllers, console commands, templates. Goes through Application, never Domain
     or Infrastructure directly.
   - `Contracts`: what other modules may use. Never depend on another module's internals.
+- **Shared kernel:** the module `Contracts` listed in `config/architecture.php` (`shared_kernel`) may be used
+  by every layer, Domain included. Put only values there (money, a clock, codes), never a service; do not
+  add a namespace to it to silence a finding.
 - `php bin/console check` enforces these rules; do not work around a finding, fix the design.
 
 ## Services and configuration
@@ -132,5 +135,5 @@ https://raw.githubusercontent.com/mjnable/zana-docs/2.29/llms.txt.
 | `php bin/console doctor` | Check that a server is ready to run the application |
 | `composer test` | Run the tests |
 
-This file was written by `php bin/console make:agents` for Zana 2.29. Run it again after
+This file was written by `php bin/console make:agents` for Zana 2.30. Run it again after
 upgrading Zana (`--force` replaces it); add project-specific rules in a section of your own below.
