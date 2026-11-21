@@ -23,7 +23,7 @@ spam rules' race.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.29.0 — Unreleased
+## 2.29.0 — 2026-11-21
 
 The spam rules' last race, closed.
 
