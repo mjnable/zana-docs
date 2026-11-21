@@ -18,9 +18,24 @@ who may reach it, 2.22 attacks every route to see what it does, and 2.23
 records who may reach each route, so every change is reviewed, 2.24
 reads what spam a form was sent, 2.25 asks a CAPTCHA provider, 2.26
 makes limits hold under concurrent requests, 2.27 tests that one user's
-records stay theirs, and 2.28 closes three documented limits.
+records stay theirs, 2.28 closes three documented limits, and 2.29 the
+spam rules' race.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
+
+## 2.29.0 — Unreleased
+
+The spam rules' last race, closed.
+
+- **security:** the rule for repeated text claims a post in one step on a
+  Zana cache, so identical posts sent at the very same instant pass once:
+  of twenty at once, as many as all twenty passed before. An application's
+  own rule can do the same with `ClaimingSpamRuleInterface`; rules written
+  for 2.25 work as before.
+
+See [security](guides/security.md#new-in-225-bot-verification).
+
+**Upgrading from 2.28:** `composer update`.
 
 ## 2.28.0 — 2026-11-21
 

@@ -813,8 +813,12 @@ return ['provider' => 'turnstile'];
 
 **Spam rules, too (2.25):** the same text sent while the first copy is still
 being handled is now caught: it is reserved as soon as the rules let a post
-through, and released if the handler fails. PSR-16 has no atomic "add if
-absent", so two posts read in the very same instant can still both pass.
+through, and released if the handler fails. Since 2.29 it is claimed in one
+step on a Zana cache (`add()`), so two posts at the very same instant cannot
+both pass either: twenty identical posts at once pass once. On another
+PSR-16 cache they still can, and `check` warns (`security.atomic_cache`).
+An application's own reserving rule can claim too, with
+`ClaimingSpamRuleInterface`; one written for 2.25 reserves as before.
 `php bin/console audit:spam --days=7` summarises refusals by form and rule
 ([audit](audit.md#new-in-215-the-security-audit-log)).
 
