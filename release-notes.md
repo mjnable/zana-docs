@@ -27,7 +27,7 @@ limits that 2.35 left.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.36.0 — Unreleased
+## 2.36.0 — 2026-11-21
 
 Two limits left by 2.35, closed.
 
