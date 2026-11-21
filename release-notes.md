@@ -24,7 +24,7 @@ known-device cookie for you.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.31.0 — Unreleased
+## 2.31.0 — 2026-11-21
 
 The account lockout's whole protection, with one middleware.
 
