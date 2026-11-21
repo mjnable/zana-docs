@@ -20,9 +20,27 @@ reads what spam a form was sent, 2.25 asks a CAPTCHA provider, 2.26
 makes limits hold under concurrent requests, 2.27 tests that one user's
 records stay theirs, 2.28 closes three documented limits, 2.29 the
 spam rules' race, 2.30 adds a shared kernel, 2.31 sets the
-known-device cookie for you, and 2.32 answers cross-origin requests.
+known-device cookie for you, 2.32 answers cross-origin requests, and
+2.33 closes two more documented limits.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
+
+## 2.33.0 — Unreleased
+
+Two documented limits, now settings.
+
+- **filesystem:** `'follow_links' => false` on a local disk refuses every
+  path through a symbolic link, a Windows junction included, and leaves
+  links out of listings. For the disks where users' uploads land.
+- **view:** `safe_url($url, '#', ['example.com', '*.example.com'])`, or
+  `view.safe_url.hosts` for every call, keeps a link to another site only
+  when its host is listed, read as a browser reads it.
+
+Both are off by default: nothing changes until they are set. See
+[filesystem](guides/filesystem.md#rules-worth-knowing) and
+[views](guides/view.md).
+
+**Upgrading from 2.32:** `composer update`.
 
 ## 2.32.0 — 2026-11-21
 

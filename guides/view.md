@@ -66,6 +66,20 @@ echo $views->render('page', [
   and escapes it once. In PHP code, `SafeUrl::of($url)` does the same
   check without escaping. It does not check the host: `https://other.example`
   and `//other.example` are kept, since they cannot run script.
+- **Limiting links to some sites (2.33):** a third argument, or
+  `view.safe_url.hosts` for every call, names the other sites a link may
+  lead to, exactly or as `*.example.com` for subdomains; `[]` keeps links on
+  this site only. Anything else prints the fallback.
+
+  ```php
+  <a href="<?= $this->safe_url($post->link, '#', ['example.com', '*.example.com']) ?>">
+  ```
+
+  The host is read as a browser reads it: `/\other.example` and
+  `https:other.example` lead to `other.example`, and in
+  `https://example.com@other.example` the host is `other.example`. Paths,
+  queries, fragments, `mailto:` and `tel:` stay on the site, so they are
+  kept.
 - **Layouts and partials:** a template that calls `layout()` becomes its
   layout's `content` section. `start()`/`stop()` fill other sections, and
   `insert()` renders a partial.
