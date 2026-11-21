@@ -22,7 +22,7 @@ records stay theirs, and 2.28 closes three documented limits.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.28.0 — Unreleased
+## 2.28.0 — 2026-11-21
 
 Three limits that were documented, closed.
 
