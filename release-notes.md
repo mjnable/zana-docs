@@ -25,7 +25,7 @@ closes two more documented limits, and 2.34 refuses copied queue jobs.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.34.0 — Unreleased
+## 2.34.0 — 2026-11-21
 
 A copied queue job no longer runs twice.
 
