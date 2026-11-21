@@ -26,7 +26,7 @@ closes two more documented limits, 2.34 refuses copied queue jobs, and
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.35.0 — Unreleased
+## 2.35.0 — 2026-11-21
 
 The PHP files Zana writes to `var/cache` are signed: code put in them does
 not run.
