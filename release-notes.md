@@ -23,6 +23,24 @@ spam rules' race.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
+## 2.29.1 — Unreleased
+
+Found by asking the CAPTCHA providers' real endpoints, with their test keys:
+
+- **captcha:** Cloudflare answers a wrong or missing Turnstile secret with
+  HTTP 400. That was taken for an outage, so with
+  `security.bot.on_unavailable: 'allow'`, every request got through. Now it
+  is a misconfiguration, refused and logged as an error, whatever the status.
+- **captcha:** `LiveProvidersTest` asks Turnstile, reCAPTCHA and hCaptcha
+  with their published test keys, opt-in (`ZANA_TEST_CAPTCHA_LIVE=1`), and
+  in the package's daily CI run.
+- **Docs:** the providers' test keys, the hostnames their answers name, and
+  why a wrong reCAPTCHA secret looks like a bot
+  ([security](guides/security.md#new-in-225-bot-verification)).
+
+**Upgrading from 2.29.0:** `composer update`. With Turnstile and
+`on_unavailable: 'allow'`, check that the secret is set in production.
+
 ## 2.29.0 — 2026-11-21
 
 The spam rules' last race, closed.

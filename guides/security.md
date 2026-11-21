@@ -771,6 +771,27 @@ return ['provider' => 'turnstile'];
   `allow` is for riding out a provider's outage, where losing a message is
   worse than letting a bot in. It never lets requests through a
   misconfiguration: that would hide a missing secret indefinitely.
+
+  Two things the providers' real answers showed (2.29.1):
+  - **Cloudflare answers a wrong or missing secret with HTTP 400.** Before
+    2.29.1 any status but 200 counted as an outage, so with `allow` a wrong
+    Turnstile secret let every request through. Now the error is read
+    whatever the status.
+  - **Google answers a wrong reCAPTCHA secret as a wrong token**
+    (`invalid-input-response`), so it is refused, but logged as a notice,
+    like a bot. If every reCAPTCHA post is refused, check the secret first.
+- **Test keys:** each provider publishes keys that always pass, which suit
+  `.env.testing` and a staging site: Turnstile `1x00000000000000000000AA`
+  with the secret `1x0000000000000000000000000000000AA`, reCAPTCHA v2's
+  from Google's FAQ, hCaptcha `10000000-ffff-ffff-ffff-000000000001` with
+  `0x0000000000000000000000000000000000000000`. Their answers name a
+  hostname of their own (`example.com`, `testkey.google.com`,
+  `dummy-key-pass`) and Turnstile's names no action, so leave
+  `security.bot.hostnames` and `#[VerifyHuman(action: …)]` out while you
+  use them, or every request is refused. Never use them in production: they
+  pass any token. mj-zana/captcha's `LiveProvidersTest` asks the real
+  providers with them (`ZANA_TEST_CAPTCHA_LIVE=1`), and its daily CI run
+  does.
 - **A PSR-18 client** is needed to ask the provider, which you install and
   bound: a time to connect, a time to wait for the answer, a total, and no
   retries. Symfony's client waits as long as PHP's `default_socket_timeout`
