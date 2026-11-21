@@ -16,9 +16,27 @@ closes the security audit and adds what request input needs in queries,
 2.21 puts security rules in `check`, starting with: every route says
 who may reach it, 2.22 attacks every route to see what it does, and 2.23
 records who may reach each route, so every change is reviewed, 2.24
-reads what spam a form was sent, and 2.25 asks a CAPTCHA provider.
+reads what spam a form was sent, 2.25 asks a CAPTCHA provider, 2.26
+makes limits hold under concurrent requests, and 2.27 tests that one
+user's records stay theirs.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
+
+## 2.27.0 — 2026-11-21
+
+Tests that one user cannot reach another's records.
+
+- **testing:** `assertRecordsStayWithTheirOwners()`. Say how to sign in two
+  users and how to make a record of the first one's; every route with that
+  record's parameter is then tried as both, on a fresh record each time. The
+  other user must be refused (401, 403 or 404), and the owner must get
+  through, so the refusal is known to be about the owner. Writes too, with
+  valid bodies, as forms or as JSON for an API.
+
+See [testing](guides/testing.md#new-in-227-one-users-records-stay-theirs).
+
+**Upgrading from 2.26:** `composer update`. Nothing changes until a test
+calls the new assertion.
 
 ## 2.26.0 — 2026-11-20
 
