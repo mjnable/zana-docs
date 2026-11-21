@@ -371,7 +371,8 @@ Device token for a cookie: yes
   `TwoFactorStateSwapInterface` to close this: `swapTwoFactorState()`
   stores the new state only if the stored one is still the one that was
   read, and the losing sign-in's code is refused, so the person types the
-  next one.
+  next one. Since 2.36, `check` warns (`security.two_factor_swap`) when
+  the provider holds second factors without it.
 
   ```php
   final class StaffUsers implements PasswordUserProviderInterface, TwoFactorStateSwapInterface

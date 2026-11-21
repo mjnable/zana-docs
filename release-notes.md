@@ -21,10 +21,30 @@ makes limits hold under concurrent requests, 2.27 tests that one user's
 records stay theirs, 2.28 closes three documented limits, 2.29 the
 spam rules' race, 2.30 adds a shared kernel, 2.31 sets the
 known-device cookie for you, 2.32 answers cross-origin requests, 2.33
-closes two more documented limits, 2.34 refuses copied queue jobs, and
-2.35 signs the PHP files it writes to `var/cache`.
+closes two more documented limits, 2.34 refuses copied queue jobs,
+2.35 signs the PHP files it writes to `var/cache`, and 2.36 closes two
+limits that 2.35 left.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
+
+## 2.36.0 — Unreleased
+
+Two limits left by 2.35, closed.
+
+- **configuration:** `ConfigurationCache`, for configuration used without
+  core, takes an optional key. With it, the file is signed, and code added
+  to it does not run. Applications built with core were already covered by
+  `withConfigurationCache()`.
+- **security:** `check` warns (`security.two_factor_swap`) when a user
+  provider holds second factors without `TwoFactorStateSwapInterface`, so
+  two sign-ins at once could give a used recovery code back.
+
+See [security](guides/security.md#new-in-216-second-factors) and
+[configuration](guides/configuration.md).
+
+**Upgrading from 2.35:** `composer update`. If `check` reports
+`security.two_factor_swap`, implement `swapTwoFactorState()` on the user
+provider.
 
 ## 2.35.0 — 2026-11-21
 

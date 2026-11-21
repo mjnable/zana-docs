@@ -90,7 +90,10 @@ at once rather than as a silent `null`.
   [getting-started](../getting-started.md) module shows the pattern.
 - **Production:** `ApplicationBuilder::withConfigurationCache()` keeps the
   values of the configuration files in one file (see
-  [core](core.md#new-in-24-the-configuration-cache)).
+  [core](core.md#new-in-24-the-configuration-cache)), signed since 2.35.
+  Without core, `ConfigurationCache::write($path, $config, $key)` and
+  `load($path, $key)` sign and check it (2.36); without a key, code added
+  to the file runs.
 
 ## Values from the environment
 
