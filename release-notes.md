@@ -23,7 +23,7 @@ spam rules' race, and 2.30 adds a shared kernel.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.30.0 — Unreleased
+## 2.30.0 — 2026-11-21
 
 A shared kernel that every module may use.
 
