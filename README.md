@@ -14,9 +14,10 @@ domain, use cases, persistence and presentations. Zana gives them:
 - **Tools that keep modules apart:** contracts between modules, and
   architecture tests that enforce the boundaries.
 
-Zana 2 requires PHP 8.5 or later. **Status:** `2.29.0`, released on
+Zana 2 requires PHP 8.5 or later. **Status:** `2.29.1`, released on
 2026-11-21: identical spam posts sent at the very same instant pass the
-rule for repeated text once. See the [release notes](release-notes.md).
+rule for repeated text once; and a wrong Turnstile secret is always
+refused. See the [release notes](release-notes.md).
 
 ## Start here
 
