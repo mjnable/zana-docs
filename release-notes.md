@@ -20,10 +20,31 @@ reads what spam a form was sent, 2.25 asks a CAPTCHA provider, 2.26
 makes limits hold under concurrent requests, 2.27 tests that one user's
 records stay theirs, 2.28 closes three documented limits, 2.29 the
 spam rules' race, 2.30 adds a shared kernel, 2.31 sets the
-known-device cookie for you, 2.32 answers cross-origin requests, and
-2.33 closes two more documented limits.
+known-device cookie for you, 2.32 answers cross-origin requests, 2.33
+closes two more documented limits, and 2.34 refuses copied queue jobs.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
+
+## 2.34.0 — Unreleased
+
+A copied queue job no longer runs twice.
+
+- **queue:** someone who can write to the jobs table could copy a signed
+  job, which then ran again. Once the new migration has run, each job is
+  signed with a nonce and its issue time; a copy is refused, whichever runs
+  first, and so is a job older than `queue.replay_window` (30 days) or
+  signed before 2.34. Refused jobs are listed as failed, with the reason,
+  and `queue:retry` signs them again. `check` warns until the migration
+  runs.
+- **Docs:** an outbox handler that must not run twice goes through
+  `Inbox::once()`, which a copied row cannot get past.
+
+See [queue](guides/queue.md#rules-worth-knowing) and
+[outbox](guides/outbox.md#configuration).
+
+**Upgrading from 2.33:** `composer update`, then `php bin/console
+queue:table` and `migrate`. Drain the queue first, or `queue:retry` the
+jobs refused for having no nonce.
 
 ## 2.33.0 — 2026-11-21
 

@@ -159,6 +159,13 @@ checked, as before. Messages recorded before 2.20 are unsigned: set
 an unsigned row is trusted as before, so keep that window short. The
 signature covers the message, not its row: a copied message is delivered
 again, which the inbox's deduplication absorbs for handlers that use it.
+**So a handler that must not run twice for one event, such as one that
+charges, issues tickets or sends mail, goes through `Inbox::once()`** with
+the event's id, as [above](#delivery-and-the-inbox): the id is inside the
+signed message, so a copied row cannot change it. A handler without the
+inbox runs again for every copy. (The queue refuses copies itself since
+2.34; the outbox leaves it to the inbox, which retries and providers need
+anyway.)
 
 `check` reports an error when the outbox table cannot be read. It warns
 when a message has waited longer than `warn_after`, and when messages have

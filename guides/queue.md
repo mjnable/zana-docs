@@ -113,8 +113,24 @@ php bin/zana queue:retry 12 13      # or: queue:retry all
   them run while the queue drains, set `queue.accept_unsigned` to `true`,
   then remove it: `check` warns while it is on. While it is on, an
   unsigned row is trusted as before 2.20, so keep that window short.
-- **What the signature does not cover:** it signs the job, not its row.
-  Someone who can write to the jobs table can copy a job, which then runs
-  again; they cannot create or change one.
+- **Copies of a job are refused (2.34),** once `queue:table` has written the
+  2.34 migration and `migrate` has run it. Someone who can write to the jobs
+  table cannot create or change a job, but before 2.34 could copy one, which
+  then ran again: a payment confirmed twice. Now each job is signed with a
+  nonce and the time it was issued:
+  - the nonce is unique among waiting jobs, so a copy cannot be added beside
+    its job, and it is recorded in `zana_jobs_done` when the job ran, so a
+    copy added later is refused, whichever of the two runs first;
+  - a job issued longer ago than `queue.replay_window` (30 days, in seconds:
+    `2592000`) is refused, as its record may be gone: set the window above
+    your longest delay;
+  - a job signed before 2.34 carries no nonce, and is refused.
+
+  Each refused job goes to the failed jobs with the reason, and
+  `queue:retry` signs it again with a fresh nonce: a retry is yours to
+  decide. `check` warns (`queue.payload_replay`) while jobs are signed and
+  the migration has not run. Upgrading: run `queue:table`, which writes only
+  the missing migration, then `migrate`; drain the queue first, or retry the
+  jobs refused for having no nonce.
 
 Reference: the [queue README](https://github.com/mjnable/zana-queue).
