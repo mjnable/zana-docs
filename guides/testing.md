@@ -107,6 +107,10 @@ final class ArchitectureTest extends TestCase
   - presentation never uses the domain or infrastructure.
 - **Between modules:** only `Contracts` may be used.
 - **Extending:** `->allow('Domain', 'Brick\Money')` lets a layer use more.
+- **A shared kernel (2.30):** `->sharedKernel('Modules\Shared\Contracts')`,
+  or `ModuleRules::forApplication($app)`, which reads
+  `architecture.shared_kernel` as `check` does; see
+  [modules](../cookbook/modules.md#new-in-230-a-shared-kernel).
 - **Reports:** a violation names the file, the line, the dependency and
   the rule.
 - **Other rules:** `ArchitectureRule::classesIn(...)` with

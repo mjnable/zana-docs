@@ -39,6 +39,39 @@ that declares the other as a dependency. These rules are not a convention
 you have to remember: an architecture test enforces them
 ([section 6](#6-testing-by-layer)).
 
+### New in 2.30: a shared kernel
+
+A few values belong to every module: money, a clock, a public code. Declare
+one module's `Contracts` as the shared kernel, and every layer of every
+module may use it, Domain and Contracts included:
+
+```php
+// config/architecture.php
+return [
+    'shared_kernel' => ['Modules\Shared\Contracts'],
+];
+```
+
+- **What goes in it: values,** not services. The kernel itself may depend
+  only on plain PHP, `zana/ddd` and the other kernels; never on a module, a
+  logger or a database. Each type in it couples every module to it, so keep
+  it small.
+- **Its implementations,** such as a system clock behind a `Clock`
+  interface, live in its module's `Infrastructure`, under the ordinary rules.
+- **Only a module's `Contracts`** can be the kernel. Naming another layer,
+  or part of a `Contracts` namespace, is an error in `check`: the kernel is a
+  named exception, not a way into a module's internals.
+- **Another module's `Contracts`** are still refused in a Domain; the hint
+  says when the kernel is what you meant.
+- `check` reads the setting, and so does
+  `ModuleRules::forApplication($app)` in your own architecture test, so the
+  two agree. Without it, the rules are those of before 2.30.
+
+**Tests across modules,** such as a purchase from the order to the payment,
+go in the application's `tests/` (for example `tests/Flows`), not in a
+module's `Tests/`: a module's tests follow its rules, and a flow is the
+application's.
+
 ## 2. A feature, from the inside out
 
 ### The domain
@@ -580,7 +613,8 @@ final class ArchitectureTest extends TestCase
 3. Add use cases with `make:feature`. They are wired into the module
    automatically.
 4. Need another module? Declare it in `dependsOn()`, and use its
-   `Contracts` only.
+   `Contracts` only. Values every module shares go in the
+   [shared kernel](#new-in-230-a-shared-kernel).
 5. Add persistence (a migration and a repository) and presentations.
 6. Run the tests: the architecture test checks the new module from the
    first commit.

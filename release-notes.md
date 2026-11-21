@@ -18,10 +18,29 @@ who may reach it, 2.22 attacks every route to see what it does, and 2.23
 records who may reach each route, so every change is reviewed, 2.24
 reads what spam a form was sent, 2.25 asks a CAPTCHA provider, 2.26
 makes limits hold under concurrent requests, 2.27 tests that one user's
-records stay theirs, 2.28 closes three documented limits, and 2.29 the
-spam rules' race.
+records stay theirs, 2.28 closes three documented limits, 2.29 the
+spam rules' race, and 2.30 adds a shared kernel.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
+
+## 2.30.0 — Unreleased
+
+A shared kernel that every module may use.
+
+- **testing, console:** declare one module's `Contracts` as the shared
+  kernel in `config/architecture.php` (`shared_kernel`), and every layer of
+  every module may use its values, Domain and Contracts included: money, a
+  clock, codes. The kernel itself may use only plain PHP and `zana/ddd`.
+  `check` reads the setting, and so does `ModuleRules::forApplication()` in
+  an application's own test.
+- **Skeletons:** `config/architecture.php`, with the setting commented out;
+  `AGENTS.md` says what belongs in the kernel.
+- **Docs:** where tests across modules go.
+
+See [modules](cookbook/modules.md#new-in-230-a-shared-kernel).
+
+**Upgrading from 2.29:** `composer update`. Without the setting, the rules
+are those of before.
 
 ## 2.29.1 — 2026-11-21
 
