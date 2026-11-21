@@ -1,7 +1,7 @@
 # Zana documentation
 
-> **These pages document Zana 2.26, the latest release.** Each minor
-> version has its own branch, e.g. [`2.25`](https://github.com/mjnable/zana-docs/tree/2.25).
+> **These pages document Zana 2.27, the latest release.** Each minor
+> version has its own branch, e.g. [`2.26`](https://github.com/mjnable/zana-docs/tree/2.26).
 
 Zana is a modular PHP framework for business applications. You build an
 application from **modules**: self-contained features with their own
@@ -14,9 +14,9 @@ domain, use cases, persistence and presentations. Zana gives them:
 - **Tools that keep modules apart:** contracts between modules, and
   architecture tests that enforce the boundaries.
 
-Zana 2 requires PHP 8.5 or later. **Status:** `2.26.0`, released on
-2026-11-20: rate limits and single-use tokens that hold when requests
-arrive at the same instant, on caches that add and count atomically. See the [release notes](release-notes.md).
+Zana 2 requires PHP 8.5 or later. **Status:** `2.27.0`, released on
+2026-11-21: tests that one user cannot reach another's records, on every
+route with a record of theirs. See the [release notes](release-notes.md).
 
 ## Start here
 
