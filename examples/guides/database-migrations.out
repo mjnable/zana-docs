@@ -1,0 +1,7 @@
+Ran Docs\Migrations\Version20261124110000
+Ran Docs\Migrations\Version20261124120000
+  notice: 1 case study to change.
+gnsdrc: Rewritten by an editor.
+minscom: The site first went live in July 2024, and its new version in November 2026.
+Irreversible: Docs\Migrations\Version20261124120000
+Cannot roll back Docs\Migrations\Version20261124120000: it has no down(), so it cannot be undone. Nothing was rolled back.

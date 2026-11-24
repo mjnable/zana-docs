@@ -372,7 +372,10 @@ rolled-back booking never sends a notification.
 Each module owns its tables. Its migrations live in
 `Infrastructure/Persistence/Migrations`, run with `php bin/zana migrate`,
 and its repositories implement the domain's interfaces with
-[zana/database](../guides/database.md):
+[zana/database](../guides/database.md). The clinic's migrations are Zana
+migration files, as written before 2.37. They keep running, and since 2.37
+`make:migration` writes Doctrine migration classes beside them (see
+[Migrations](../guides/database.md#migrations)):
 
 <!-- example: examples/cookbook/clinic/modules/Appointments/Infrastructure/Persistence/Migrations/2026_01_01_000001_create_appointments_table.php -->
 ```php

@@ -99,25 +99,16 @@ return [
 - **A SQLite file** is made on first use, and since 2.27.1 its folder too
   (`var/` above).
 - **Migrations:** they live in `database/migrations` and in each module's
-  `Infrastructure/Persistence/Migrations`. Each file returns a
-  `Migration`:
-
-  ```php
-  return new class () extends Migration {
-      public function up(Schema $schema): void { $schema->create('clinics', fn (Blueprint $t) => $t->id()); }
-      public function down(Schema $schema): void { $schema->drop('clinics'); }
-  };
-  ```
+  `Infrastructure/Persistence/Migrations`, and run on Doctrine Migrations
+  since 2.37. See [Migrations](#migrations) below.
 
   ```
   php bin/zana make:migration create_clinics_table [--path=modules/Clinics/Infrastructure/Persistence/Migrations]
+  php bin/zana make:migration add_launch_dates --data
   php bin/zana migrate
   php bin/zana migrate:status
   php bin/zana migrate:rollback --step=1
   ```
-
-  Migrations run in file-name order across all paths. A batch runs in one
-  transaction on SQLite and PostgreSQL; MySQL cannot roll back DDL.
 - **Unit of work:** `UnitOfWorkInterface` (from [ddd](ddd.md)) resolves, per
   scope, to a transactional unit of work on the default connection:
 
@@ -129,6 +120,286 @@ return [
       return $order;
   });
   ```
+
+## Migrations
+
+Since 2.37, migrations run on [Doctrine Migrations](https://www.doctrine-project.org/projects/migrations.html),
+as in Symfony, so a migration can change data as well as the schema. Zana keeps its own commands, its
+`check` and `inspect` findings, and its record of what ran (`zana_migrations`).
+
+Two kinds of migration live side by side, in the same directories:
+
+- **Zana migration files** (`2026_11_01_120000_create_case_studies.php`),
+  written before 2.37. They keep running as they are, and what ran is still
+  known: nothing needs converting.
+- **Doctrine migration classes** (`Version20261124120000.php`), which
+  `make:migration` writes since 2.37. A class extends
+  `Doctrine\Migrations\AbstractMigration`. Its namespace follows your
+  `composer.json` autoload, or the directory's path.
+
+They run together, in the order of the date in their name.
+
+<!-- example: examples/guides/migrations/earlier/2026_11_01_120000_create_case_studies.php -->
+```php
+<?php
+
+declare(strict_types=1);
+
+use Zana\Database\Migration\Migration;
+use Zana\Database\Schema\Blueprint;
+use Zana\Database\Schema\Schema;
+
+// A migration written before 2.37: it keeps running as it is.
+return new class () extends Migration {
+    public function up(Schema $schema): void
+    {
+        $schema->create('case_studies', static function (Blueprint $t): void {
+            $t->id();
+            $t->string('slug', 100);
+            $t->text('summary');
+        });
+    }
+
+    public function down(Schema $schema): void
+    {
+        $schema->drop('case_studies');
+    }
+};
+```
+
+### Schema migrations
+
+`make:migration add_launched_on` writes a schema migration. It changes the
+schema through Doctrine DBAL's schema objects, which give the same result on
+SQLite, MySQL and PostgreSQL, or with `$this->addSql()` for what they cannot
+express:
+
+<!-- example: examples/guides/migrations/release/Version20261124110000.php -->
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace Docs\Migrations;
+
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\Migrations\AbstractMigration;
+
+/**
+ * A schema migration, as make:migration add_launched_on writes it, filled in.
+ */
+final class Version20261124110000 extends AbstractMigration
+{
+    public function getDescription(): string
+    {
+        return 'add_launched_on';
+    }
+
+    // A schema change commits the transaction on MySQL and MariaDB anyway.
+    public function isTransactional(): bool
+    {
+        return !$this->platform instanceof AbstractMySQLPlatform;
+    }
+
+    public function up(Schema $schema): void
+    {
+        $schema->getTable('case_studies')->addColumn('launched_on', Types::DATE_MUTABLE, ['notnull' => false]);
+    }
+
+    public function down(Schema $schema): void
+    {
+        $schema->getTable('case_studies')->dropColumn('launched_on');
+    }
+}
+```
+
+A schema migration runs in a transaction on SQLite and PostgreSQL, where a
+schema change can be undone. On MySQL and MariaDB it runs without one,
+because a schema change commits the transaction there anyway. Change no data
+in it: on those databases, data changed alongside could not be undone.
+
+DBAL 4.5 deprecates `createTable()`, `addColumn()` and the other methods
+that change a schema in place. It offers editors instead, but Doctrine
+Migrations cannot pass those to `up()` yet. The methods work, and say they
+are deprecated only when Doctrine's deprecations are switched on. The
+generated migration will change when Doctrine Migrations supports the
+replacement.
+
+### Data migrations
+
+A data migration ships a change to rows with the release that needs it, so
+it runs once on every database, in order with the schema changes, through
+the `migrate` each deployment runs. Typical cases: correcting content
+already in production, filling a new column from others, renaming a stored
+code, or removing rows a bug created. `make:migration add_launch_dates
+--data` writes one:
+
+<!-- example: examples/guides/migrations/release/Version20261124120000.php -->
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace Docs\Migrations;
+
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\Migrations\AbstractMigration;
+
+/**
+ * A data migration, as make:migration add_launch_dates --data writes it, filled in. It runs in a transaction on
+ * every database, and has no down(): it cannot be rolled back.
+ */
+final class Version20261124120000 extends AbstractMigration
+{
+    // Copied in: the migration must give the same result after the code changes.
+    private const string OLD = 'The site went live in November.';
+    private const string NEW = 'The site first went live in July 2024, and its new version in November 2026.';
+
+    public function getDescription(): string
+    {
+        return 'add_launch_dates';
+    }
+
+    public function up(Schema $schema): void
+    {
+        // Read with $this->connection: it runs at once.
+        $found = (int) $this->connection->fetchOne('SELECT COUNT(*) FROM case_studies WHERE summary = ?', [self::OLD]);
+        $this->write("{$found} case study to change.");
+        $this->warnIf($found === 0, 'No case study has the old summary: nothing to change.');
+
+        // Write with addSql(): queued until up() returns, so after every read. Matching the old value leaves a
+        // summary an editor has changed alone, and makes a second run change nothing.
+        $this->addSql('UPDATE case_studies SET summary = ? WHERE summary = ?', [self::NEW, self::OLD]);
+    }
+}
+```
+
+A data migration runs in a transaction on every database, with its line in
+`zana_migrations`, so it changes everything or nothing. It has no `down()`,
+so it cannot be rolled back. To write one:
+
+- **Change no schema in it.** On MySQL and MariaDB a schema change commits
+  the transaction, and the error then says that the statements before it
+  stay applied.
+- **Match the old value**, so a database already changed by hand is left
+  alone and a second run changes nothing.
+- **Pass values as bindings,** never in the SQL.
+- **Read with `$this->connection`, write with `$this->addSql()`.** A query
+  through `$this->connection` runs at once, while `addSql()` is queued until
+  `up()` returns. So a read never sees what the same migration's `addSql()`
+  writes, and `$this->connection->insert()` into a table that `addSql()`
+  creates fails, because the table does not exist yet.
+- **Use tables and values copied in,** never repositories, entities or
+  application services. They follow today's code, while the migration must
+  still work on the schema of its own time.
+- **Say what it did:** `$this->write()` and `$this->warnIf()` are shown by
+  `migrate`, and sent to the application's log.
+- **Correct the seed too.** A correction of content that a seed command
+  writes goes in the seed as well, so a new database has it. The migration
+  then finds nothing to change there.
+
+Run in two releases of one application, the migrations above print:
+
+<!-- example: examples/guides/database-migrations.php#run -->
+```php
+// The earlier release: a Zana migration file, then content entered by editors.
+(new Migrator($db, new MigrationRepository($db), [$earlier]))->migrate();
+$db->table('case_studies')->insert([
+    ['slug' => 'minscom', 'summary' => 'The site went live in November.'],
+    ['slug' => 'gnsdrc', 'summary' => 'Rewritten by an editor.'],
+]);
+
+// This release adds a schema migration and a data migration: migrate runs both, after what ran before.
+$migrator = new Migrator($db, new MigrationRepository($db), [$earlier, $release]);
+foreach ($migrator->migrate() as $name) {
+    echo "Ran {$name}\n";
+}
+foreach ($migrator->messages() as $message) {          // what `migrate` shows
+    echo "  {$message['level']}: {$message['message']}\n";
+}
+foreach ($db->table('case_studies')->orderBy('slug')->get() as $row) {
+    echo "{$row['slug']}: {$row['summary']}\n";
+}
+
+echo 'Irreversible: ', implode(', ', $migrator->irreversible()), "\n";
+try {
+    $migrator->rollback();
+} catch (MigrationException $e) {
+    echo $e->getMessage(), "\n";
+}
+```
+
+<!-- example: examples/guides/database-migrations.out -->
+```text
+Ran Docs\Migrations\Version20261124110000
+Ran Docs\Migrations\Version20261124120000
+  notice: 1 case study to change.
+gnsdrc: Rewritten by an editor.
+minscom: The site first went live in July 2024, and its new version in November 2026.
+Irreversible: Docs\Migrations\Version20261124120000
+Cannot roll back Docs\Migrations\Version20261124120000: it has no down(), so it cannot be undone. Nothing was rolled back.
+```
+
+When not to use one: content an editor will change again belongs in the
+back office, recurring work in the [scheduler](scheduler.md), and a backfill
+of many rows in a command that works in batches and can resume.
+
+### Content history is not migration history
+
+`zana_migrations` records which migrations ran. Content that an application
+keeps revisions of, with [audit](audit.md)'s `Revisions`, has a history of its
+own, in `audit_revisions`. A data migration that changes such content records
+the change there too, as an edit in the back office would:
+
+- the text before, unless it is already the latest revision;
+- the text after, with a note naming the migration.
+
+It writes the rows itself, in the table's format (the whole translation as
+JSON, the next `version`, `created_at` as a Unix time), and does not call
+the `Revisions` service. Then the change can be restored from the history.
+
+```php
+$latest = $this->connection->fetchAssociative(
+    'SELECT version, data FROM audit_revisions WHERE type = ? AND record_id = ? AND locale = ? ORDER BY version DESC LIMIT 1',
+    ['case-studies', $id, $locale],
+);
+$version = $latest === false ? 0 : (int) $latest['version'];
+if ($latest === false || json_decode((string) $latest['data'], true) !== $before) {
+    $this->addSql($insert, ['case-studies', $id, $locale, ++$version, json_encode($before, JSON_UNESCAPED_UNICODE), null, time(), null]);
+}
+$this->addSql($insert, ['case-studies', $id, $locale, ++$version, json_encode($after, JSON_UNESCAPED_UNICODE), null, time(), 'Launch dates added (migration Version20261124120000)']);
+```
+
+### Rolling back
+
+`migrate:rollback` reverts the last batch, newest migration first. A
+migration with no `down()` cannot be undone. A batch that holds one is
+refused before any `down()` runs, and nothing changes:
+
+```text
+Cannot roll back Docs\Migrations\Version20261124120000: it has no down(), so it cannot be undone. Nothing was rolled back.
+```
+
+`migrate:status` marks such a migration as irreversible. To undo a data
+change, restore the earlier values from the content history, or write
+another migration.
+
+### Rules for migrations
+
+- **Never rename a Doctrine migration class or change its namespace once it
+  has run.** It is recorded by its full class name. Renamed or moved, it
+  becomes a new, pending migration that runs again, and its old line names
+  a migration whose file is gone (`check` reports it).
+- **Run one `migrate` at a time.** Two runs on one database at the same
+  moment are not serialized. Run migrations from a single deployment step,
+  never from each web server or worker as it starts.
+- **Doctrine's own commands are not available.** `migrations:migrate`, its
+  dry runs and `--write-sql` are not registered: use `migrate`,
+  `migrate:rollback`, `migrate:status`, `check` and `inspect`. A dry run
+  would really run a Zana migration file, whose schema builder executes each
+  statement at once.
 
 ## Rules worth knowing
 

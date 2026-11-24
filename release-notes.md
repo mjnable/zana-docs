@@ -22,10 +22,39 @@ records stay theirs, 2.28 closes three documented limits, 2.29 the
 spam rules' race, 2.30 adds a shared kernel, 2.31 sets the
 known-device cookie for you, 2.32 answers cross-origin requests, 2.33
 closes two more documented limits, 2.34 refuses copied queue jobs,
-2.35 signs the PHP files it writes to `var/cache`, and 2.36 closes two
-limits that 2.35 left.
+2.35 signs the PHP files it writes to `var/cache`, 2.36 closes two
+limits that 2.35 left, and 2.37 runs migrations on Doctrine Migrations,
+so a migration can change data.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
+
+## 2.37.0 — unreleased
+
+Migrations run on Doctrine Migrations, so a release can ship a change to
+data with it, as it ships a change to the schema.
+
+- **database:** `migrate` runs Doctrine migration classes beside the Zana
+  migration files written before. Those keep running unchanged, and what ran
+  is still read from `zana_migrations`: nothing needs converting.
+  - `make:migration` writes a Doctrine class: a schema migration, or with
+    `--data` a data migration, which runs in a transaction on every database
+    and cannot be rolled back.
+  - On MySQL and MariaDB, a data migration that fails leaves no row changed,
+    also after a schema change in the same run.
+  - `migrate:rollback` refuses a batch that holds an irreversible migration
+    before anything runs, and `migrate:status` marks such migrations.
+  - `migrate` shows what migrations say.
+  - `make:migration --path` writes only inside the project.
+
+See [database](guides/database.md#migrations).
+
+**Upgrading from 2.36:** `composer update`. Existing migrations and their
+history need nothing.
+- New migrations are Doctrine classes: never rename one or change its
+  namespace once it has run.
+- Run `migrate` from one deployment step at a time.
+- If your tests assert `make:migration`'s output, they now find a
+  `Version…php` class.
 
 ## 2.36.0 — 2026-11-21
 

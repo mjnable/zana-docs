@@ -12,7 +12,9 @@ composer create-project mj-zana/skeleton-web my-site
 
 The [API skeleton](https://github.com/mjnable/zana-skeleton-api) (2.9)
 deploys the same way, with `release:build --folder=api`; run
-`php bin/console migrate` on the server too.
+`php bin/console migrate` on the server too. Run it from one deployment
+step only: two `migrate` runs on one database at the same moment are not
+serialized ([migrations](guides/database.md#rules-for-migrations)).
 
 ## Before any upload
 
