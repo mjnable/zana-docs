@@ -28,7 +28,7 @@ so a migration can change data.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.37.0 — unreleased
+## 2.37.0 — 2026-11-24
 
 Migrations run on Doctrine Migrations, so a release can ship a change to
 data with it, as it ships a change to the schema.
