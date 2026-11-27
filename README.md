@@ -14,8 +14,8 @@ domain, use cases, persistence and presentations. Zana gives them:
 - **Tools that keep modules apart:** contracts between modules, and
   architecture tests that enforce the boundaries.
 
-Zana 2 requires PHP 8.5 or later. **Status:** `2.37.0`, released on
-2026-11-24: migrations on Doctrine Migrations, so a migration can change data. See the [release notes](release-notes.md).
+Zana 2 requires PHP 8.5 or later. **Status:** `2.37.1`, released on
+2026-11-27: migrations on Doctrine Migrations, so a migration can change data, and their MySQL tables InnoDB. See the [release notes](release-notes.md).
 
 ## Start here
 
