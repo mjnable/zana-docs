@@ -121,6 +121,10 @@ php bin/zana migrate
 php bin/zana idempotency:prune
 ```
 
+`idempotency:install` writes a Zana migration file that returns
+`IdempotencyTableMigration`, so the table's schema stays in the package
+([why](database.md#migrations-that-packages-write)).
+
 ```php
 // config/idempotency.php
 return [

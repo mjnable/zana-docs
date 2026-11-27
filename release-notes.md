@@ -28,6 +28,26 @@ so a migration can change data.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
+## 2.38.0 — unreleased
+
+maker's generators write Doctrine migration classes, as `make:migration`
+does since 2.37.
+
+- **maker:** `make:repository`, `make:crud` and `make:plan` write
+  `Version…php` classes, with the same tables as before. Running one again
+  finds the migration it wrote before, of either kind, and keeps it. A
+  `repository-migration` or `crud-migration` stub you copied into `stubs/`
+  still gives a Zana migration file.
+- **Unchanged on purpose:** `queue:table`, `audit:install-log`,
+  `outbox:install` and `idempotency:install` still write Zana migration
+  files, which return the package's own migration class, so a package's
+  schema stays in the package.
+
+See [database](guides/database.md#migrations-that-packages-write).
+
+**Upgrading from 2.37:** `composer update`. Nothing else: migrations you
+generated before keep running, and are found again by the generators.
+
 ## 2.37.0 — 2026-11-24
 
 Migrations run on Doctrine Migrations, so a release can ship a change to

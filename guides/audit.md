@@ -92,6 +92,10 @@ php bin/zana audit:install-log
 php bin/zana migrate
 ```
 
+`audit:install-log` writes a Zana migration file that returns
+`AuditLogMigration`, so the tables' schema stays in the package
+([why](database.md#migrations-that-packages-write)).
+
 With [security](security.md) and [events](events.md), sign-ins, failed
 sign-ins, sign-outs and password resets are recorded:
 

@@ -133,7 +133,8 @@ Two kinds of migration live side by side, in the same directories:
   written before 2.37. They keep running as they are, and what ran is still
   known: nothing needs converting.
 - **Doctrine migration classes** (`Version20261124120000.php`), which
-  `make:migration` writes since 2.37. A class extends
+  `make:migration` writes since 2.37, and [maker](maker.md)'s
+  `make:repository`, `make:crud` and `make:plan` since 2.38. A class extends
   `Doctrine\Migrations\AbstractMigration`. Its namespace follows your
   `composer.json` autoload, or the directory's path.
 
@@ -400,6 +401,22 @@ another migration.
   `migrate:rollback`, `migrate:status`, `check` and `inspect`. A dry run
   would really run a Zana migration file, whose schema builder executes each
   statement at once.
+- **MySQL tables are InnoDB with utf8mb4,** whether a Zana file or a
+  Doctrine migration's schema objects create them (2.37.1). A table created
+  with `addSql()` takes what its SQL says.
+
+### Migrations that packages write
+
+`queue:table`, `audit:install-log`, `outbox:install` and
+`idempotency:install` write Zana migration files, the one exception to
+"new migrations are Doctrine classes". Each file has one line,
+`return new \Zana\Queue\QueueTablesMigration();`, so the package keeps its
+tables' schema in one place, its own class, and an application gets a change
+to it with the package. Running one again writes nothing it wrote before.
+
+maker's generators follow the rule. `make:repository`, `make:crud` and
+`make:plan` find a migration they wrote before, of either kind, and keep it,
+so running them again never writes a second migration for a table.
 
 ## Rules worth knowing
 

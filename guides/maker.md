@@ -144,7 +144,7 @@ installed Zana version, plus `CLAUDE.md` and
 | `make:feature <Module> <Feature> --field=title:string --field=pages:?int` | The command (or, with `--query`, the query) with typed fields; a required text must not be blank |
 | `make:feature … --http` | Also its API action and route (`POST /api/<module>/<feature>`, `GET` for a query), the module's `ApiInput`, and an HTTP test |
 | `make:value-object <Module> <Name> [--type=string\|int\|float]` | A value object with an example rule, and its test |
-| `make:repository <Module> <Entity>` | The entity's database repository, with optimistic versions, its migration and its registration |
+| `make:repository <Module> <Entity>` | The entity's database repository, with optimistic versions, its migration (a Doctrine class since 2.38, see [migrations](database.md#migrations-that-packages-write)) and its registration |
 
 Field types are `string`, `int`, `float` and `bool`, and `?type` makes a
 field optional. The generated tests pass as generated, except the handler

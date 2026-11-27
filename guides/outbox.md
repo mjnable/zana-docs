@@ -135,6 +135,10 @@ php bin/zana outbox:install
 php bin/zana migrate
 ```
 
+`outbox:install` writes a Zana migration file that returns
+`OutboxTablesMigration`, so the tables' schema stays in the package
+([why](database.md#migrations-that-packages-write)).
+
 ```php
 // config/outbox.php
 return [

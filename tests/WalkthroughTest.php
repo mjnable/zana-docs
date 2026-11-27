@@ -33,7 +33,7 @@ final class WalkthroughTest extends TestCase
         'Domain/Book.php',
         'Domain/BookRepositoryInterface.php',
         'Infrastructure/Persistence/DatabaseBookRepository.php',
-        'Infrastructure/Persistence/Migrations/create_books_table.php',
+        'Infrastructure/Persistence/Migrations/Version.php',
         'Application/Features/AddBook/AddBookHandler.php',
         'Application/Features/ListBooks/ListBooksHandler.php',
         'Tests/Application/AddBookHandlerTest.php',
@@ -149,7 +149,8 @@ final class WalkthroughTest extends TestCase
         $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator("{$base}/modules", \FilesystemIterator::SKIP_DOTS));
         foreach ([...iterator_to_array($iterator, false), new \SplFileInfo("{$base}/config/modules.php")] as $file) {
             $relative = substr(str_replace('\\', '/', $file->getPathname()), strlen($base) + 1);
-            $files[(string) preg_replace('/\d{4}_\d{2}_\d{2}_\d{6}_/', '', $relative)] = str_replace("\r\n", "\n", (string) file_get_contents($file->getPathname()));
+            // A migration is named after the moment it was made: a Zana file before 2.38, a Doctrine class since (FE-84).
+            $files[(string) preg_replace(['/\d{4}_\d{2}_\d{2}_\d{6}_/', '/Version\d{14}(?=\.php$)/'], ['', 'Version'], $relative)] = str_replace("\r\n", "\n", (string) file_get_contents($file->getPathname()));
         }
         ksort($files);
 

@@ -84,6 +84,10 @@ php bin/zana queue:failed
 php bin/zana queue:retry 12 13      # or: queue:retry all
 ```
 
+`queue:table` writes Zana migration files that return `QueueTablesMigration`
+and `QueueReplayMigration`, so the tables' schema stays in the package
+([why](database.md#migrations-that-packages-write)).
+
 - **`sync`:** runs each job inside `dispatch()`, once, and rethrows its
   failure. Handy in development and tests.
 - **`database`:** reserves jobs with a conditional update inside a
