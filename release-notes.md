@@ -28,6 +28,18 @@ so a migration can change data.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
+## 2.37.1 — 2026-11-27
+
+- **database:** on MySQL and MariaDB, a table a Doctrine migration creates
+  through schema objects is InnoDB with utf8mb4, as the schema builder's
+  tables always were. It took the server's default engine, so where that is
+  MyISAM, as on WAMP, its foreign keys were not enforced, its cascades did
+  not run, and it had no transactions.
+
+**Upgrading from 2.37.0:** `composer update`. A table that a Doctrine
+migration created on 2.37.0 keeps its engine: on MySQL, check it with
+`SHOW TABLE STATUS`, and change it with `ALTER TABLE … ENGINE=InnoDB`.
+
 ## 2.37.0 — 2026-11-24
 
 Migrations run on Doctrine Migrations, so a release can ship a change to

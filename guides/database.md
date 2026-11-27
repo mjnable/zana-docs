@@ -400,6 +400,9 @@ another migration.
   `migrate:rollback`, `migrate:status`, `check` and `inspect`. A dry run
   would really run a Zana migration file, whose schema builder executes each
   statement at once.
+- **MySQL tables are InnoDB with utf8mb4,** whether a Zana file or a
+  Doctrine migration's schema objects create them (2.37.1). A table created
+  with `addSql()` takes what its SQL says.
 
 ## Rules worth knowing
 
