@@ -24,11 +24,12 @@ known-device cookie for you, 2.32 answers cross-origin requests, 2.33
 closes two more documented limits, 2.34 refuses copied queue jobs,
 2.35 signs the PHP files it writes to `var/cache`, 2.36 closes two
 limits that 2.35 left, 2.37 runs migrations on Doctrine Migrations,
-so a migration can change data, and 2.38 has maker write them.
+so a migration can change data, 2.38 has maker write them, and
+2.39 serializes two `migrate` runs on one database.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.39.0 — unreleased
+## 2.39.0 — 2026-11-28
 
 Two `migrate` runs on one database are serialized.
 
