@@ -393,9 +393,23 @@ another migration.
   has run.** It is recorded by its full class name. Renamed or moved, it
   becomes a new, pending migration that runs again, and its old line names
   a migration whose file is gone (`check` reports it).
-- **Run one `migrate` at a time.** Two runs on one database at the same
-  moment are not serialized. Run migrations from a single deployment step,
-  never from each web server or worker as it starts.
+- **One `migrate` at a time (2.39).** Two runs on one database are
+  serialized: `migrate`, `migrate:rollback` and a reset each hold a lock on
+  the database from start to end, and read what is pending only once they
+  hold it. A second run waits up to `database.migrations.lock_timeout`
+  seconds (60 by default), then runs what is left, usually nothing. Past the
+  limit it stops with "Another migrate is running on this database", and
+  nothing run. `0` does not wait. Two databases never share a lock.
+
+  ```php
+  // config/database.php
+  'migrations' => ['lock_timeout' => 60],
+  ```
+
+  On MySQL and MariaDB the lock is `GET_LOCK()`, on PostgreSQL an advisory
+  lock, each on a connection of its own; on SQLite a locked file,
+  `<database>.migrate-lock`, beside the database. A process that dies
+  releases it.
 - **Doctrine's own commands are not available.** `migrations:migrate`, its
   dry runs and `--write-sql` are not registered: use `migrate`,
   `migrate:rollback`, `migrate:status`, `check` and `inspect`. A dry run

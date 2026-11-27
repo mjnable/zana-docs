@@ -28,6 +28,24 @@ so a migration can change data, and 2.38 has maker write them.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
+## 2.39.0 — unreleased
+
+Two `migrate` runs on one database are serialized.
+
+- **database:** `migrate`, `migrate:rollback` and a reset hold a lock on the
+  database for the whole operation, and read what is pending once they hold
+  it. Before, two runs at the same moment both ran each pending migration: a
+  non-transactional one, such as a schema migration on MySQL, ran twice.
+  - A second run waits up to `database.migrations.lock_timeout` seconds, 60
+    by default, then runs what is left. `0` does not wait.
+  - A lock that cannot be taken stops the run: nothing runs without it.
+
+See [database](guides/database.md#rules-for-migrations).
+
+**Upgrading from 2.38:** `composer update`. On SQLite, the lock is a file
+beside the database: the directory must be writable, as it already is for
+SQLite's own journal.
+
 ## 2.38.0 — 2026-11-27
 
 maker's generators write Doctrine migration classes, as `make:migration`
