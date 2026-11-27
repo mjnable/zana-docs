@@ -23,12 +23,12 @@ spam rules' race, 2.30 adds a shared kernel, 2.31 sets the
 known-device cookie for you, 2.32 answers cross-origin requests, 2.33
 closes two more documented limits, 2.34 refuses copied queue jobs,
 2.35 signs the PHP files it writes to `var/cache`, 2.36 closes two
-limits that 2.35 left, and 2.37 runs migrations on Doctrine Migrations,
-so a migration can change data.
+limits that 2.35 left, 2.37 runs migrations on Doctrine Migrations,
+so a migration can change data, and 2.38 has maker write them.
 Every package carries the same version number. Each repository has its
 own `CHANGELOG.md`.
 
-## 2.38.0 — unreleased
+## 2.38.0 — 2026-11-27
 
 maker's generators write Doctrine migration classes, as `make:migration`
 does since 2.37.
